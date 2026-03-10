@@ -5,6 +5,7 @@ import {
   Sun, Moon, Home as HomeIcon, LayoutGrid
 } from 'lucide-react';
 import { motion, AnimatePresence } from 'motion/react';
+import { supabase } from './services/supabaseClient';
 import { AppData, Category, MenuItem, HotelInfo, PhoneNumber } from './types';
 
 type Language = 'fa' | 'en' | 'ar' | 'tr' | 'ku';
@@ -48,10 +49,14 @@ export default function App() {
 
   const fetchData = async () => {
     try {
-      const res = await fetch('/api/data');
-      const json = await res.json();
-      setData(json);
-      const s = json.settings.reduce((acc: any, curr: any) => ({ ...acc, [curr.key]: curr.value }), {});
+      const { data: categories } = await supabase.from('categories').select('*');
+      const { data: items } = await supabase.from('menu_items').select('*');
+      const { data: info } = await supabase.from('hotel_info').select('*');
+      const { data: phones } = await supabase.from('phone_numbers').select('*');
+      const { data: settings } = await supabase.from('settings').select('*');
+      
+      setData({ categories, items, info, phones });
+      const s = settings?.reduce((acc: any, curr: any) => ({ ...acc, [curr.key]: curr.value }), {});
       setSettings(s);
     } catch (e) {
       console.error(e);
@@ -302,11 +307,7 @@ function AdminSection({ isAdmin, onLogin, data, refresh, t, settings }: any) {
 
 function AdminSettings({ settings, refresh, t }: any) {
   const update = async (key: string, value: string) => {
-    await fetch('/api/settings', {
-      method: 'PUT',
-      headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify({ key, value })
-    });
+    await supabase.from('settings').update({ value }).eq('key', key);
     refresh();
   };
 
@@ -334,11 +335,7 @@ function SubNavBtn({ active, onClick, label }: any) {
 
 function AdminInfo({ info, refresh, t }: any) {
   const update = async (key: string, values: any) => {
-    await fetch('/api/info', {
-      method: 'PUT',
-      headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify({ key, ...values })
-    });
+    await supabase.from('hotel_info').update(values).eq('key', key);
     refresh();
   };
 
@@ -363,18 +360,10 @@ function AdminCat({ categories, refresh, t }: any) {
 
   const add = async () => {
     if (editing) {
-      await fetch(`/api/categories/${editing.id}`, {
-        method: 'PUT',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify(newCat)
-      });
+      await supabase.from('categories').update(newCat).eq('id', editing.id);
       setEditing(null);
     } else {
-      await fetch('/api/categories', {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify(newCat)
-      });
+      await supabase.from('categories').insert(newCat);
     }
     setNewCat({ type: 'restaurant', name: '' });
     refresh();
@@ -382,7 +371,7 @@ function AdminCat({ categories, refresh, t }: any) {
 
   const del = async (id: number) => {
     if (confirm('Delete category?')) {
-      await fetch(`/api/categories/${id}`, { method: 'DELETE' });
+      await supabase.from('categories').delete().eq('id', id);
       refresh();
     }
   };
@@ -430,18 +419,10 @@ function AdminItem({ items, categories, refresh, t }: any) {
 
   const add = async () => {
     if (editing) {
-      await fetch(`/api/items/${editing.id}`, {
-        method: 'PUT',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify(newItem)
-      });
+      await supabase.from('menu_items').update(newItem).eq('id', editing.id);
       setEditing(null);
     } else {
-      await fetch('/api/items', {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify(newItem)
-      });
+      await supabase.from('menu_items').insert(newItem);
     }
     setNewItem({ category_id: '', name: '', description: '', price: '', image_url: '' });
     refresh();
@@ -449,7 +430,7 @@ function AdminItem({ items, categories, refresh, t }: any) {
 
   const del = async (id: number) => {
     if (confirm('Delete item?')) {
-      await fetch(`/api/items/${id}`, { method: 'DELETE' });
+      await supabase.from('menu_items').delete().eq('id', id);
       refresh();
     }
   };
@@ -499,18 +480,10 @@ function AdminPhone({ phones, refresh, t }: any) {
 
   const add = async () => {
     if (editing) {
-      await fetch(`/api/phones/${editing.id}`, {
-        method: 'PUT',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify(newPhone)
-      });
+      await supabase.from('phone_numbers').update(newPhone).eq('id', editing.id);
       setEditing(null);
     } else {
-      await fetch('/api/phones', {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify(newPhone)
-      });
+      await supabase.from('phone_numbers').insert(newPhone);
     }
     setNewPhone({ name: '', number: '' });
     refresh();
@@ -518,7 +491,7 @@ function AdminPhone({ phones, refresh, t }: any) {
 
   const del = async (id: number) => {
     if (confirm('Delete phone?')) {
-      await fetch(`/api/phones/${id}`, { method: 'DELETE' });
+      await supabase.from('phone_numbers').delete().eq('id', id);
       refresh();
     }
   };
