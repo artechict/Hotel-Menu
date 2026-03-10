@@ -88,15 +88,15 @@ export default function App() {
 
   const fetchData = async () => {
     try {
-      const storedData = localStorage.getItem('appData_v3');
+      const storedData = localStorage.getItem('appData_v4');
       if (storedData) {
         const parsed = JSON.parse(storedData);
-        setData({ categories: parsed.categories, items: parsed.items, info: parsed.info, phones: parsed.phones });
+        setData({ menus: parsed.menus, categories: parsed.categories, items: parsed.items, info: parsed.info, phones: parsed.phones });
         setSettings(parsed.settings);
       } else {
-        setData({ categories: initialMockData.categories, items: initialMockData.items, info: initialMockData.info, phones: initialMockData.phones });
+        setData({ menus: initialMockData.menus, categories: initialMockData.categories, items: initialMockData.items, info: initialMockData.info, phones: initialMockData.phones });
         setSettings(initialMockData.settings);
-        localStorage.setItem('appData_v3', JSON.stringify(initialMockData));
+        localStorage.setItem('appData_v4', JSON.stringify(initialMockData));
       }
     } catch (e) {
       console.error(e);
@@ -317,7 +317,7 @@ function PhoneSection({ phones, t }: any) {
 
 function AdminSection({ isAdmin, onLogin, data, refresh, t, settings }: any) {
   const [pass, setPass] = useState('');
-  const [activeSub, setActiveSub] = useState<'info' | 'cat' | 'item' | 'phone' | 'settings'>('settings');
+  const [activeSub, setActiveSub] = useState<'info' | 'cat' | 'item' | 'phone' | 'settings' | 'menu'>('settings');
 
   if (!isAdmin) return (
     <div className="max-w-sm mx-auto mt-12 bg-white dark:bg-zinc-900 border border-zinc-200 dark:border-white/10 p-8 rounded-[2.5rem] shadow-2xl text-center transition-colors">
@@ -339,6 +339,7 @@ function AdminSection({ isAdmin, onLogin, data, refresh, t, settings }: any) {
 
       <div className="flex gap-2 overflow-x-auto pb-2 no-scrollbar">
         <SubNavBtn active={activeSub === 'settings'} onClick={() => setActiveSub('settings')} label="Settings" />
+        <SubNavBtn active={activeSub === 'menu'} onClick={() => setActiveSub('menu')} label="Menus" />
         <SubNavBtn active={activeSub === 'info'} onClick={() => setActiveSub('info')} label={t.hotelSettings} />
         <SubNavBtn active={activeSub === 'cat'} onClick={() => setActiveSub('cat')} label={t.catMgmt} />
         <SubNavBtn active={activeSub === 'item'} onClick={() => setActiveSub('item')} label={t.itemMgmt} />
@@ -347,8 +348,9 @@ function AdminSection({ isAdmin, onLogin, data, refresh, t, settings }: any) {
 
       <div className="bg-white dark:bg-zinc-900/50 border border-zinc-200 dark:border-white/10 rounded-[2rem] p-8 shadow-sm transition-colors">
         {activeSub === 'settings' && <AdminSettings settings={settings} refresh={refresh} t={t} />}
+        {activeSub === 'menu' && <AdminMenu menus={data.menus} refresh={refresh} t={t} />}
         {activeSub === 'info' && <AdminInfo info={data.info} refresh={refresh} t={t} />}
-        {activeSub === 'cat' && <AdminCat categories={data.categories} refresh={refresh} t={t} />}
+        {activeSub === 'cat' && <AdminCat categories={data.categories} menus={data.menus} refresh={refresh} t={t} />}
         {activeSub === 'item' && <AdminItem items={data.items} categories={data.categories} refresh={refresh} t={t} />}
         {activeSub === 'phone' && <AdminPhone phones={data.phones} refresh={refresh} t={t} />}
       </div>
@@ -360,9 +362,9 @@ function AdminSettings({ settings, refresh, t }: any) {
   const [localSettings, setLocalSettings] = useState(settings);
 
   const save = async () => {
-    const data = JSON.parse(localStorage.getItem('appData_v2') || '{}');
+    const data = JSON.parse(localStorage.getItem('appData_v4') || '{}');
     data.settings = localSettings;
-    localStorage.setItem('appData_v2', JSON.stringify(data));
+    localStorage.setItem('appData_v4', JSON.stringify(data));
     refresh();
     alert('Settings saved!');
   };
@@ -378,6 +380,61 @@ function AdminSettings({ settings, refresh, t }: any) {
         <input value={localSettings.logo_url} onChange={e => setLocalSettings({...localSettings, logo_url: e.target.value})} className="w-full bg-zinc-50 dark:bg-zinc-950 border border-zinc-200 dark:border-white/10 p-4 rounded-xl" />
       </div>
       <button onClick={save} className="w-full bg-emerald-500 text-white p-4 rounded-xl font-bold">Save Settings</button>
+    </div>
+  );
+}
+
+function AdminMenu({ menus, refresh, t }: any) {
+  const [newMenu, setNewMenu] = useState({ name: '' });
+  const [editing, setEditing] = useState<any>(null);
+
+  const add = async () => {
+    const data = JSON.parse(localStorage.getItem('appData_v4') || '{}');
+    if (editing) {
+      const index = data.menus.findIndex((m: any) => m.id === editing.id);
+      data.menus[index] = { ...newMenu, id: editing.id };
+    } else {
+      data.menus.push({ ...newMenu, id: Date.now() });
+    }
+    localStorage.setItem('appData_v4', JSON.stringify(data));
+    setEditing(null);
+    setNewMenu({ name: '' });
+    refresh();
+  };
+
+  const del = async (id: number) => {
+    if (confirm('Delete menu?')) {
+      const data = JSON.parse(localStorage.getItem('appData_v4') || '{}');
+      data.menus = data.menus.filter((m: any) => m.id !== id);
+      data.categories = data.categories.filter((c: any) => c.menu_id !== id);
+      localStorage.setItem('appData_v4', JSON.stringify(data));
+      refresh();
+    }
+  };
+
+  const edit = (m: any) => {
+    setEditing(m);
+    setNewMenu(m);
+  };
+
+  return (
+    <div className="space-y-8">
+      <div className="grid gap-4 p-6 bg-emerald-500/5 rounded-3xl border border-emerald-500/10">
+        <input placeholder="Menu Name" value={newMenu.name} onChange={e => setNewMenu({...newMenu, name: e.target.value})} className="bg-white dark:bg-zinc-900 border border-zinc-200 dark:border-white/10 p-4 rounded-xl text-sm" />
+        <button onClick={add} className="bg-emerald-500 text-white p-4 rounded-xl font-bold flex items-center justify-center gap-2"><Plus size={20} /> {editing ? 'Update' : t.add}</button>
+      </div>
+
+      <div className="space-y-2">
+        {menus.map((m: any) => (
+          <div key={m.id} className="flex justify-between items-center p-4 bg-zinc-50 dark:bg-zinc-950 rounded-xl border border-zinc-200 dark:border-white/5">
+            <span className="font-bold">{m.name}</span>
+            <div className="flex gap-2">
+              <button onClick={() => edit(m)} className="text-zinc-400 hover:text-emerald-500 transition-colors">Edit</button>
+              <button onClick={() => del(m.id)} className="text-zinc-400 hover:text-red-500 transition-colors"><Trash2 size={18} /></button>
+            </div>
+          </div>
+        ))}
+      </div>
     </div>
   );
 }
@@ -418,29 +475,29 @@ function AdminInfo({ info, refresh, t }: any) {
   );
 }
 
-function AdminCat({ categories, refresh, t }: any) {
-  const [newCat, setNewCat] = useState({ type: 'restaurant', name: '' });
+function AdminCat({ categories, menus, refresh, t }: any) {
+  const [newCat, setNewCat] = useState({ menu_id: '', type: 'restaurant', name: '' });
   const [editing, setEditing] = useState<any>(null);
 
   const add = async () => {
-    const data = JSON.parse(localStorage.getItem('appData_v2') || '{}');
+    const data = JSON.parse(localStorage.getItem('appData_v4') || '{}');
     if (editing) {
       const index = data.categories.findIndex((c: any) => c.id === editing.id);
       data.categories[index] = { ...newCat, id: editing.id };
     } else {
       data.categories.push({ ...newCat, id: Date.now() });
     }
-    localStorage.setItem('appData_v2', JSON.stringify(data));
+    localStorage.setItem('appData_v4', JSON.stringify(data));
     setEditing(null);
-    setNewCat({ type: 'restaurant', name: '' });
+    setNewCat({ menu_id: '', type: 'restaurant', name: '' });
     refresh();
   };
 
   const del = async (id: number) => {
     if (confirm('Delete category?')) {
-      const data = JSON.parse(localStorage.getItem('appData_v2') || '{}');
+      const data = JSON.parse(localStorage.getItem('appData_v4') || '{}');
       data.categories = data.categories.filter((c: any) => c.id !== id);
-      localStorage.setItem('appData_v2', JSON.stringify(data));
+      localStorage.setItem('appData_v4', JSON.stringify(data));
       refresh();
     }
   };
@@ -453,6 +510,10 @@ function AdminCat({ categories, refresh, t }: any) {
   return (
     <div className="space-y-8">
       <div className="grid gap-4 p-6 bg-emerald-500/5 rounded-3xl border border-emerald-500/10">
+        <select value={newCat.menu_id} onChange={e => setNewCat({...newCat, menu_id: parseInt(e.target.value)})} className="bg-white dark:bg-zinc-900 border border-zinc-200 dark:border-white/10 p-4 rounded-xl">
+          <option value="">Select Menu</option>
+          {menus.map((m: any) => <option key={m.id} value={m.id}>{m.name}</option>)}
+        </select>
         <select value={newCat.type} onChange={e => setNewCat({...newCat, type: e.target.value})} className="bg-white dark:bg-zinc-900 border border-zinc-200 dark:border-white/10 p-4 rounded-xl">
           <option value="restaurant">Restaurant</option>
           <option value="cafe">Cafe</option>
@@ -468,7 +529,7 @@ function AdminCat({ categories, refresh, t }: any) {
         {categories.map((c: any) => (
           <div key={c.id} className="flex justify-between items-center p-4 bg-zinc-50 dark:bg-zinc-950 rounded-xl border border-zinc-200 dark:border-white/5">
             <div>
-              <span className="text-[10px] uppercase font-black text-emerald-500 mr-3">{c.type}</span>
+              <span className="text-[10px] uppercase font-black text-emerald-500 mr-3">{menus.find((m: any) => m.id === c.menu_id)?.name} / {c.type}</span>
               <span className="font-bold">{c.name}</span>
             </div>
             <div className="flex gap-2">
@@ -494,14 +555,14 @@ function AdminItem({ items, categories, refresh, t }: any) {
       imageUrl = URL.createObjectURL(file);
     }
 
-    const data = JSON.parse(localStorage.getItem('appData_v2') || '{}');
+    const data = JSON.parse(localStorage.getItem('appData_v4') || '{}');
     if (editing) {
       const index = data.items.findIndex((i: any) => i.id === editing.id);
       data.items[index] = { ...newItem, id: editing.id, image_url: imageUrl };
     } else {
       data.items.push({ ...newItem, id: Date.now(), image_url: imageUrl });
     }
-    localStorage.setItem('appData_v2', JSON.stringify(data));
+    localStorage.setItem('appData_v4', JSON.stringify(data));
     setNewItem({ category_id: '', name: '', description: '', price: '', image_url: '' });
     setFile(null);
     setEditing(null);
@@ -510,9 +571,9 @@ function AdminItem({ items, categories, refresh, t }: any) {
 
   const del = async (id: number) => {
     if (confirm('Delete item?')) {
-      const data = JSON.parse(localStorage.getItem('appData_v2') || '{}');
+      const data = JSON.parse(localStorage.getItem('appData_v4') || '{}');
       data.items = data.items.filter((i: any) => i.id !== id);
-      localStorage.setItem('appData_v2', JSON.stringify(data));
+      localStorage.setItem('appData_v4', JSON.stringify(data));
       refresh();
     }
   };
@@ -562,14 +623,14 @@ function AdminPhone({ phones, refresh, t }: any) {
   const [editing, setEditing] = useState<any>(null);
 
   const add = async () => {
-    const data = JSON.parse(localStorage.getItem('appData_v2') || '{}');
+    const data = JSON.parse(localStorage.getItem('appData_v4') || '{}');
     if (editing) {
       const index = data.phones.findIndex((p: any) => p.id === editing.id);
       data.phones[index] = { ...newPhone, id: editing.id };
     } else {
       data.phones.push({ ...newPhone, id: Date.now() });
     }
-    localStorage.setItem('appData_v2', JSON.stringify(data));
+    localStorage.setItem('appData_v4', JSON.stringify(data));
     setEditing(null);
     setNewPhone({ name: '', number: '' });
     refresh();
@@ -577,9 +638,9 @@ function AdminPhone({ phones, refresh, t }: any) {
 
   const del = async (id: number) => {
     if (confirm('Delete phone?')) {
-      const data = JSON.parse(localStorage.getItem('appData_v2') || '{}');
+      const data = JSON.parse(localStorage.getItem('appData_v4') || '{}');
       data.phones = data.phones.filter((p: any) => p.id !== id);
-      localStorage.setItem('appData_v2', JSON.stringify(data));
+      localStorage.setItem('appData_v4', JSON.stringify(data));
       refresh();
     }
   };

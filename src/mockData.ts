@@ -17,18 +17,19 @@ export const initialMockData = {
     { id: 4, name: 'Spa', number: '103' },
     { id: 5, name: 'Gym', number: '104' }
   ],
+  menus: [
+    { id: 1, name: 'Main Menu' }
+  ],
   categories: [
-    { id: 1, type: 'restaurant', name: 'Restaurant' },
-    { id: 2, type: 'cafe', name: 'Cafe' }
+    { id: 1, menu_id: 1, name: 'Restaurant' },
+    { id: 2, menu_id: 1, name: 'Cafe' }
   ],
   items: [
-    // Restaurant (Category 1)
     { id: 1, category_id: 1, name: 'Grilled Steak', description: 'Juicy beef steak with vegetables', price: '$25.00', image_url: 'https://picsum.photos/seed/steak/400/400' },
     { id: 2, category_id: 1, name: 'Cheeseburger', description: 'Classic burger with cheese', price: '$15.00', image_url: 'https://picsum.photos/seed/burger/400/400' },
     { id: 3, category_id: 1, name: 'Pasta Carbonara', description: 'Creamy pasta with bacon', price: '$18.00', image_url: 'https://picsum.photos/seed/pasta/400/400' },
     { id: 4, category_id: 1, name: 'Caesar Salad', description: 'Fresh salad with chicken', price: '$12.00', image_url: 'https://picsum.photos/seed/salad/400/400' },
     { id: 5, category_id: 1, name: 'Tomato Soup', description: 'Warm tomato soup', price: '$8.00', image_url: 'https://picsum.photos/seed/soup/400/400' },
-    // Cafe (Category 2)
     { id: 6, category_id: 2, name: 'Espresso', description: 'Strong shot of coffee', price: '$3.00', image_url: 'https://picsum.photos/seed/espresso/400/400' },
     { id: 7, category_id: 2, name: 'Latte', description: 'Coffee with steamed milk', price: '$4.50', image_url: 'https://picsum.photos/seed/latte/400/400' },
     { id: 8, category_id: 2, name: 'Cappuccino', description: 'Coffee with foam', price: '$4.50', image_url: 'https://picsum.photos/seed/cappuccino/400/400' },

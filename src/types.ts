@@ -1,7 +1,13 @@
+export interface Menu {
+  id: number;
+  name: string;
+}
+
 export interface Category {
   id: number;
-  type: string;
+  menu_id: number;
   name: string;
+  type: string;
 }
 
 export interface MenuItem {
@@ -14,7 +20,6 @@ export interface MenuItem {
 }
 
 export interface HotelInfo {
-  id: number;
   key: string;
   label: string;
   value: string;
@@ -27,6 +32,7 @@ export interface PhoneNumber {
 }
 
 export interface AppData {
+  menus: Menu[];
   categories: Category[];
   items: MenuItem[];
   info: HotelInfo[];
