@@ -88,7 +88,7 @@ export default function App() {
 
   const fetchData = async () => {
     try {
-      const storedData = localStorage.getItem('appData');
+      const storedData = localStorage.getItem('appData_v2');
       if (storedData) {
         const parsed = JSON.parse(storedData);
         setData({ categories: parsed.categories, items: parsed.items, info: parsed.info, phones: parsed.phones });
@@ -96,7 +96,7 @@ export default function App() {
       } else {
         setData({ categories: initialMockData.categories, items: initialMockData.items, info: initialMockData.info, phones: initialMockData.phones });
         setSettings(initialMockData.settings);
-        localStorage.setItem('appData', JSON.stringify(initialMockData));
+        localStorage.setItem('appData_v2', JSON.stringify(initialMockData));
       }
     } catch (e) {
       console.error(e);
