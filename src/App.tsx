@@ -88,10 +88,16 @@ export default function App() {
 
   const fetchData = async () => {
     try {
-      localStorage.clear();
-      setData({ categories: initialMockData.categories, items: initialMockData.items, info: initialMockData.info, phones: initialMockData.phones });
-      setSettings(initialMockData.settings);
-      localStorage.setItem('appData_v2', JSON.stringify(initialMockData));
+      const storedData = localStorage.getItem('appData_v3');
+      if (storedData) {
+        const parsed = JSON.parse(storedData);
+        setData({ categories: parsed.categories, items: parsed.items, info: parsed.info, phones: parsed.phones });
+        setSettings(parsed.settings);
+      } else {
+        setData({ categories: initialMockData.categories, items: initialMockData.items, info: initialMockData.info, phones: initialMockData.phones });
+        setSettings(initialMockData.settings);
+        localStorage.setItem('appData_v3', JSON.stringify(initialMockData));
+      }
     } catch (e) {
       console.error(e);
     } finally {
@@ -351,23 +357,27 @@ function AdminSection({ isAdmin, onLogin, data, refresh, t, settings }: any) {
 }
 
 function AdminSettings({ settings, refresh, t }: any) {
-  const update = async (key: string, value: string) => {
-    const data = JSON.parse(localStorage.getItem('appData') || '{}');
-    data.settings[key] = value;
-    localStorage.setItem('appData', JSON.stringify(data));
+  const [localSettings, setLocalSettings] = useState(settings);
+
+  const save = async () => {
+    const data = JSON.parse(localStorage.getItem('appData_v2') || '{}');
+    data.settings = localSettings;
+    localStorage.setItem('appData_v2', JSON.stringify(data));
     refresh();
+    alert('Settings saved!');
   };
 
   return (
     <div className="space-y-6">
       <div className="space-y-2">
         <label className="text-xs font-bold text-zinc-500 uppercase">Hotel Name</label>
-        <input defaultValue={settings.hotel_name} onBlur={e => update('hotel_name', e.target.value)} className="w-full bg-zinc-50 dark:bg-zinc-950 border border-zinc-200 dark:border-white/10 p-4 rounded-xl" />
+        <input value={localSettings.hotel_name} onChange={e => setLocalSettings({...localSettings, hotel_name: e.target.value})} className="w-full bg-zinc-50 dark:bg-zinc-950 border border-zinc-200 dark:border-white/10 p-4 rounded-xl" />
       </div>
       <div className="space-y-2">
         <label className="text-xs font-bold text-zinc-500 uppercase">Logo URL</label>
-        <input defaultValue={settings.logo_url} onBlur={e => update('logo_url', e.target.value)} className="w-full bg-zinc-50 dark:bg-zinc-950 border border-zinc-200 dark:border-white/10 p-4 rounded-xl" />
+        <input value={localSettings.logo_url} onChange={e => setLocalSettings({...localSettings, logo_url: e.target.value})} className="w-full bg-zinc-50 dark:bg-zinc-950 border border-zinc-200 dark:border-white/10 p-4 rounded-xl" />
       </div>
+      <button onClick={save} className="w-full bg-emerald-500 text-white p-4 rounded-xl font-bold">Save Settings</button>
     </div>
   );
 }
@@ -381,27 +391,29 @@ function SubNavBtn({ active, onClick, label }: any) {
 }
 
 function AdminInfo({ info, refresh, t }: any) {
-  const update = async (key: string, values: any) => {
-    const data = JSON.parse(localStorage.getItem('appData') || '{}');
-    const infoIndex = data.info.findIndex((i: any) => i.key === key);
-    if (infoIndex !== -1) {
-      data.info[infoIndex] = { ...data.info[infoIndex], ...values };
-      localStorage.setItem('appData', JSON.stringify(data));
-    }
+  const [localInfo, setLocalInfo] = useState(info);
+
+  const save = async () => {
+    const data = JSON.parse(localStorage.getItem('appData_v2') || '{}');
+    data.info = localInfo;
+    localStorage.setItem('appData_v2', JSON.stringify(data));
     refresh();
+    alert('Info saved!');
   };
 
   return (
     <div className="space-y-8">
-      {info.map((item: any) => (
+      {localInfo.map((item: any, index: number) => (
         <div key={item.key} className="space-y-4 p-6 bg-zinc-50 dark:bg-zinc-950 rounded-2xl border border-zinc-200 dark:border-white/5">
-          <h4 className="font-bold text-zinc-400 uppercase text-[10px] tracking-widest">{item.label_en}</h4>
-          <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
-            <input defaultValue={item.value_fa} onBlur={e => update(item.key, { value_fa: e.target.value })} className="bg-white dark:bg-zinc-900 border border-zinc-200 dark:border-white/10 p-4 rounded-xl text-sm" placeholder="Persian" />
-            <input defaultValue={item.value_en} onBlur={e => update(item.key, { value_en: e.target.value })} className="bg-white dark:bg-zinc-900 border border-zinc-200 dark:border-white/10 p-4 rounded-xl text-sm" placeholder="English" />
-          </div>
+          <h4 className="font-bold text-zinc-400 uppercase text-[10px] tracking-widest">{item.label}</h4>
+          <input value={item.value} onChange={e => {
+            const newInfo = [...localInfo];
+            newInfo[index].value = e.target.value;
+            setLocalInfo(newInfo);
+          }} className="w-full bg-white dark:bg-zinc-900 border border-zinc-200 dark:border-white/10 p-4 rounded-xl text-sm" />
         </div>
       ))}
+      <button onClick={save} className="w-full bg-emerald-500 text-white p-4 rounded-xl font-bold">Save Info</button>
     </div>
   );
 }
@@ -411,14 +423,14 @@ function AdminCat({ categories, refresh, t }: any) {
   const [editing, setEditing] = useState<any>(null);
 
   const add = async () => {
-    const data = JSON.parse(localStorage.getItem('appData') || '{}');
+    const data = JSON.parse(localStorage.getItem('appData_v2') || '{}');
     if (editing) {
       const index = data.categories.findIndex((c: any) => c.id === editing.id);
       data.categories[index] = { ...newCat, id: editing.id };
     } else {
       data.categories.push({ ...newCat, id: Date.now() });
     }
-    localStorage.setItem('appData', JSON.stringify(data));
+    localStorage.setItem('appData_v2', JSON.stringify(data));
     setEditing(null);
     setNewCat({ type: 'restaurant', name: '' });
     refresh();
@@ -426,9 +438,9 @@ function AdminCat({ categories, refresh, t }: any) {
 
   const del = async (id: number) => {
     if (confirm('Delete category?')) {
-      const data = JSON.parse(localStorage.getItem('appData') || '{}');
+      const data = JSON.parse(localStorage.getItem('appData_v2') || '{}');
       data.categories = data.categories.filter((c: any) => c.id !== id);
-      localStorage.setItem('appData', JSON.stringify(data));
+      localStorage.setItem('appData_v2', JSON.stringify(data));
       refresh();
     }
   };
@@ -482,14 +494,14 @@ function AdminItem({ items, categories, refresh, t }: any) {
       imageUrl = URL.createObjectURL(file);
     }
 
-    const data = JSON.parse(localStorage.getItem('appData') || '{}');
+    const data = JSON.parse(localStorage.getItem('appData_v2') || '{}');
     if (editing) {
       const index = data.items.findIndex((i: any) => i.id === editing.id);
       data.items[index] = { ...newItem, id: editing.id, image_url: imageUrl };
     } else {
       data.items.push({ ...newItem, id: Date.now(), image_url: imageUrl });
     }
-    localStorage.setItem('appData', JSON.stringify(data));
+    localStorage.setItem('appData_v2', JSON.stringify(data));
     setNewItem({ category_id: '', name: '', description: '', price: '', image_url: '' });
     setFile(null);
     setEditing(null);
@@ -498,9 +510,9 @@ function AdminItem({ items, categories, refresh, t }: any) {
 
   const del = async (id: number) => {
     if (confirm('Delete item?')) {
-      const data = JSON.parse(localStorage.getItem('appData') || '{}');
+      const data = JSON.parse(localStorage.getItem('appData_v2') || '{}');
       data.items = data.items.filter((i: any) => i.id !== id);
-      localStorage.setItem('appData', JSON.stringify(data));
+      localStorage.setItem('appData_v2', JSON.stringify(data));
       refresh();
     }
   };
@@ -515,7 +527,7 @@ function AdminItem({ items, categories, refresh, t }: any) {
       <div className="grid gap-4 p-6 bg-emerald-500/5 rounded-3xl border border-emerald-500/10">
         <select value={newItem.category_id} onChange={e => setNewItem({...newItem, category_id: e.target.value})} className="bg-white dark:bg-zinc-900 border border-zinc-200 dark:border-white/10 p-4 rounded-xl">
           <option value="">{t.selectCat}</option>
-          {categories.map((c: any) => <option key={c.id} value={c.id}>{c.name_en} ({c.type})</option>)}
+          {categories.map((c: any) => <option key={c.id} value={c.id}>{c.name} ({c.type})</option>)}
         </select>
         <div className="grid grid-cols-1 gap-2">
           <input placeholder="Name" value={newItem.name} onChange={e => setNewItem({...newItem, name: e.target.value})} className="bg-white dark:bg-zinc-900 border border-zinc-200 dark:border-white/10 p-4 rounded-xl text-sm" />
@@ -550,14 +562,14 @@ function AdminPhone({ phones, refresh, t }: any) {
   const [editing, setEditing] = useState<any>(null);
 
   const add = async () => {
-    const data = JSON.parse(localStorage.getItem('appData') || '{}');
+    const data = JSON.parse(localStorage.getItem('appData_v2') || '{}');
     if (editing) {
       const index = data.phones.findIndex((p: any) => p.id === editing.id);
       data.phones[index] = { ...newPhone, id: editing.id };
     } else {
       data.phones.push({ ...newPhone, id: Date.now() });
     }
-    localStorage.setItem('appData', JSON.stringify(data));
+    localStorage.setItem('appData_v2', JSON.stringify(data));
     setEditing(null);
     setNewPhone({ name: '', number: '' });
     refresh();
@@ -565,9 +577,9 @@ function AdminPhone({ phones, refresh, t }: any) {
 
   const del = async (id: number) => {
     if (confirm('Delete phone?')) {
-      const data = JSON.parse(localStorage.getItem('appData') || '{}');
+      const data = JSON.parse(localStorage.getItem('appData_v2') || '{}');
       data.phones = data.phones.filter((p: any) => p.id !== id);
-      localStorage.setItem('appData', JSON.stringify(data));
+      localStorage.setItem('appData_v2', JSON.stringify(data));
       refresh();
     }
   };
