@@ -416,15 +416,28 @@ function AdminCat({ categories, refresh, t }: any) {
 function AdminItem({ items, categories, refresh, t }: any) {
   const [newItem, setNewItem] = useState({ category_id: '', name: '', description: '', price: '', image_url: '' });
   const [editing, setEditing] = useState<any>(null);
+  const [file, setFile] = useState<File | null>(null);
 
   const add = async () => {
+    let imageUrl = newItem.image_url;
+    if (file) {
+      const fileExt = file.name.split('.').pop();
+      const fileName = `${Math.random()}.${fileExt}`;
+      const { data, error } = await supabase.storage.from('images').upload(fileName, file);
+      if (error) { alert('Upload failed'); return; }
+      const { data: publicUrlData } = supabase.storage.from('images').getPublicUrl(fileName);
+      imageUrl = publicUrlData.publicUrl;
+    }
+
+    const itemData = { ...newItem, image_url: imageUrl };
     if (editing) {
-      await supabase.from('menu_items').update(newItem).eq('id', editing.id);
+      await supabase.from('menu_items').update(itemData).eq('id', editing.id);
       setEditing(null);
     } else {
-      await supabase.from('menu_items').insert(newItem);
+      await supabase.from('menu_items').insert(itemData);
     }
     setNewItem({ category_id: '', name: '', description: '', price: '', image_url: '' });
+    setFile(null);
     refresh();
   };
 
@@ -453,6 +466,7 @@ function AdminItem({ items, categories, refresh, t }: any) {
         </div>
         <input placeholder="Price" value={newItem.price} onChange={e => setNewItem({...newItem, price: e.target.value})} className="bg-white dark:bg-zinc-900 border border-zinc-200 dark:border-white/10 p-4 rounded-xl text-sm" />
         <input placeholder="Image URL" value={newItem.image_url} onChange={e => setNewItem({...newItem, image_url: e.target.value})} className="bg-white dark:bg-zinc-900 border border-zinc-200 dark:border-white/10 p-4 rounded-xl text-sm" />
+        <input type="file" onChange={e => setFile(e.target.files?.[0] || null)} className="bg-white dark:bg-zinc-900 border border-zinc-200 dark:border-white/10 p-4 rounded-xl text-sm" />
         <button onClick={add} className="bg-emerald-500 text-white p-4 rounded-xl font-bold flex items-center justify-center gap-2"><Plus size={20} /> {editing ? 'Update' : t.add}</button>
       </div>
 
