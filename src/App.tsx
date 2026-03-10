@@ -51,8 +51,6 @@ export default function App() {
   const [isAdmin, setIsAdmin] = useState(false);
   const [loading, setLoading] = useState(true);
 
-  const t = UI_STRINGS.en;
-
   useEffect(() => { fetchData(); }, []);
 
   useEffect(() => {
