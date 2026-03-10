@@ -9,7 +9,7 @@ import { supabase } from './services/supabaseClient';
 import { AppData, Category, MenuItem, HotelInfo, PhoneNumber } from './types';
 import { initialMockData } from './mockData';
 
-type Language = 'fa' | 'en' | 'ar' | 'tr' | 'ku';
+type Language = 'en' | 'ar' | 'tr' | 'ku';
 
 const UI_STRINGS = {
   en: {
@@ -19,6 +19,30 @@ const UI_STRINGS = {
     adminTitle: 'Professional Admin Panel', hotelSettings: 'Hotel Settings', catMgmt: 'Category Management', itemMgmt: 'Menu Management', phoneMgmt: 'Contact Management',
     add: 'Add', delete: 'Delete', save: 'Save', name: 'Name', desc: 'Description', price: 'Price', imageUrl: 'Image URL', type: 'Type',
     catName: 'Category Name', itemName: 'Item Name', phoneName: 'Section Name', phoneNumber: 'Number', selectCat: 'Select Category...',
+  },
+  ar: {
+    hotelName: 'فندق رويال', welcome: 'أهلاً بك', info: 'معلومات', restaurant: 'مطعم', cafe: 'مقهى', laundry: 'مغسلة', contact: 'اتصل بنا', admin: 'مدير', home: 'الرئيسية',
+    login: 'تسجيل دخول المدير', password: 'كلمة المرور', enter: 'دخول', logout: 'خروج', workingHours: 'ساعات العمل ومعلومات', internalPhones: 'هواتف داخلية',
+    noItems: 'لا توجد عناصر لعرضها.', callInstruction: 'للاتصال من غرفتك، اطلب الأرقام أعلاه.',
+    adminTitle: 'لوحة تحكم المدير', hotelSettings: 'إعدادات الفندق', catMgmt: 'إدارة الفئات', itemMgmt: 'إدارة القائمة', phoneMgmt: 'إدارة جهات الاتصال',
+    add: 'إضافة', delete: 'حذف', save: 'حفظ', name: 'الاسم', desc: 'الوصف', price: 'السعر', imageUrl: 'رابط الصورة', type: 'النوع',
+    catName: 'اسم الفئة', itemName: 'اسم العنصر', phoneName: 'اسم القسم', phoneNumber: 'الرقم', selectCat: 'اختر فئة...',
+  },
+  tr: {
+    hotelName: 'Royal Otel', welcome: 'Hoş Geldiniz', info: 'Bilgi', restaurant: 'Restoran', cafe: 'Kafe', laundry: 'Çamaşırhane', contact: 'İletişim', admin: 'Yönetici', home: 'Ana Sayfa',
+    login: 'Yönetici Girişi', password: 'Şifre', enter: 'Giriş', logout: 'Çıkış', workingHours: 'Çalışma Saatleri & Bilgi', internalPhones: 'Dahili Telefonlar',
+    noItems: 'Görüntülenecek öğe yok.', callInstruction: 'Odanızdan aramak için yukarıdaki numaraları tuşlayın.',
+    adminTitle: 'Profesyonel Yönetici Paneli', hotelSettings: 'Otel Ayarları', catMgmt: 'Kategori Yönetimi', itemMgmt: 'Menü Yönetimi', phoneMgmt: 'İletişim Yönetimi',
+    add: 'Ekle', delete: 'Sil', save: 'Kaydet', name: 'İsim', desc: 'Açıklama', price: 'Fiyat', imageUrl: 'Resim URL', type: 'Tür',
+    catName: 'Kategori Adı', itemName: 'Öğe Adı', phoneName: 'Bölüm Adı', phoneNumber: 'Numara', selectCat: 'Kategori Seç...',
+  },
+  ku: {
+    hotelName: 'Royal Hotel', welcome: 'Bi xêr hatî', info: 'Agahî', restaurant: 'Restoran', cafe: 'Kafe', laundry: 'Cilşo', contact: 'Têkilî', admin: 'Rêveber', home: 'Malper',
+    login: 'Têketina Rêveber', password: 'Şîfre', enter: 'Têketin', logout: 'Derketin', workingHours: 'Demjimêrên Kar & Agahî', internalPhones: 'Telefonên Navxweyî',
+    noItems: 'Ti tişt ji bo nîşandanê tune.', callInstruction: 'Ji bo gazîkirinê ji odeya xwe, hejmarên li jor lêxin.',
+    adminTitle: 'Panela Rêveberiya Pîşeyî', hotelSettings: 'Mîhengên Otêlê', catMgmt: 'Rêveberiya Kategoriyan', itemMgmt: 'Rêveberiya Menûyê', phoneMgmt: 'Rêveberiya Têkiliyan',
+    add: 'Zêde bike', delete: 'Jê bibe', save: 'Tomar bike', name: 'Nav', desc: 'Danasîn', price: 'Biha', imageUrl: 'URL-ya Wêne', type: 'Cure',
+    catName: 'Navê Kategoriyê', itemName: 'Navê Tiştê', phoneName: 'Navê Beşê', phoneNumber: 'Hejmar', selectCat: 'Kategorî hilbijêre...',
   }
 };
 
@@ -110,7 +134,6 @@ export default function App() {
           <div className="flex items-center gap-2">
             <select value={lang} onChange={e => setLang(e.target.value as Language)} className="p-3 rounded-2xl bg-zinc-100 dark:bg-white/5 text-zinc-600 dark:text-zinc-400 hover:text-emerald-500 transition-all">
               <option value="en">EN</option>
-              <option value="fa">FA</option>
               <option value="ar">AR</option>
               <option value="tr">TR</option>
               <option value="ku">KU</option>
