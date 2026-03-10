@@ -7,6 +7,7 @@ import {
 import { motion, AnimatePresence } from 'motion/react';
 import { supabase } from './services/supabaseClient';
 import { AppData, Category, MenuItem, HotelInfo, PhoneNumber } from './types';
+import { initialMockData } from './mockData';
 
 type Language = 'fa' | 'en' | 'ar' | 'tr' | 'ku';
 
@@ -49,15 +50,16 @@ export default function App() {
 
   const fetchData = async () => {
     try {
-      const { data: categories } = await supabase.from('categories').select('*');
-      const { data: items } = await supabase.from('menu_items').select('*');
-      const { data: info } = await supabase.from('hotel_info').select('*');
-      const { data: phones } = await supabase.from('phone_numbers').select('*');
-      const { data: settings } = await supabase.from('settings').select('*');
-      
-      setData({ categories, items, info, phones });
-      const s = settings?.reduce((acc: any, curr: any) => ({ ...acc, [curr.key]: curr.value }), {});
-      setSettings(s);
+      const storedData = localStorage.getItem('appData');
+      if (storedData) {
+        const parsed = JSON.parse(storedData);
+        setData({ categories: parsed.categories, items: parsed.items, info: parsed.info, phones: parsed.phones });
+        setSettings(parsed.settings);
+      } else {
+        setData({ categories: initialMockData.categories, items: initialMockData.items, info: initialMockData.info, phones: initialMockData.phones });
+        setSettings(initialMockData.settings);
+        localStorage.setItem('appData', JSON.stringify(initialMockData));
+      }
     } catch (e) {
       console.error(e);
     } finally {
@@ -307,7 +309,9 @@ function AdminSection({ isAdmin, onLogin, data, refresh, t, settings }: any) {
 
 function AdminSettings({ settings, refresh, t }: any) {
   const update = async (key: string, value: string) => {
-    await supabase.from('settings').update({ value }).eq('key', key);
+    const data = JSON.parse(localStorage.getItem('appData') || '{}');
+    data.settings[key] = value;
+    localStorage.setItem('appData', JSON.stringify(data));
     refresh();
   };
 
@@ -335,7 +339,12 @@ function SubNavBtn({ active, onClick, label }: any) {
 
 function AdminInfo({ info, refresh, t }: any) {
   const update = async (key: string, values: any) => {
-    await supabase.from('hotel_info').update(values).eq('key', key);
+    const data = JSON.parse(localStorage.getItem('appData') || '{}');
+    const infoIndex = data.info.findIndex((i: any) => i.key === key);
+    if (infoIndex !== -1) {
+      data.info[infoIndex] = { ...data.info[infoIndex], ...values };
+      localStorage.setItem('appData', JSON.stringify(data));
+    }
     refresh();
   };
 
@@ -359,19 +368,24 @@ function AdminCat({ categories, refresh, t }: any) {
   const [editing, setEditing] = useState<any>(null);
 
   const add = async () => {
+    const data = JSON.parse(localStorage.getItem('appData') || '{}');
     if (editing) {
-      await supabase.from('categories').update(newCat).eq('id', editing.id);
-      setEditing(null);
+      const index = data.categories.findIndex((c: any) => c.id === editing.id);
+      data.categories[index] = { ...newCat, id: editing.id };
     } else {
-      await supabase.from('categories').insert(newCat);
+      data.categories.push({ ...newCat, id: Date.now() });
     }
+    localStorage.setItem('appData', JSON.stringify(data));
+    setEditing(null);
     setNewCat({ type: 'restaurant', name: '' });
     refresh();
   };
 
   const del = async (id: number) => {
     if (confirm('Delete category?')) {
-      await supabase.from('categories').delete().eq('id', id);
+      const data = JSON.parse(localStorage.getItem('appData') || '{}');
+      data.categories = data.categories.filter((c: any) => c.id !== id);
+      localStorage.setItem('appData', JSON.stringify(data));
       refresh();
     }
   };
@@ -421,29 +435,29 @@ function AdminItem({ items, categories, refresh, t }: any) {
   const add = async () => {
     let imageUrl = newItem.image_url;
     if (file) {
-      const fileExt = file.name.split('.').pop();
-      const fileName = `${Math.random()}.${fileExt}`;
-      const { data, error } = await supabase.storage.from('images').upload(fileName, file);
-      if (error) { alert('Upload failed'); return; }
-      const { data: publicUrlData } = supabase.storage.from('images').getPublicUrl(fileName);
-      imageUrl = publicUrlData.publicUrl;
+      // In mock mode, we just use a placeholder or the file name as a mock URL
+      imageUrl = URL.createObjectURL(file);
     }
 
-    const itemData = { ...newItem, image_url: imageUrl };
+    const data = JSON.parse(localStorage.getItem('appData') || '{}');
     if (editing) {
-      await supabase.from('menu_items').update(itemData).eq('id', editing.id);
-      setEditing(null);
+      const index = data.items.findIndex((i: any) => i.id === editing.id);
+      data.items[index] = { ...newItem, id: editing.id, image_url: imageUrl };
     } else {
-      await supabase.from('menu_items').insert(itemData);
+      data.items.push({ ...newItem, id: Date.now(), image_url: imageUrl });
     }
+    localStorage.setItem('appData', JSON.stringify(data));
     setNewItem({ category_id: '', name: '', description: '', price: '', image_url: '' });
     setFile(null);
+    setEditing(null);
     refresh();
   };
 
   const del = async (id: number) => {
     if (confirm('Delete item?')) {
-      await supabase.from('menu_items').delete().eq('id', id);
+      const data = JSON.parse(localStorage.getItem('appData') || '{}');
+      data.items = data.items.filter((i: any) => i.id !== id);
+      localStorage.setItem('appData', JSON.stringify(data));
       refresh();
     }
   };
@@ -493,19 +507,24 @@ function AdminPhone({ phones, refresh, t }: any) {
   const [editing, setEditing] = useState<any>(null);
 
   const add = async () => {
+    const data = JSON.parse(localStorage.getItem('appData') || '{}');
     if (editing) {
-      await supabase.from('phone_numbers').update(newPhone).eq('id', editing.id);
-      setEditing(null);
+      const index = data.phones.findIndex((p: any) => p.id === editing.id);
+      data.phones[index] = { ...newPhone, id: editing.id };
     } else {
-      await supabase.from('phone_numbers').insert(newPhone);
+      data.phones.push({ ...newPhone, id: Date.now() });
     }
+    localStorage.setItem('appData', JSON.stringify(data));
+    setEditing(null);
     setNewPhone({ name: '', number: '' });
     refresh();
   };
 
   const del = async (id: number) => {
     if (confirm('Delete phone?')) {
-      await supabase.from('phone_numbers').delete().eq('id', id);
+      const data = JSON.parse(localStorage.getItem('appData') || '{}');
+      data.phones = data.phones.filter((p: any) => p.id !== id);
+      localStorage.setItem('appData', JSON.stringify(data));
       refresh();
     }
   };
