@@ -1,0 +1,531 @@
+import React, { useState, useEffect, useMemo } from 'react';
+import { 
+  Utensils, Coffee, Shirt, Info, Phone, Settings, Plus, Trash2, 
+  Clock, Globe, LogOut, Save, Image as ImageIcon, ChevronLeft, ChevronRight,
+  Sun, Moon, Home as HomeIcon, LayoutGrid
+} from 'lucide-react';
+import { motion, AnimatePresence } from 'motion/react';
+import { AppData, Category, MenuItem, HotelInfo, PhoneNumber } from './types';
+
+type Language = 'fa' | 'en' | 'ar' | 'tr' | 'ku';
+
+const UI_STRINGS = {
+  fa: {
+    hotelName: 'هتل رویال', welcome: 'خوش آمدید', info: 'اطلاعات', restaurant: 'رستوران', cafe: 'کافه', laundry: 'لاندری', contact: 'تماس', admin: 'مدیریت', home: 'خانه',
+    login: 'ورود به پنل', password: 'رمز عبور', enter: 'ورود', logout: 'خروج', workingHours: 'ساعات کاری و اطلاعات', internalPhones: 'شماره‌های داخلی',
+    noItems: 'آیتمی برای نمایش وجود ندارد.', callInstruction: 'برای تماس از تلفن داخل اتاق، شماره‌های بالا را شماره‌گیری نمایید.',
+    adminTitle: 'پنل مدیریت حرفه‌ای', hotelSettings: 'تنظیمات هتل', catMgmt: 'مدیریت دسته‌ها', itemMgmt: 'مدیریت منو', phoneMgmt: 'مدیریت تماس‌ها',
+    add: 'افزودن', delete: 'حذف', save: 'ذخیره', name: 'نام', desc: 'توضیحات', price: 'قیمت', imageUrl: 'آدرس تصویر', type: 'نوع',
+    catName: 'نام دسته', itemName: 'نام آیتم', phoneName: 'نام بخش', phoneNumber: 'شماره', selectCat: 'انتخاب دسته...',
+    langNames: { fa: 'فارسی', en: 'English', ar: 'العربية', tr: 'Türkçe', ku: 'کوردی' }
+  },
+  en: {
+    hotelName: 'Royal Hotel', welcome: 'Welcome', info: 'Info', restaurant: 'Restaurant', cafe: 'Cafe', laundry: 'Laundry', contact: 'Contact', admin: 'Admin', home: 'Home',
+    login: 'Admin Login', password: 'Password', enter: 'Login', logout: 'Logout', workingHours: 'Working Hours & Info', internalPhones: 'Internal Phones',
+    noItems: 'No items to display.', callInstruction: 'To call from your room, dial the numbers above.',
+    adminTitle: 'Professional Admin Panel', hotelSettings: 'Hotel Settings', catMgmt: 'Category Management', itemMgmt: 'Menu Management', phoneMgmt: 'Contact Management',
+    add: 'Add', delete: 'Delete', save: 'Save', name: 'Name', desc: 'Description', price: 'Price', imageUrl: 'Image URL', type: 'Type',
+    catName: 'Category Name', itemName: 'Item Name', phoneName: 'Section Name', phoneNumber: 'Number', selectCat: 'Select Category...',
+    langNames: { fa: 'فارسی', en: 'English', ar: 'العربية', tr: 'Türkçe', ku: 'کوردی' }
+  },
+  ar: {
+    hotelName: 'فندق رويال', welcome: 'أهلاً بك', info: 'معلومات', restaurant: 'مطعم', cafe: 'مقهى', laundry: 'مغسلة', contact: 'اتصال', admin: 'إدارة', home: 'الرئيسية',
+    login: 'دخول الإدارة', password: 'كلمة المرور', enter: 'دخول', logout: 'خروج', workingHours: 'ساعات العمل والمعلومات', internalPhones: 'الهواتف الداخلية',
+    noItems: 'لا توجد عناصر للعرض.', callInstruction: 'للاتصال من غرفتك، اتصل بالأرقام أعلاه.',
+    adminTitle: 'لوحة تحكم احترافية', hotelSettings: 'إعدادات الفندق', catMgmt: 'إدارة الفئات', itemMgmt: 'إدارة القائمة', phoneMgmt: 'إدارة الاتصالات',
+    add: 'إضافة', delete: 'حذف', save: 'حفظ', name: 'الاسم', desc: 'الوصف', price: 'السعر', imageUrl: 'رابط الصورة', type: 'النوع',
+    catName: 'اسم الفئة', itemName: 'اسم العنصر', phoneName: 'اسم القسم', phoneNumber: 'الرقم', selectCat: 'اختر الفئة...',
+    langNames: { fa: 'فارسی', en: 'English', ar: 'العربية', tr: 'Türkçe', ku: 'کوردی' }
+  },
+  tr: {
+    hotelName: 'Royal Otel', welcome: 'Hoş geldiniz', info: 'Bilgi', restaurant: 'Restoran', cafe: 'Kafe', laundry: 'Çamaşırhane', contact: 'İletişim', admin: 'Yönetim', home: 'Ana Sayfa',
+    login: 'Yönetici Girişi', password: 'Şifre', enter: 'Giriş', logout: 'Çıkış', workingHours: 'Çalışma Saatleri ve Bilgi', internalPhones: 'Dahili Telefonlar',
+    noItems: 'Gösterilecek öğe yok.', callInstruction: 'Odanızdan aramak için yukarıdaki numaraları çevirin.',
+    adminTitle: 'Profesyonel Yönetim Paneli', hotelSettings: 'Otel Ayarları', catMgmt: 'Kategori Yönetimi', itemMgmt: 'Menü Yönetimi', phoneMgmt: 'İletişim Yönetimi',
+    add: 'Ekle', delete: 'Sil', save: 'Kaydet', name: 'İsim', desc: 'Açıklama', price: 'Fiyat', imageUrl: 'Resim URL', type: 'Tür',
+    catName: 'Kategori Adı', itemName: 'Öğe Adı', phoneName: 'Bölüm Adı', phoneNumber: 'Numara', selectCat: 'Kategori Seç...',
+    langNames: { fa: 'فارسی', en: 'English', ar: 'العربية', tr: 'Türkçe', ku: 'کوردی' }
+  },
+  ku: {
+    hotelName: 'هوتێل ڕۆیاڵ', welcome: 'بەخێربێن', info: 'زانیاری', restaurant: 'چێشتخانە', cafe: 'کافێ', laundry: 'لاندری', contact: 'پەیوەندی', admin: 'بەڕێوەبردن', home: 'سەرەکی',
+    login: 'چوونەژوورەوەی بەڕێوەبەر', password: 'وشەی نهێنی', enter: 'چوونەژوورەوە', logout: 'چوونەدەرەوە', workingHours: 'کاتەکانی کارکردن و زانیاری', internalPhones: 'تەلەفۆنە ناوخۆییەکان',
+    noItems: 'هیچ بابەتێک نییە بۆ پیشاندان.', callInstruction: 'بۆ پەیوەندیکردن لە ژوورەکەتەوە، ژمارەکانی سەرەوە دابگرە.',
+    adminTitle: 'پانیڵی بەڕێوەبردنی پرۆفیشناڵ', hotelSettings: 'ڕێکخستنەکانی هوتێل', catMgmt: 'بەڕێوەبردنی جۆرەکان', itemMgmt: 'بەڕێوەبردنی مینیو', phoneMgmt: 'بەڕێوەبردنی پەیوەندییەکان',
+    add: 'زیادکردن', delete: 'سڕینەوە', save: 'پاشەکەوتکردن', name: 'ناو', desc: 'وێناکردن', price: 'نرخ', imageUrl: 'بەستەری وێنە', type: 'جۆر',
+    catName: 'ناوی جۆر', itemName: 'ناوی بابەت', phoneName: 'ناوی بەش', phoneNumber: 'ژمارە', selectCat: 'جۆرێک هەڵبژێرە...',
+    langNames: { fa: 'فارسی', en: 'English', ar: 'العربية', tr: 'Türkçe', ku: 'کوردی' }
+  }
+};
+
+export default function App() {
+  const [data, setData] = useState<AppData | null>(null);
+  const [lang, setLang] = useState<Language>('fa');
+  const [activeTab, setActiveTab] = useState<'home' | 'restaurant' | 'cafe' | 'laundry' | 'info' | 'phones' | 'admin'>('home');
+  const [theme, setTheme] = useState<'light' | 'dark'>(() => {
+    if (typeof window !== 'undefined') {
+      return (localStorage.getItem('theme') as 'light' | 'dark') || 'dark';
+    }
+    return 'dark';
+  });
+  const [isAdmin, setIsAdmin] = useState(false);
+  const [loading, setLoading] = useState(true);
+  const [showLangMenu, setShowLangMenu] = useState(false);
+
+  const t = UI_STRINGS[lang];
+  const isRtl = lang === 'fa' || lang === 'ar' || lang === 'ku';
+
+  useEffect(() => { fetchData(); }, []);
+
+  useEffect(() => {
+    localStorage.setItem('theme', theme);
+    if (theme === 'dark') {
+      document.documentElement.classList.add('dark');
+    } else {
+      document.documentElement.classList.remove('dark');
+    }
+  }, [theme]);
+
+  const fetchData = async () => {
+    try {
+      const res = await fetch('/api/data');
+      const json = await res.json();
+      setData(json);
+    } catch (e) {
+      console.error(e);
+    } finally {
+      setLoading(false);
+    }
+  };
+
+  if (loading) return (
+    <div className="min-h-screen bg-zinc-950 flex items-center justify-center">
+      <motion.div animate={{ scale: [1, 1.2, 1], opacity: [0.5, 1, 0.5] }} transition={{ repeat: Infinity, duration: 2 }} className="w-16 h-16 bg-emerald-500 rounded-full shadow-2xl shadow-emerald-500/50" />
+    </div>
+  );
+
+  return (
+    <div className={`min-h-screen transition-colors duration-500 ${theme === 'dark' ? 'bg-zinc-950 text-zinc-100' : 'bg-zinc-50 text-zinc-900'}`} dir={isRtl ? 'rtl' : 'ltr'}>
+      {/* Premium Header */}
+      <header className="sticky top-0 z-50 bg-white/80 dark:bg-zinc-950/80 backdrop-blur-2xl border-b border-zinc-200 dark:border-white/5 px-6 py-4 transition-colors duration-300">
+        <div className="max-w-4xl mx-auto flex justify-between items-center">
+          <div className="flex items-center gap-4">
+            <div className="w-12 h-12 bg-emerald-500 rounded-2xl flex items-center justify-center text-white shadow-lg shadow-emerald-500/20">
+              <Utensils size={24} />
+            </div>
+            <div>
+              <h1 className="text-xl font-black tracking-tight">{t.hotelName}</h1>
+              <p className="text-[10px] text-zinc-500 dark:text-zinc-400 font-bold uppercase tracking-widest">{t.welcome}</p>
+            </div>
+          </div>
+          
+          <div className="flex items-center gap-2">
+            <button onClick={() => setTheme(theme === 'dark' ? 'light' : 'dark')} className="p-3 rounded-2xl bg-zinc-100 dark:bg-white/5 text-zinc-600 dark:text-zinc-400 hover:text-emerald-500 transition-all">
+              {theme === 'dark' ? <Sun size={20} /> : <Moon size={20} />}
+            </button>
+            
+            <div className="relative">
+              <button onClick={() => setShowLangMenu(!showLangMenu)} className="p-3 rounded-2xl bg-zinc-100 dark:bg-white/5 text-zinc-600 dark:text-zinc-400 hover:text-emerald-500 transition-all flex items-center gap-2">
+                <Globe size={20} />
+                <span className="text-xs font-bold uppercase">{lang}</span>
+              </button>
+              <AnimatePresence>
+                {showLangMenu && (
+                  <motion.div initial={{ opacity: 0, y: 10 }} animate={{ opacity: 1, y: 0 }} exit={{ opacity: 0, y: 10 }} className="absolute top-full mt-2 right-0 bg-white dark:bg-zinc-900 border border-zinc-200 dark:border-white/10 rounded-2xl shadow-2xl p-2 min-w-[140px] z-50 overflow-hidden">
+                    {(Object.keys(UI_STRINGS) as Language[]).map(l => (
+                      <button key={l} onClick={() => { setLang(l); setShowLangMenu(false); }} className={`w-full text-right px-4 py-3 rounded-xl text-sm font-medium transition-colors ${lang === l ? 'bg-emerald-500 text-white' : 'hover:bg-zinc-100 dark:hover:bg-white/5'}`}>
+                        {(t.langNames as any)[l]}
+                      </button>
+                    ))}
+                  </motion.div>
+                )}
+              </AnimatePresence>
+            </div>
+            
+            <button onClick={() => setActiveTab('admin')} className={`p-3 rounded-2xl transition-all ${activeTab === 'admin' ? 'bg-emerald-500 text-white' : 'bg-zinc-100 dark:bg-white/5 text-zinc-600 dark:text-zinc-400 hover:text-emerald-500'}`}>
+              <Settings size={20} />
+            </button>
+          </div>
+        </div>
+      </header>
+
+      <main className="max-w-2xl mx-auto p-6 pb-32">
+        <AnimatePresence mode="wait">
+          {activeTab === 'home' && <HomeGrid key="home" setActiveTab={setActiveTab} t={t} />}
+          {activeTab === 'info' && <InfoSection key="info" info={data?.info || []} phones={data?.phones || []} lang={lang} t={t} />}
+          {(activeTab === 'restaurant' || activeTab === 'cafe' || activeTab === 'laundry') && (
+            <MenuSection key={activeTab} type={activeTab} categories={data?.categories.filter(c => c.type === activeTab) || []} items={data?.items || []} lang={lang} t={t} />
+          )}
+          {activeTab === 'phones' && <PhoneSection key="phones" phones={data?.phones || []} lang={lang} t={t} />}
+          {activeTab === 'admin' && <AdminSection key="admin" isAdmin={isAdmin} onLogin={(p: string) => { if(p === 'admin123') setIsAdmin(true); else alert('Wrong password'); }} data={data} refresh={fetchData} lang={lang} t={t} />}
+        </AnimatePresence>
+      </main>
+
+      {/* Modern Bottom Nav */}
+      <nav className="fixed bottom-6 left-6 right-6 bg-white/90 dark:bg-zinc-900/90 backdrop-blur-2xl border border-zinc-200 dark:border-white/10 rounded-3xl px-4 py-3 flex justify-around items-center z-50 shadow-2xl transition-colors duration-300">
+        <NavBtn active={activeTab === 'home'} onClick={() => setActiveTab('home')} icon={<HomeIcon size={20} />} label={t.home} />
+        <NavBtn active={activeTab === 'info'} onClick={() => setActiveTab('info')} icon={<Info size={20} />} label={t.info} />
+        <NavBtn active={activeTab === 'restaurant'} onClick={() => setActiveTab('restaurant')} icon={<Utensils size={20} />} label={t.restaurant} />
+        <NavBtn active={activeTab === 'cafe'} onClick={() => setActiveTab('cafe')} icon={<Coffee size={20} />} label={t.cafe} />
+        <NavBtn active={activeTab === 'laundry'} onClick={() => setActiveTab('laundry')} icon={<Shirt size={20} />} label={t.laundry} />
+        <NavBtn active={activeTab === 'phones'} onClick={() => setActiveTab('phones')} icon={<Phone size={20} />} label={t.contact} />
+      </nav>
+    </div>
+  );
+}
+
+function HomeGrid({ setActiveTab, t }: any) {
+  const tiles = [
+    { id: 'info', icon: <Info size={32} />, label: t.info, color: 'from-blue-500 to-blue-600', img: 'https://images.unsplash.com/photo-1566073771259-6a8506099945?auto=format&fit=crop&w=400&q=80' },
+    { id: 'restaurant', icon: <Utensils size={32} />, label: t.restaurant, color: 'from-orange-500 to-orange-600', img: 'https://images.unsplash.com/photo-1514362545857-3bc16c4c7d1b?auto=format&fit=crop&w=400&q=80' },
+    { id: 'cafe', icon: <Coffee size={32} />, label: t.cafe, color: 'from-amber-500 to-amber-600', img: 'https://images.unsplash.com/photo-1495474472287-4d71bcdd2085?auto=format&fit=crop&w=400&q=80' },
+    { id: 'laundry', icon: <Shirt size={32} />, label: t.laundry, color: 'from-indigo-500 to-indigo-600', img: 'https://images.unsplash.com/photo-1545173168-9f1947eebb7f?auto=format&fit=crop&w=400&q=80' },
+    { id: 'phones', icon: <Phone size={32} />, label: t.contact, color: 'from-emerald-500 to-emerald-600', img: 'https://images.unsplash.com/photo-1534536281715-e28d76689b4d?auto=format&fit=crop&w=400&q=80' },
+  ];
+
+  return (
+    <motion.div initial={{ opacity: 0, y: 20 }} animate={{ opacity: 1, y: 0 }} exit={{ opacity: 0, y: -20 }} className="grid grid-cols-2 gap-4">
+      {tiles.map((tile) => (
+        <motion.button
+          whileHover={{ scale: 1.02 }}
+          whileTap={{ scale: 0.98 }}
+          key={tile.id}
+          onClick={() => setActiveTab(tile.id as any)}
+          className="relative h-48 rounded-[2.5rem] overflow-hidden group shadow-lg"
+        >
+          <img src={tile.img} className="absolute inset-0 w-full h-full object-cover transition-transform duration-700 group-hover:scale-110" referrerPolicy="no-referrer" />
+          <div className={`absolute inset-0 bg-gradient-to-br ${tile.color} opacity-60 group-hover:opacity-40 transition-opacity`} />
+          <div className="absolute inset-0 bg-black/20" />
+          <div className="absolute inset-0 flex flex-col items-center justify-center text-white p-4">
+            <div className="mb-3 p-3 bg-white/20 backdrop-blur-md rounded-2xl">{tile.icon}</div>
+            <span className="text-xl font-black tracking-tight uppercase">{tile.label}</span>
+          </div>
+        </motion.button>
+      ))}
+    </motion.div>
+  );
+}
+
+function NavBtn({ active, onClick, icon, label }: any) {
+  return (
+    <button onClick={onClick} className={`flex flex-col items-center gap-1.5 transition-all relative ${active ? 'text-emerald-500' : 'text-zinc-500 dark:text-zinc-500 hover:text-zinc-800 dark:hover:text-zinc-300'}`}>
+      <div className={`p-2 rounded-xl transition-all ${active ? 'bg-emerald-500/10' : ''}`}>{icon}</div>
+      <span className="text-[9px] font-bold uppercase tracking-wider">{label}</span>
+      {active && <motion.div layoutId="nav-pill" className="absolute -bottom-1 w-1 h-1 bg-emerald-400 rounded-full" />}
+    </button>
+  );
+}
+
+function InfoSection({ info, phones, lang, t }: any) {
+  return (
+    <motion.div initial={{ opacity: 0, y: 20 }} animate={{ opacity: 1, y: 0 }} exit={{ opacity: 0, y: -20 }} className="space-y-8">
+      <div className="relative h-48 rounded-3xl overflow-hidden group shadow-xl">
+        <img src="https://images.unsplash.com/photo-1542314831-068cd1dbfeeb?auto=format&fit=crop&w=800&q=80" className="w-full h-full object-cover transition-transform duration-700 group-hover:scale-110" referrerPolicy="no-referrer" />
+        <div className="absolute inset-0 bg-gradient-to-t from-zinc-950 via-zinc-950/20 to-transparent" />
+        <div className="absolute bottom-6 right-6 left-6">
+          <h2 className="text-2xl font-bold text-white">{t.workingHours}</h2>
+        </div>
+      </div>
+
+      <div className="grid gap-4">
+        {info.map((item: any) => (
+          <div key={item.key} className="bg-white dark:bg-zinc-900/50 border border-zinc-200 dark:border-white/5 p-5 rounded-2xl flex justify-between items-center hover:bg-zinc-50 dark:hover:bg-zinc-900 transition-colors shadow-sm">
+            <span className="text-zinc-500 dark:text-zinc-400 font-medium">{(item as any)[`label_${lang}`]}</span>
+            <span className="font-bold text-emerald-600 dark:text-emerald-400">{(item as any)[`value_${lang}`]}</span>
+          </div>
+        ))}
+      </div>
+
+      <div className="bg-white dark:bg-zinc-900/50 border border-zinc-200 dark:border-white/5 p-6 rounded-3xl space-y-6 shadow-sm">
+        <h3 className="text-lg font-bold flex items-center gap-3 text-zinc-900 dark:text-zinc-100"><Phone size={20} className="text-emerald-500" /> {t.internalPhones}</h3>
+        <div className="grid grid-cols-2 gap-4">
+          {phones.map((p: any) => (
+            <div key={p.id} className="bg-zinc-50 dark:bg-zinc-950 p-4 rounded-2xl border border-zinc-200 dark:border-white/5 flex flex-col items-center gap-1 group hover:border-emerald-500/30 transition-all">
+              <span className="text-[10px] text-zinc-500 uppercase font-bold tracking-widest">{(p as any)[`name_${lang}`]}</span>
+              <span className="text-xl font-black text-zinc-900 dark:text-zinc-100 tracking-widest group-hover:text-emerald-600 dark:group-hover:text-emerald-400 transition-colors">{p.number}</span>
+            </div>
+          ))}
+        </div>
+      </div>
+    </motion.div>
+  );
+}
+
+function MenuSection({ type, categories, items, lang, t }: any) {
+  return (
+    <motion.div initial={{ opacity: 0, x: 20 }} animate={{ opacity: 1, x: 0 }} exit={{ opacity: 0, x: -20 }} className="space-y-12">
+      <div className="flex items-center justify-between px-2">
+        <h2 className="text-3xl font-black tracking-tight text-zinc-900 dark:text-zinc-100">{t[type]}</h2>
+        <div className="h-px flex-1 bg-zinc-200 dark:bg-white/10 mx-6" />
+      </div>
+
+      {categories.length === 0 && <div className="text-center py-20 text-zinc-400 dark:text-zinc-600 font-medium">{t.noItems}</div>}
+
+      {categories.map((cat: any) => (
+        <div key={cat.id} className="space-y-6">
+          <div className="flex items-center gap-3">
+            <div className="w-2 h-8 bg-emerald-500 rounded-full" />
+            <h3 className="text-xl font-bold text-zinc-900 dark:text-zinc-100">{(cat as any)[`name_${lang}`]}</h3>
+          </div>
+          <div className="grid gap-6">
+            {items.filter((i: any) => i.category_id === cat.id).map((item: any) => (
+              <motion.div whileHover={{ y: -4 }} key={item.id} className="bg-white dark:bg-zinc-900/40 border border-zinc-200 dark:border-white/5 rounded-3xl overflow-hidden flex flex-col sm:flex-row group transition-all hover:bg-zinc-50 dark:hover:bg-zinc-900 hover:border-zinc-300 dark:hover:border-white/10 shadow-sm">
+                <div className="w-full sm:w-40 h-40 shrink-0 overflow-hidden">
+                  <img src={item.image_url || `https://picsum.photos/seed/${item.id}/300/300`} className="w-full h-full object-cover transition-transform duration-500 group-hover:scale-110" referrerPolicy="no-referrer" />
+                </div>
+                <div className="p-6 flex flex-col justify-between flex-1">
+                  <div>
+                    <div className="flex justify-between items-start mb-2">
+                      <h4 className="text-lg font-bold text-zinc-900 dark:text-zinc-100">{(item as any)[`name_${lang}`]}</h4>
+                      <span className="text-emerald-600 dark:text-emerald-400 font-black text-lg">{item.price}</span>
+                    </div>
+                    <p className="text-sm text-zinc-500 dark:text-zinc-500 leading-relaxed line-clamp-2">{(item as any)[`description_${lang}`]}</p>
+                  </div>
+                </div>
+              </motion.div>
+            ))}
+          </div>
+        </div>
+      ))}
+    </motion.div>
+  );
+}
+
+function PhoneSection({ phones, lang, t }: any) {
+  return (
+    <motion.div initial={{ opacity: 0, scale: 0.98 }} animate={{ opacity: 1, scale: 1 }} exit={{ opacity: 0, scale: 0.98 }} className="space-y-8">
+      <h2 className="text-3xl font-black px-2 text-zinc-900 dark:text-zinc-100">{t.contact}</h2>
+      <div className="grid gap-4">
+        {phones.map((p: any) => (
+          <div key={p.id} className="bg-white dark:bg-zinc-900/50 border border-zinc-200 dark:border-white/5 p-6 rounded-3xl flex justify-between items-center group hover:bg-zinc-50 dark:hover:bg-zinc-900 transition-all shadow-sm">
+            <div className="flex items-center gap-5">
+              <div className="w-14 h-14 bg-zinc-50 dark:bg-zinc-950 rounded-2xl flex items-center justify-center text-zinc-400 dark:text-zinc-500 group-hover:text-emerald-600 dark:group-hover:text-emerald-400 border border-zinc-200 dark:border-white/5 transition-all">
+                <Phone size={24} />
+              </div>
+              <span className="text-xl font-bold text-zinc-800 dark:text-zinc-200">{(p as any)[`name_${lang}`]}</span>
+            </div>
+            <span className="text-3xl font-black font-mono tracking-[0.2em] text-zinc-900 dark:text-zinc-100 group-hover:text-emerald-600 dark:group-hover:text-emerald-400 transition-colors">{p.number}</span>
+          </div>
+        ))}
+      </div>
+      <div className="p-6 bg-emerald-500/5 border border-emerald-500/10 rounded-3xl text-center">
+        <p className="text-emerald-600 dark:text-emerald-400/80 text-sm font-medium leading-relaxed">{t.callInstruction}</p>
+      </div>
+    </motion.div>
+  );
+}
+
+function AdminSection({ isAdmin, onLogin, data, refresh, lang, t }: any) {
+  const [pass, setPass] = useState('');
+  const [activeSub, setActiveSub] = useState<'info' | 'cat' | 'item' | 'phone'>('info');
+
+  if (!isAdmin) return (
+    <div className="max-w-sm mx-auto mt-12 bg-white dark:bg-zinc-900 border border-zinc-200 dark:border-white/10 p-8 rounded-[2.5rem] shadow-2xl text-center transition-colors">
+      <div className="w-20 h-20 bg-emerald-500 rounded-3xl flex items-center justify-center text-white mx-auto mb-8 shadow-xl shadow-emerald-500/20"><Settings size={40} /></div>
+      <h2 className="text-2xl font-bold mb-8 text-zinc-900 dark:text-zinc-100">{t.login}</h2>
+      <form onSubmit={(e) => { e.preventDefault(); onLogin(pass); }} className="space-y-4">
+        <input type="password" placeholder={t.password} value={pass} onChange={e => setPass(e.target.value)} className="w-full px-6 py-4 rounded-2xl bg-zinc-50 dark:bg-zinc-950 border border-zinc-200 dark:border-white/10 focus:outline-none focus:border-emerald-500 transition-all text-center text-zinc-900 dark:text-zinc-100" />
+        <button className="w-full bg-emerald-500 text-white py-4 rounded-2xl font-bold hover:bg-emerald-600 transition-all shadow-lg shadow-emerald-500/20">{t.enter}</button>
+      </form>
+    </div>
+  );
+
+  return (
+    <div className="space-y-8 pb-12" dir="ltr">
+      <div className="flex justify-between items-center">
+        <h2 className="text-2xl font-black tracking-tight text-zinc-900 dark:text-zinc-100">{t.adminTitle}</h2>
+        <button onClick={() => window.location.reload()} className="p-2 text-zinc-500 hover:text-red-400 transition-colors"><LogOut size={24} /></button>
+      </div>
+
+      <div className="flex gap-2 overflow-x-auto pb-2 no-scrollbar">
+        <SubNavBtn active={activeSub === 'info'} onClick={() => setActiveSub('info')} label={t.hotelSettings} />
+        <SubNavBtn active={activeSub === 'cat'} onClick={() => setActiveSub('cat')} label={t.catMgmt} />
+        <SubNavBtn active={activeSub === 'item'} onClick={() => setActiveSub('item')} label={t.itemMgmt} />
+        <SubNavBtn active={activeSub === 'phone'} onClick={() => setActiveSub('phone')} label={t.phoneMgmt} />
+      </div>
+
+      <div className="bg-white dark:bg-zinc-900/50 border border-zinc-200 dark:border-white/10 rounded-[2rem] p-8 shadow-sm transition-colors">
+        {activeSub === 'info' && <AdminInfo info={data.info} refresh={refresh} t={t} />}
+        {activeSub === 'cat' && <AdminCat categories={data.categories} refresh={refresh} t={t} />}
+        {activeSub === 'item' && <AdminItem items={data.items} categories={data.categories} refresh={refresh} t={t} />}
+        {activeSub === 'phone' && <AdminPhone phones={data.phones} refresh={refresh} t={t} />}
+      </div>
+    </div>
+  );
+}
+
+function SubNavBtn({ active, onClick, label }: any) {
+  return (
+    <button onClick={onClick} className={`px-6 py-3 rounded-xl text-xs font-black uppercase tracking-widest whitespace-nowrap transition-all ${active ? 'bg-emerald-500 text-white shadow-lg shadow-emerald-500/20' : 'bg-zinc-100 dark:bg-white/5 text-zinc-500 dark:text-zinc-400 hover:bg-zinc-200 dark:hover:bg-white/10'}`}>
+      {label}
+    </button>
+  );
+}
+
+function AdminInfo({ info, refresh, t }: any) {
+  const update = async (key: string, values: any) => {
+    await fetch('/api/info', {
+      method: 'PUT',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ key, ...values })
+    });
+    refresh();
+  };
+
+  return (
+    <div className="space-y-8">
+      {info.map((item: any) => (
+        <div key={item.key} className="space-y-4 p-6 bg-zinc-50 dark:bg-zinc-950 rounded-2xl border border-zinc-200 dark:border-white/5">
+          <h4 className="font-bold text-zinc-400 uppercase text-[10px] tracking-widest">{item.label_en}</h4>
+          <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
+            <input defaultValue={item.value_fa} onBlur={e => update(item.key, { value_fa: e.target.value })} className="bg-white dark:bg-zinc-900 border border-zinc-200 dark:border-white/10 p-4 rounded-xl text-sm" placeholder="Persian" />
+            <input defaultValue={item.value_en} onBlur={e => update(item.key, { value_en: e.target.value })} className="bg-white dark:bg-zinc-900 border border-zinc-200 dark:border-white/10 p-4 rounded-xl text-sm" placeholder="English" />
+          </div>
+        </div>
+      ))}
+    </div>
+  );
+}
+
+function AdminCat({ categories, refresh, t }: any) {
+  const [newCat, setNewCat] = useState({ type: 'restaurant', name_fa: '', name_en: '', name_ar: '', name_tr: '', name_ku: '' });
+
+  const add = async () => {
+    await fetch('/api/categories', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify(newCat)
+    });
+    setNewCat({ type: 'restaurant', name_fa: '', name_en: '', name_ar: '', name_tr: '', name_ku: '' });
+    refresh();
+  };
+
+  const del = async (id: number) => {
+    if (confirm('Delete category?')) {
+      await fetch(`/api/categories/${id}`, { method: 'DELETE' });
+      refresh();
+    }
+  };
+
+  return (
+    <div className="space-y-8">
+      <div className="grid gap-4 p-6 bg-emerald-500/5 rounded-3xl border border-emerald-500/10">
+        <select value={newCat.type} onChange={e => setNewCat({...newCat, type: e.target.value})} className="bg-white dark:bg-zinc-900 border border-zinc-200 dark:border-white/10 p-4 rounded-xl">
+          <option value="restaurant">Restaurant</option>
+          <option value="cafe">Cafe</option>
+          <option value="laundry">Laundry</option>
+        </select>
+        <div className="grid grid-cols-2 gap-2">
+          <input placeholder="Name (FA)" value={newCat.name_fa} onChange={e => setNewCat({...newCat, name_fa: e.target.value})} className="bg-white dark:bg-zinc-900 border border-zinc-200 dark:border-white/10 p-4 rounded-xl text-sm" />
+          <input placeholder="Name (EN)" value={newCat.name_en} onChange={e => setNewCat({...newCat, name_en: e.target.value})} className="bg-white dark:bg-zinc-900 border border-zinc-200 dark:border-white/10 p-4 rounded-xl text-sm" />
+        </div>
+        <button onClick={add} className="bg-emerald-500 text-white p-4 rounded-xl font-bold flex items-center justify-center gap-2"><Plus size={20} /> {t.add}</button>
+      </div>
+
+      <div className="space-y-2">
+        {categories.map((c: any) => (
+          <div key={c.id} className="flex justify-between items-center p-4 bg-zinc-50 dark:bg-zinc-950 rounded-xl border border-zinc-200 dark:border-white/5">
+            <div>
+              <span className="text-[10px] uppercase font-black text-emerald-500 mr-3">{c.type}</span>
+              <span className="font-bold">{c.name_en} / {c.name_fa}</span>
+            </div>
+            <button onClick={() => del(c.id)} className="text-zinc-400 hover:text-red-500 transition-colors"><Trash2 size={18} /></button>
+          </div>
+        ))}
+      </div>
+    </div>
+  );
+}
+
+function AdminItem({ items, categories, refresh, t }: any) {
+  const [newItem, setNewItem] = useState({ category_id: '', name_fa: '', name_en: '', name_ar: '', name_tr: '', name_ku: '', description_fa: '', description_en: '', description_ar: '', description_tr: '', description_ku: '', price: '', image_url: '' });
+
+  const add = async () => {
+    await fetch('/api/items', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify(newItem)
+    });
+    setNewItem({ category_id: '', name_fa: '', name_en: '', name_ar: '', name_tr: '', name_ku: '', description_fa: '', description_en: '', description_ar: '', description_tr: '', description_ku: '', price: '', image_url: '' });
+    refresh();
+  };
+
+  const del = async (id: number) => {
+    if (confirm('Delete item?')) {
+      await fetch(`/api/items/${id}`, { method: 'DELETE' });
+      refresh();
+    }
+  };
+
+  return (
+    <div className="space-y-8">
+      <div className="grid gap-4 p-6 bg-emerald-500/5 rounded-3xl border border-emerald-500/10">
+        <select value={newItem.category_id} onChange={e => setNewItem({...newItem, category_id: e.target.value})} className="bg-white dark:bg-zinc-900 border border-zinc-200 dark:border-white/10 p-4 rounded-xl">
+          <option value="">{t.selectCat}</option>
+          {categories.map((c: any) => <option key={c.id} value={c.id}>{c.name_en} ({c.type})</option>)}
+        </select>
+        <div className="grid grid-cols-2 gap-2">
+          <input placeholder="Name (FA)" value={newItem.name_fa} onChange={e => setNewItem({...newItem, name_fa: e.target.value})} className="bg-white dark:bg-zinc-900 border border-zinc-200 dark:border-white/10 p-4 rounded-xl text-sm" />
+          <input placeholder="Name (EN)" value={newItem.name_en} onChange={e => setNewItem({...newItem, name_en: e.target.value})} className="bg-white dark:bg-zinc-900 border border-zinc-200 dark:border-white/10 p-4 rounded-xl text-sm" />
+        </div>
+        <input placeholder="Price" value={newItem.price} onChange={e => setNewItem({...newItem, price: e.target.value})} className="bg-white dark:bg-zinc-900 border border-zinc-200 dark:border-white/10 p-4 rounded-xl text-sm" />
+        <input placeholder="Image URL" value={newItem.image_url} onChange={e => setNewItem({...newItem, image_url: e.target.value})} className="bg-white dark:bg-zinc-900 border border-zinc-200 dark:border-white/10 p-4 rounded-xl text-sm" />
+        <button onClick={add} className="bg-emerald-500 text-white p-4 rounded-xl font-bold flex items-center justify-center gap-2"><Plus size={20} /> {t.add}</button>
+      </div>
+
+      <div className="space-y-2">
+        {items.map((i: any) => (
+          <div key={i.id} className="flex justify-between items-center p-4 bg-zinc-50 dark:bg-zinc-950 rounded-xl border border-zinc-200 dark:border-white/5">
+            <div className="flex items-center gap-4">
+              <img src={i.image_url} className="w-10 h-10 rounded-lg object-cover" referrerPolicy="no-referrer" />
+              <span className="font-bold">{i.name_en}</span>
+            </div>
+            <button onClick={() => del(i.id)} className="text-zinc-400 hover:text-red-500 transition-colors"><Trash2 size={18} /></button>
+          </div>
+        ))}
+      </div>
+    </div>
+  );
+}
+
+function AdminPhone({ phones, refresh, t }: any) {
+  const [newPhone, setNewPhone] = useState({ name_fa: '', name_en: '', name_ar: '', name_tr: '', name_ku: '', number: '' });
+
+  const add = async () => {
+    await fetch('/api/phones', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify(newPhone)
+    });
+    setNewPhone({ name_fa: '', name_en: '', name_ar: '', name_tr: '', name_ku: '', number: '' });
+    refresh();
+  };
+
+  const del = async (id: number) => {
+    if (confirm('Delete phone?')) {
+      await fetch(`/api/phones/${id}`, { method: 'DELETE' });
+      refresh();
+    }
+  };
+
+  return (
+    <div className="space-y-8">
+      <div className="grid gap-4 p-6 bg-emerald-500/5 rounded-3xl border border-emerald-500/10">
+        <div className="grid grid-cols-2 gap-2">
+          <input placeholder="Name (FA)" value={newPhone.name_fa} onChange={e => setNewPhone({...newPhone, name_fa: e.target.value})} className="bg-white dark:bg-zinc-900 border border-zinc-200 dark:border-white/10 p-4 rounded-xl text-sm" />
+          <input placeholder="Name (EN)" value={newPhone.name_en} onChange={e => setNewPhone({...newPhone, name_en: e.target.value})} className="bg-white dark:bg-zinc-900 border border-zinc-200 dark:border-white/10 p-4 rounded-xl text-sm" />
+        </div>
+        <input placeholder="Number" value={newPhone.number} onChange={e => setNewPhone({...newPhone, number: e.target.value})} className="bg-white dark:bg-zinc-900 border border-zinc-200 dark:border-white/10 p-4 rounded-xl text-sm" />
+        <button onClick={add} className="bg-emerald-500 text-white p-4 rounded-xl font-bold flex items-center justify-center gap-2"><Plus size={20} /> {t.add}</button>
+      </div>
+
+      <div className="space-y-2">
+        {phones.map((p: any) => (
+          <div key={p.id} className="flex justify-between items-center p-4 bg-zinc-50 dark:bg-zinc-950 rounded-xl border border-zinc-200 dark:border-white/5">
+            <span className="font-bold">{p.name_en}: {p.number}</span>
+            <button onClick={() => del(p.id)} className="text-zinc-400 hover:text-red-500 transition-colors"><Trash2 size={18} /></button>
+          </div>
+        ))}
+      </div>
+    </div>
+  );
+}
