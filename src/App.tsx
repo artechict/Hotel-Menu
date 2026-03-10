@@ -25,7 +25,23 @@ const UI_STRINGS = {
 export default function App() {
   const [data, setData] = useState<AppData | null>(null);
   const [settings, setSettings] = useState<{ hotel_name: string, logo_url: string } | null>(null);
+  const [lang, setLang] = useState<Language>('en');
+  const t = UI_STRINGS[lang];
   const [activeTab, setActiveTab] = useState<'home' | 'restaurant' | 'cafe' | 'laundry' | 'info' | 'phones' | 'admin'>('home');
+  const [history, setHistory] = useState<typeof activeTab[]>(['home']);
+
+  const navigateTo = (tab: typeof activeTab) => {
+    setActiveTab(tab);
+    setHistory(prev => [...prev, tab]);
+  };
+
+  const goBack = () => {
+    if (history.length > 1) {
+      const newHistory = history.slice(0, -1);
+      setHistory(newHistory);
+      setActiveTab(newHistory[newHistory.length - 1]);
+    }
+  };
   const [theme, setTheme] = useState<'light' | 'dark'>(() => {
     if (typeof window !== 'undefined') {
       return (localStorage.getItem('theme') as 'light' | 'dark') || 'dark';
@@ -79,6 +95,11 @@ export default function App() {
       <header className="sticky top-0 z-50 bg-white/80 dark:bg-zinc-950/80 backdrop-blur-2xl border-b border-zinc-200 dark:border-white/5 px-6 py-4 transition-colors duration-300">
         <div className="max-w-4xl mx-auto flex justify-between items-center">
           <div className="flex items-center gap-4">
+            {activeTab !== 'home' && (
+              <button onClick={goBack} className="p-3 rounded-2xl bg-zinc-100 dark:bg-white/5 text-zinc-600 dark:text-zinc-400 hover:text-emerald-500 transition-all">
+                <ChevronLeft size={20} />
+              </button>
+            )}
             <div className="w-12 h-12 rounded-2xl flex items-center justify-center shadow-lg shadow-emerald-500/20 overflow-hidden">
               <img src={settings?.logo_url} className="w-full h-full object-cover" referrerPolicy="no-referrer" />
             </div>
@@ -89,11 +110,18 @@ export default function App() {
           </div>
           
           <div className="flex items-center gap-2">
+            <select value={lang} onChange={e => setLang(e.target.value as Language)} className="p-3 rounded-2xl bg-zinc-100 dark:bg-white/5 text-zinc-600 dark:text-zinc-400 hover:text-emerald-500 transition-all">
+              <option value="en">EN</option>
+              <option value="fa">FA</option>
+              <option value="ar">AR</option>
+              <option value="tr">TR</option>
+              <option value="ku">KU</option>
+            </select>
             <button onClick={() => setTheme(theme === 'dark' ? 'light' : 'dark')} className="p-3 rounded-2xl bg-zinc-100 dark:bg-white/5 text-zinc-600 dark:text-zinc-400 hover:text-emerald-500 transition-all">
               {theme === 'dark' ? <Sun size={20} /> : <Moon size={20} />}
             </button>
             
-            <button onClick={() => setActiveTab('admin')} className={`p-3 rounded-2xl transition-all ${activeTab === 'admin' ? 'bg-emerald-500 text-white' : 'bg-zinc-100 dark:bg-white/5 text-zinc-600 dark:text-zinc-400 hover:text-emerald-500'}`}>
+            <button onClick={() => navigateTo('admin')} className={`p-3 rounded-2xl transition-all ${activeTab === 'admin' ? 'bg-emerald-500 text-white' : 'bg-zinc-100 dark:bg-white/5 text-zinc-600 dark:text-zinc-400 hover:text-emerald-500'}`}>
               <Settings size={20} />
             </button>
           </div>
@@ -102,7 +130,7 @@ export default function App() {
 
       <main className="max-w-5xl mx-auto p-6 pb-32">
         <AnimatePresence mode="wait">
-          {activeTab === 'home' && <HomeGrid key="home" setActiveTab={setActiveTab} t={t} />}
+          {activeTab === 'home' && <HomeGrid key="home" navigateTo={navigateTo} t={t} />}
           {activeTab === 'info' && <InfoSection key="info" info={data?.info || []} phones={data?.phones || []} t={t} />}
           {(activeTab === 'restaurant' || activeTab === 'cafe' || activeTab === 'laundry') && (
             <MenuSection key={activeTab} type={activeTab} categories={data?.categories.filter(c => c.type === activeTab) || []} items={data?.items || []} t={t} />
@@ -125,7 +153,7 @@ export default function App() {
   );
 }
 
-function HomeGrid({ setActiveTab, t }: any) {
+function HomeGrid({ navigateTo, t }: any) {
   const tiles = [
     { id: 'info', icon: <Info size={32} />, label: t.info, color: 'from-blue-500 to-blue-600', img: 'https://images.unsplash.com/photo-1566073771259-6a8506099945?auto=format&fit=crop&w=400&q=80' },
     { id: 'restaurant', icon: <Utensils size={32} />, label: t.restaurant, color: 'from-orange-500 to-orange-600', img: 'https://images.unsplash.com/photo-1514362545857-3bc16c4c7d1b?auto=format&fit=crop&w=400&q=80' },
@@ -141,7 +169,7 @@ function HomeGrid({ setActiveTab, t }: any) {
           whileHover={{ scale: 1.02 }}
           whileTap={{ scale: 0.98 }}
           key={tile.id}
-          onClick={() => setActiveTab(tile.id as any)}
+          onClick={() => navigateTo(tile.id as any)}
           className="relative h-48 rounded-[2.5rem] overflow-hidden group shadow-lg"
         >
           <img src={tile.img} className="absolute inset-0 w-full h-full object-cover transition-transform duration-700 group-hover:scale-110" referrerPolicy="no-referrer" />
