@@ -10,15 +10,6 @@ import { AppData, Category, MenuItem, HotelInfo, PhoneNumber } from './types';
 type Language = 'fa' | 'en' | 'ar' | 'tr' | 'ku';
 
 const UI_STRINGS = {
-  fa: {
-    hotelName: 'هتل رویال', welcome: 'خوش آمدید', info: 'اطلاعات', restaurant: 'رستوران', cafe: 'کافه', laundry: 'لاندری', contact: 'تماس', admin: 'مدیریت', home: 'خانه',
-    login: 'ورود به پنل', password: 'رمز عبور', enter: 'ورود', logout: 'خروج', workingHours: 'ساعات کاری و اطلاعات', internalPhones: 'شماره‌های داخلی',
-    noItems: 'آیتمی برای نمایش وجود ندارد.', callInstruction: 'برای تماس از تلفن داخل اتاق، شماره‌های بالا را شماره‌گیری نمایید.',
-    adminTitle: 'پنل مدیریت حرفه‌ای', hotelSettings: 'تنظیمات هتل', catMgmt: 'مدیریت دسته‌ها', itemMgmt: 'مدیریت منو', phoneMgmt: 'مدیریت تماس‌ها',
-    add: 'افزودن', delete: 'حذف', save: 'ذخیره', name: 'نام', desc: 'توضیحات', price: 'قیمت', imageUrl: 'آدرس تصویر', type: 'نوع',
-    catName: 'نام دسته', itemName: 'نام آیتم', phoneName: 'نام بخش', phoneNumber: 'شماره', selectCat: 'انتخاب دسته...',
-    langNames: { fa: 'فارسی', en: 'English', ar: 'العربية', tr: 'Türkçe', ku: 'کوردی' }
-  },
   en: {
     hotelName: 'Royal Hotel', welcome: 'Welcome', info: 'Info', restaurant: 'Restaurant', cafe: 'Cafe', laundry: 'Laundry', contact: 'Contact', admin: 'Admin', home: 'Home',
     login: 'Admin Login', password: 'Password', enter: 'Login', logout: 'Logout', workingHours: 'Working Hours & Info', internalPhones: 'Internal Phones',
@@ -26,41 +17,12 @@ const UI_STRINGS = {
     adminTitle: 'Professional Admin Panel', hotelSettings: 'Hotel Settings', catMgmt: 'Category Management', itemMgmt: 'Menu Management', phoneMgmt: 'Contact Management',
     add: 'Add', delete: 'Delete', save: 'Save', name: 'Name', desc: 'Description', price: 'Price', imageUrl: 'Image URL', type: 'Type',
     catName: 'Category Name', itemName: 'Item Name', phoneName: 'Section Name', phoneNumber: 'Number', selectCat: 'Select Category...',
-    langNames: { fa: 'فارسی', en: 'English', ar: 'العربية', tr: 'Türkçe', ku: 'کوردی' }
-  },
-  ar: {
-    hotelName: 'فندق رويال', welcome: 'أهلاً بك', info: 'معلومات', restaurant: 'مطعم', cafe: 'مقهى', laundry: 'مغسلة', contact: 'اتصال', admin: 'إدارة', home: 'الرئيسية',
-    login: 'دخول الإدارة', password: 'كلمة المرور', enter: 'دخول', logout: 'خروج', workingHours: 'ساعات العمل والمعلومات', internalPhones: 'الهواتف الداخلية',
-    noItems: 'لا توجد عناصر للعرض.', callInstruction: 'للاتصال من غرفتك، اتصل بالأرقام أعلاه.',
-    adminTitle: 'لوحة تحكم احترافية', hotelSettings: 'إعدادات الفندق', catMgmt: 'إدارة الفئات', itemMgmt: 'إدارة القائمة', phoneMgmt: 'إدارة الاتصالات',
-    add: 'إضافة', delete: 'حذف', save: 'حفظ', name: 'الاسم', desc: 'الوصف', price: 'السعر', imageUrl: 'رابط الصورة', type: 'النوع',
-    catName: 'اسم الفئة', itemName: 'اسم العنصر', phoneName: 'اسم القسم', phoneNumber: 'الرقم', selectCat: 'اختر الفئة...',
-    langNames: { fa: 'فارسی', en: 'English', ar: 'العربية', tr: 'Türkçe', ku: 'کوردی' }
-  },
-  tr: {
-    hotelName: 'Royal Otel', welcome: 'Hoş geldiniz', info: 'Bilgi', restaurant: 'Restoran', cafe: 'Kafe', laundry: 'Çamaşırhane', contact: 'İletişim', admin: 'Yönetim', home: 'Ana Sayfa',
-    login: 'Yönetici Girişi', password: 'Şifre', enter: 'Giriş', logout: 'Çıkış', workingHours: 'Çalışma Saatleri ve Bilgi', internalPhones: 'Dahili Telefonlar',
-    noItems: 'Gösterilecek öğe yok.', callInstruction: 'Odanızdan aramak için yukarıdaki numaraları çevirin.',
-    adminTitle: 'Profesyonel Yönetim Paneli', hotelSettings: 'Otel Ayarları', catMgmt: 'Kategori Yönetimi', itemMgmt: 'Menü Yönetimi', phoneMgmt: 'İletişim Yönetimi',
-    add: 'Ekle', delete: 'Sil', save: 'Kaydet', name: 'İsim', desc: 'Açıklama', price: 'Fiyat', imageUrl: 'Resim URL', type: 'Tür',
-    catName: 'Kategori Adı', itemName: 'Öğe Adı', phoneName: 'Bölüm Adı', phoneNumber: 'Numara', selectCat: 'Kategori Seç...',
-    langNames: { fa: 'فارسی', en: 'English', ar: 'العربية', tr: 'Türkçe', ku: 'کوردی' }
-  },
-  ku: {
-    hotelName: 'هوتێل ڕۆیاڵ', welcome: 'بەخێربێن', info: 'زانیاری', restaurant: 'چێشتخانە', cafe: 'کافێ', laundry: 'لاندری', contact: 'پەیوەندی', admin: 'بەڕێوەبردن', home: 'سەرەکی',
-    login: 'چوونەژوورەوەی بەڕێوەبەر', password: 'وشەی نهێنی', enter: 'چوونەژوورەوە', logout: 'چوونەدەرەوە', workingHours: 'کاتەکانی کارکردن و زانیاری', internalPhones: 'تەلەفۆنە ناوخۆییەکان',
-    noItems: 'هیچ بابەتێک نییە بۆ پیشاندان.', callInstruction: 'بۆ پەیوەندیکردن لە ژوورەکەتەوە، ژمارەکانی سەرەوە دابگرە.',
-    adminTitle: 'پانیڵی بەڕێوەبردنی پرۆفیشناڵ', hotelSettings: 'ڕێکخستنەکانی هوتێل', catMgmt: 'بەڕێوەبردنی جۆرەکان', itemMgmt: 'بەڕێوەبردنی مینیو', phoneMgmt: 'بەڕێوەبردنی پەیوەندییەکان',
-    add: 'زیادکردن', delete: 'سڕینەوە', save: 'پاشەکەوتکردن', name: 'ناو', desc: 'وێناکردن', price: 'نرخ', imageUrl: 'بەستەری وێنە', type: 'جۆر',
-    catName: 'ناوی جۆر', itemName: 'ناوی بابەت', phoneName: 'ناوی بەش', phoneNumber: 'ژمارە', selectCat: 'جۆرێک هەڵبژێرە...',
-    langNames: { fa: 'فارسی', en: 'English', ar: 'العربية', tr: 'Türkçe', ku: 'کوردی' }
   }
 };
 
 export default function App() {
   const [data, setData] = useState<AppData | null>(null);
   const [settings, setSettings] = useState<{ hotel_name: string, logo_url: string } | null>(null);
-  const [lang, setLang] = useState<Language>('fa');
   const [activeTab, setActiveTab] = useState<'home' | 'restaurant' | 'cafe' | 'laundry' | 'info' | 'phones' | 'admin'>('home');
   const [theme, setTheme] = useState<'light' | 'dark'>(() => {
     if (typeof window !== 'undefined') {
@@ -70,15 +32,8 @@ export default function App() {
   });
   const [isAdmin, setIsAdmin] = useState(false);
   const [loading, setLoading] = useState(true);
-  const [showLangMenu, setShowLangMenu] = useState(false);
 
-  const t = UI_STRINGS[lang];
-  const isRtl = lang === 'fa' || lang === 'ar' || lang === 'ku';
-
-  const toEnglishDigits = (str: string) => {
-    return str.replace(/[۰-۹]/g, (d) => '۰۱۲۳۴۵۶۷۸۹'.indexOf(d).toString())
-              .replace(/[٠-٩]/g, (d) => '٠١٢٣٤٥٦٧٨٩'.indexOf(d).toString());
-  };
+  const t = UI_STRINGS.en;
 
   useEffect(() => { fetchData(); }, []);
 
@@ -112,7 +67,7 @@ export default function App() {
   );
 
   return (
-    <div className={`min-h-screen transition-colors duration-500 ${theme === 'dark' ? 'bg-zinc-950 text-zinc-100' : 'bg-zinc-50 text-zinc-900'}`} dir={isRtl ? 'rtl' : 'ltr'}>
+    <div className={`min-h-screen transition-colors duration-500 ${theme === 'dark' ? 'bg-zinc-950 text-zinc-100' : 'bg-zinc-50 text-zinc-900'}`}>
       {/* Premium Header */}
       <header className="sticky top-0 z-50 bg-white/80 dark:bg-zinc-950/80 backdrop-blur-2xl border-b border-zinc-200 dark:border-white/5 px-6 py-4 transition-colors duration-300">
         <div className="max-w-4xl mx-auto flex justify-between items-center">
@@ -131,24 +86,6 @@ export default function App() {
               {theme === 'dark' ? <Sun size={20} /> : <Moon size={20} />}
             </button>
             
-            <div className="relative">
-              <button onClick={() => setShowLangMenu(!showLangMenu)} className="p-3 rounded-2xl bg-zinc-100 dark:bg-white/5 text-zinc-600 dark:text-zinc-400 hover:text-emerald-500 transition-all flex items-center gap-2">
-                <Globe size={20} />
-                <span className="text-xs font-bold uppercase">{lang}</span>
-              </button>
-              <AnimatePresence>
-                {showLangMenu && (
-                  <motion.div initial={{ opacity: 0, y: 10 }} animate={{ opacity: 1, y: 0 }} exit={{ opacity: 0, y: 10 }} className="absolute top-full mt-2 right-0 bg-white dark:bg-zinc-900 border border-zinc-200 dark:border-white/10 rounded-2xl shadow-2xl p-2 min-w-[140px] z-50 overflow-hidden">
-                    {(Object.keys(UI_STRINGS) as Language[]).map(l => (
-                      <button key={l} onClick={() => { setLang(l); setShowLangMenu(false); }} className={`w-full text-right px-4 py-3 rounded-xl text-sm font-medium transition-colors ${lang === l ? 'bg-emerald-500 text-white' : 'hover:bg-zinc-100 dark:hover:bg-white/5'}`}>
-                        {(t.langNames as any)[l]}
-                      </button>
-                    ))}
-                  </motion.div>
-                )}
-              </AnimatePresence>
-            </div>
-            
             <button onClick={() => setActiveTab('admin')} className={`p-3 rounded-2xl transition-all ${activeTab === 'admin' ? 'bg-emerald-500 text-white' : 'bg-zinc-100 dark:bg-white/5 text-zinc-600 dark:text-zinc-400 hover:text-emerald-500'}`}>
               <Settings size={20} />
             </button>
@@ -159,12 +96,12 @@ export default function App() {
       <main className="max-w-2xl mx-auto p-6 pb-32">
         <AnimatePresence mode="wait">
           {activeTab === 'home' && <HomeGrid key="home" setActiveTab={setActiveTab} t={t} />}
-          {activeTab === 'info' && <InfoSection key="info" info={data?.info || []} phones={data?.phones || []} lang={lang} t={t} />}
+          {activeTab === 'info' && <InfoSection key="info" info={data?.info || []} phones={data?.phones || []} t={t} />}
           {(activeTab === 'restaurant' || activeTab === 'cafe' || activeTab === 'laundry') && (
-            <MenuSection key={activeTab} type={activeTab} categories={data?.categories.filter(c => c.type === activeTab) || []} items={data?.items || []} lang={lang} t={t} toEnglishDigits={toEnglishDigits} />
+            <MenuSection key={activeTab} type={activeTab} categories={data?.categories.filter(c => c.type === activeTab) || []} items={data?.items || []} t={t} />
           )}
-          {activeTab === 'phones' && <PhoneSection key="phones" phones={data?.phones || []} lang={lang} t={t} />}
-          {activeTab === 'admin' && <AdminSection key="admin" isAdmin={isAdmin} onLogin={(p: string) => { if(p === 'admin123') setIsAdmin(true); else alert('Wrong password'); }} data={data} refresh={fetchData} lang={lang} t={t} settings={settings} />}
+          {activeTab === 'phones' && <PhoneSection key="phones" phones={data?.phones || []} t={t} />}
+          {activeTab === 'admin' && <AdminSection key="admin" isAdmin={isAdmin} onLogin={(p: string) => { if(p === 'admin123') setIsAdmin(true); else alert('Wrong password'); }} data={data} refresh={fetchData} t={t} settings={settings} />}
         </AnimatePresence>
       </main>
 
@@ -223,7 +160,7 @@ function NavBtn({ active, onClick, icon, label }: any) {
   );
 }
 
-function InfoSection({ info, phones, lang, t }: any) {
+function InfoSection({ info, phones, t }: any) {
   return (
     <motion.div initial={{ opacity: 0, y: 20 }} animate={{ opacity: 1, y: 0 }} exit={{ opacity: 0, y: -20 }} className="space-y-8">
       <div className="relative h-48 rounded-3xl overflow-hidden group shadow-xl">
@@ -237,8 +174,8 @@ function InfoSection({ info, phones, lang, t }: any) {
       <div className="grid gap-4">
         {info.map((item: any) => (
           <div key={item.key} className="bg-white dark:bg-zinc-900/50 border border-zinc-200 dark:border-white/5 p-5 rounded-2xl flex justify-between items-center hover:bg-zinc-50 dark:hover:bg-zinc-900 transition-colors shadow-sm">
-            <span className="text-zinc-500 dark:text-zinc-400 font-medium">{(item as any)[`label_${lang}`]}</span>
-            <span className="font-bold text-emerald-600 dark:text-emerald-400">{(item as any)[`value_${lang}`]}</span>
+            <span className="text-zinc-500 dark:text-zinc-400 font-medium">{item.label}</span>
+            <span className="font-bold text-emerald-600 dark:text-emerald-400">{item.value}</span>
           </div>
         ))}
       </div>
@@ -248,7 +185,7 @@ function InfoSection({ info, phones, lang, t }: any) {
         <div className="grid grid-cols-2 gap-4">
           {phones.map((p: any) => (
             <div key={p.id} className="bg-zinc-50 dark:bg-zinc-950 p-4 rounded-2xl border border-zinc-200 dark:border-white/5 flex flex-col items-center gap-1 group hover:border-emerald-500/30 transition-all">
-              <span className="text-[10px] text-zinc-500 uppercase font-bold tracking-widest">{(p as any)[`name_${lang}`]}</span>
+              <span className="text-[10px] text-zinc-500 uppercase font-bold tracking-widest">{p.name}</span>
               <span className="text-xl font-black text-zinc-900 dark:text-zinc-100 tracking-widest group-hover:text-emerald-600 dark:group-hover:text-emerald-400 transition-colors">{p.number}</span>
             </div>
           ))}
@@ -258,7 +195,7 @@ function InfoSection({ info, phones, lang, t }: any) {
   );
 }
 
-function MenuSection({ type, categories, items, lang, t, toEnglishDigits }: any) {
+function MenuSection({ type, categories, items, t }: any) {
   return (
     <motion.div initial={{ opacity: 0, x: 20 }} animate={{ opacity: 1, x: 0 }} exit={{ opacity: 0, x: -20 }} className="space-y-12">
       <div className="flex items-center justify-between px-2">
@@ -272,7 +209,7 @@ function MenuSection({ type, categories, items, lang, t, toEnglishDigits }: any)
         <div key={cat.id} className="space-y-6">
           <div className="flex items-center gap-3">
             <div className="w-2 h-8 bg-emerald-500 rounded-full" />
-            <h3 className="text-xl font-bold text-zinc-900 dark:text-zinc-100">{(cat as any)[`name_${lang}`]}</h3>
+            <h3 className="text-xl font-bold text-zinc-900 dark:text-zinc-100">{cat.name}</h3>
           </div>
           <div className="grid gap-6">
             {items.filter((i: any) => i.category_id === cat.id).map((item: any) => (
@@ -283,10 +220,10 @@ function MenuSection({ type, categories, items, lang, t, toEnglishDigits }: any)
                 <div className="p-6 flex flex-col justify-between flex-1">
                   <div>
                     <div className="flex justify-between items-start mb-2">
-                      <h4 className="text-lg font-bold text-zinc-900 dark:text-zinc-100">{(item as any)[`name_${lang}`]}</h4>
-                      <span className="text-emerald-600 dark:text-emerald-400 font-black text-lg">{toEnglishDigits(item.price)}</span>
+                      <h4 className="text-lg font-bold text-zinc-900 dark:text-zinc-100">{item.name}</h4>
+                      <span className="text-emerald-600 dark:text-emerald-400 font-black text-lg">{item.price}</span>
                     </div>
-                    <p className="text-sm text-zinc-500 dark:text-zinc-500 leading-relaxed line-clamp-2">{(item as any)[`description_${lang}`]}</p>
+                    <p className="text-sm text-zinc-500 dark:text-zinc-500 leading-relaxed line-clamp-2">{item.description}</p>
                   </div>
                 </div>
               </motion.div>
@@ -298,7 +235,7 @@ function MenuSection({ type, categories, items, lang, t, toEnglishDigits }: any)
   );
 }
 
-function PhoneSection({ phones, lang, t }: any) {
+function PhoneSection({ phones, t }: any) {
   return (
     <motion.div initial={{ opacity: 0, scale: 0.98 }} animate={{ opacity: 1, scale: 1 }} exit={{ opacity: 0, scale: 0.98 }} className="space-y-8">
       <h2 className="text-3xl font-black px-2 text-zinc-900 dark:text-zinc-100">{t.contact}</h2>
@@ -309,7 +246,7 @@ function PhoneSection({ phones, lang, t }: any) {
               <div className="w-14 h-14 bg-zinc-50 dark:bg-zinc-950 rounded-2xl flex items-center justify-center text-zinc-400 dark:text-zinc-500 group-hover:text-emerald-600 dark:group-hover:text-emerald-400 border border-zinc-200 dark:border-white/5 transition-all">
                 <Phone size={24} />
               </div>
-              <span className="text-xl font-bold text-zinc-800 dark:text-zinc-200">{(p as any)[`name_${lang}`]}</span>
+              <span className="text-xl font-bold text-zinc-800 dark:text-zinc-200">{p.name}</span>
             </div>
             <span className="text-3xl font-black font-mono tracking-[0.2em] text-zinc-900 dark:text-zinc-100 group-hover:text-emerald-600 dark:group-hover:text-emerald-400 transition-colors">{p.number}</span>
           </div>
@@ -322,7 +259,7 @@ function PhoneSection({ phones, lang, t }: any) {
   );
 }
 
-function AdminSection({ isAdmin, onLogin, data, refresh, lang, t, settings }: any) {
+function AdminSection({ isAdmin, onLogin, data, refresh, t, settings }: any) {
   const [pass, setPass] = useState('');
   const [activeSub, setActiveSub] = useState<'info' | 'cat' | 'item' | 'phone' | 'settings'>('settings');
 
@@ -338,7 +275,7 @@ function AdminSection({ isAdmin, onLogin, data, refresh, lang, t, settings }: an
   );
 
   return (
-    <div className="space-y-8 pb-12" dir="ltr">
+    <div className="space-y-8 pb-12">
       <div className="flex justify-between items-center">
         <h2 className="text-2xl font-black tracking-tight text-zinc-900 dark:text-zinc-100">{t.adminTitle}</h2>
         <button onClick={() => window.location.reload()} className="p-2 text-zinc-500 hover:text-red-400 transition-colors"><LogOut size={24} /></button>
@@ -421,7 +358,7 @@ function AdminInfo({ info, refresh, t }: any) {
 }
 
 function AdminCat({ categories, refresh, t }: any) {
-  const [newCat, setNewCat] = useState({ type: 'restaurant', name_fa: '', name_en: '', name_ar: '', name_tr: '', name_ku: '' });
+  const [newCat, setNewCat] = useState({ type: 'restaurant', name: '' });
   const [editing, setEditing] = useState<any>(null);
 
   const add = async () => {
@@ -439,7 +376,7 @@ function AdminCat({ categories, refresh, t }: any) {
         body: JSON.stringify(newCat)
       });
     }
-    setNewCat({ type: 'restaurant', name_fa: '', name_en: '', name_ar: '', name_tr: '', name_ku: '' });
+    setNewCat({ type: 'restaurant', name: '' });
     refresh();
   };
 
@@ -463,9 +400,8 @@ function AdminCat({ categories, refresh, t }: any) {
           <option value="cafe">Cafe</option>
           <option value="laundry">Laundry</option>
         </select>
-        <div className="grid grid-cols-2 gap-2">
-          <input placeholder="Name (FA)" value={newCat.name_fa} onChange={e => setNewCat({...newCat, name_fa: e.target.value})} className="bg-white dark:bg-zinc-900 border border-zinc-200 dark:border-white/10 p-4 rounded-xl text-sm" />
-          <input placeholder="Name (EN)" value={newCat.name_en} onChange={e => setNewCat({...newCat, name_en: e.target.value})} className="bg-white dark:bg-zinc-900 border border-zinc-200 dark:border-white/10 p-4 rounded-xl text-sm" />
+        <div className="grid grid-cols-1 gap-2">
+          <input placeholder="Name" value={newCat.name} onChange={e => setNewCat({...newCat, name: e.target.value})} className="bg-white dark:bg-zinc-900 border border-zinc-200 dark:border-white/10 p-4 rounded-xl text-sm" />
         </div>
         <button onClick={add} className="bg-emerald-500 text-white p-4 rounded-xl font-bold flex items-center justify-center gap-2"><Plus size={20} /> {editing ? 'Update' : t.add}</button>
       </div>
@@ -475,7 +411,7 @@ function AdminCat({ categories, refresh, t }: any) {
           <div key={c.id} className="flex justify-between items-center p-4 bg-zinc-50 dark:bg-zinc-950 rounded-xl border border-zinc-200 dark:border-white/5">
             <div>
               <span className="text-[10px] uppercase font-black text-emerald-500 mr-3">{c.type}</span>
-              <span className="font-bold">{c.name_en} / {c.name_fa}</span>
+              <span className="font-bold">{c.name}</span>
             </div>
             <div className="flex gap-2">
               <button onClick={() => edit(c)} className="text-zinc-400 hover:text-emerald-500 transition-colors">Edit</button>
@@ -489,7 +425,7 @@ function AdminCat({ categories, refresh, t }: any) {
 }
 
 function AdminItem({ items, categories, refresh, t }: any) {
-  const [newItem, setNewItem] = useState({ category_id: '', name_fa: '', name_en: '', name_ar: '', name_tr: '', name_ku: '', description_fa: '', description_en: '', description_ar: '', description_tr: '', description_ku: '', price: '', image_url: '' });
+  const [newItem, setNewItem] = useState({ category_id: '', name: '', description: '', price: '', image_url: '' });
   const [editing, setEditing] = useState<any>(null);
 
   const add = async () => {
@@ -507,7 +443,7 @@ function AdminItem({ items, categories, refresh, t }: any) {
         body: JSON.stringify(newItem)
       });
     }
-    setNewItem({ category_id: '', name_fa: '', name_en: '', name_ar: '', name_tr: '', name_ku: '', description_fa: '', description_en: '', description_ar: '', description_tr: '', description_ku: '', price: '', image_url: '' });
+    setNewItem({ category_id: '', name: '', description: '', price: '', image_url: '' });
     refresh();
   };
 
@@ -530,9 +466,9 @@ function AdminItem({ items, categories, refresh, t }: any) {
           <option value="">{t.selectCat}</option>
           {categories.map((c: any) => <option key={c.id} value={c.id}>{c.name_en} ({c.type})</option>)}
         </select>
-        <div className="grid grid-cols-2 gap-2">
-          <input placeholder="Name (FA)" value={newItem.name_fa} onChange={e => setNewItem({...newItem, name_fa: e.target.value})} className="bg-white dark:bg-zinc-900 border border-zinc-200 dark:border-white/10 p-4 rounded-xl text-sm" />
-          <input placeholder="Name (EN)" value={newItem.name_en} onChange={e => setNewItem({...newItem, name_en: e.target.value})} className="bg-white dark:bg-zinc-900 border border-zinc-200 dark:border-white/10 p-4 rounded-xl text-sm" />
+        <div className="grid grid-cols-1 gap-2">
+          <input placeholder="Name" value={newItem.name} onChange={e => setNewItem({...newItem, name: e.target.value})} className="bg-white dark:bg-zinc-900 border border-zinc-200 dark:border-white/10 p-4 rounded-xl text-sm" />
+          <input placeholder="Description" value={newItem.description} onChange={e => setNewItem({...newItem, description: e.target.value})} className="bg-white dark:bg-zinc-900 border border-zinc-200 dark:border-white/10 p-4 rounded-xl text-sm" />
         </div>
         <input placeholder="Price" value={newItem.price} onChange={e => setNewItem({...newItem, price: e.target.value})} className="bg-white dark:bg-zinc-900 border border-zinc-200 dark:border-white/10 p-4 rounded-xl text-sm" />
         <input placeholder="Image URL" value={newItem.image_url} onChange={e => setNewItem({...newItem, image_url: e.target.value})} className="bg-white dark:bg-zinc-900 border border-zinc-200 dark:border-white/10 p-4 rounded-xl text-sm" />
@@ -544,7 +480,7 @@ function AdminItem({ items, categories, refresh, t }: any) {
           <div key={i.id} className="flex justify-between items-center p-4 bg-zinc-50 dark:bg-zinc-950 rounded-xl border border-zinc-200 dark:border-white/5">
             <div className="flex items-center gap-4">
               <img src={i.image_url} className="w-10 h-10 rounded-lg object-cover" referrerPolicy="no-referrer" />
-              <span className="font-bold">{i.name_en}</span>
+              <span className="font-bold">{i.name}</span>
             </div>
             <div className="flex gap-2">
               <button onClick={() => edit(i)} className="text-zinc-400 hover:text-emerald-500 transition-colors">Edit</button>
@@ -558,7 +494,7 @@ function AdminItem({ items, categories, refresh, t }: any) {
 }
 
 function AdminPhone({ phones, refresh, t }: any) {
-  const [newPhone, setNewPhone] = useState({ name_fa: '', name_en: '', name_ar: '', name_tr: '', name_ku: '', number: '' });
+  const [newPhone, setNewPhone] = useState({ name: '', number: '' });
   const [editing, setEditing] = useState<any>(null);
 
   const add = async () => {
@@ -576,7 +512,7 @@ function AdminPhone({ phones, refresh, t }: any) {
         body: JSON.stringify(newPhone)
       });
     }
-    setNewPhone({ name_fa: '', name_en: '', name_ar: '', name_tr: '', name_ku: '', number: '' });
+    setNewPhone({ name: '', number: '' });
     refresh();
   };
 
@@ -595,9 +531,8 @@ function AdminPhone({ phones, refresh, t }: any) {
   return (
     <div className="space-y-8">
       <div className="grid gap-4 p-6 bg-emerald-500/5 rounded-3xl border border-emerald-500/10">
-        <div className="grid grid-cols-2 gap-2">
-          <input placeholder="Name (FA)" value={newPhone.name_fa} onChange={e => setNewPhone({...newPhone, name_fa: e.target.value})} className="bg-white dark:bg-zinc-900 border border-zinc-200 dark:border-white/10 p-4 rounded-xl text-sm" />
-          <input placeholder="Name (EN)" value={newPhone.name_en} onChange={e => setNewPhone({...newPhone, name_en: e.target.value})} className="bg-white dark:bg-zinc-900 border border-zinc-200 dark:border-white/10 p-4 rounded-xl text-sm" />
+        <div className="grid grid-cols-1 gap-2">
+          <input placeholder="Name" value={newPhone.name} onChange={e => setNewPhone({...newPhone, name: e.target.value})} className="bg-white dark:bg-zinc-900 border border-zinc-200 dark:border-white/10 p-4 rounded-xl text-sm" />
         </div>
         <input placeholder="Number" value={newPhone.number} onChange={e => setNewPhone({...newPhone, number: e.target.value})} className="bg-white dark:bg-zinc-900 border border-zinc-200 dark:border-white/10 p-4 rounded-xl text-sm" />
         <button onClick={add} className="bg-emerald-500 text-white p-4 rounded-xl font-bold flex items-center justify-center gap-2"><Plus size={20} /> {editing ? 'Update' : t.add}</button>
@@ -606,7 +541,7 @@ function AdminPhone({ phones, refresh, t }: any) {
       <div className="space-y-2">
         {phones.map((p: any) => (
           <div key={p.id} className="flex justify-between items-center p-4 bg-zinc-50 dark:bg-zinc-950 rounded-xl border border-zinc-200 dark:border-white/5">
-            <span className="font-bold">{p.name_en}: {p.number}</span>
+            <span className="font-bold">{p.name}: {p.number}</span>
             <div className="flex gap-2">
               <button onClick={() => edit(p)} className="text-zinc-400 hover:text-emerald-500 transition-colors">Edit</button>
               <button onClick={() => del(p.id)} className="text-zinc-400 hover:text-red-500 transition-colors"><Trash2 size={18} /></button>

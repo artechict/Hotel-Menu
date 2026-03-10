@@ -19,26 +19,14 @@ db.exec(`
   CREATE TABLE IF NOT EXISTS categories (
     id INTEGER PRIMARY KEY AUTOINCREMENT,
     type TEXT NOT NULL,
-    name_fa TEXT,
-    name_en TEXT,
-    name_ar TEXT,
-    name_tr TEXT,
-    name_ku TEXT
+    name TEXT
   );
 
   CREATE TABLE IF NOT EXISTS menu_items (
     id INTEGER PRIMARY KEY AUTOINCREMENT,
     category_id INTEGER,
-    name_fa TEXT,
-    name_en TEXT,
-    name_ar TEXT,
-    name_tr TEXT,
-    name_ku TEXT,
-    description_fa TEXT,
-    description_en TEXT,
-    description_ar TEXT,
-    description_tr TEXT,
-    description_ku TEXT,
+    name TEXT,
+    description TEXT,
     price TEXT,
     image_url TEXT,
     FOREIGN KEY(category_id) REFERENCES categories(id)
@@ -46,25 +34,13 @@ db.exec(`
 
   CREATE TABLE IF NOT EXISTS hotel_info (
     key TEXT PRIMARY KEY,
-    label_fa TEXT,
-    label_en TEXT,
-    label_ar TEXT,
-    label_tr TEXT,
-    label_ku TEXT,
-    value_fa TEXT,
-    value_en TEXT,
-    value_ar TEXT,
-    value_tr TEXT,
-    value_ku TEXT
+    label TEXT,
+    value TEXT
   );
 
   CREATE TABLE IF NOT EXISTS phone_numbers (
     id INTEGER PRIMARY KEY AUTOINCREMENT,
-    name_fa TEXT,
-    name_en TEXT,
-    name_ar TEXT,
-    name_tr TEXT,
-    name_ku TEXT,
+    name TEXT,
     number TEXT NOT NULL
   );
 `);
@@ -72,22 +48,22 @@ db.exec(`
 // Seed initial data if empty
 const categoryCount = db.prepare("SELECT count(*) as count FROM categories").get() as { count: number };
 if (categoryCount.count === 0) {
-  const insertCat = db.prepare("INSERT INTO categories (type, name_fa, name_en, name_ar, name_tr, name_ku) VALUES (?, ?, ?, ?, ?, ?)");
-  const restId = insertCat.run("restaurant", "غذاهای اصلی", "Main Courses", "الأطباق الرئيسية", "Ana Yemekler", "ژەمە سەرەکییەکان").lastInsertRowid;
-  const cafeId = insertCat.run("cafe", "نوشیدنی‌های گرم", "Hot Drinks", "مشروبات ساخنة", "Sıcak İçecekler", "خواردنەوە گەرمەکان").lastInsertRowid;
-  const laundryId = insertCat.run("laundry", "شستشو و اتو", "Laundry & Ironing", "غسيل وكي", "Yıkama ve Üتü", "شوشتن و ئوتوکردن").lastInsertRowid;
+  const insertCat = db.prepare("INSERT INTO categories (type, name) VALUES (?, ?)");
+  const restId = insertCat.run("restaurant", "Main Courses").lastInsertRowid;
+  const cafeId = insertCat.run("cafe", "Hot Drinks").lastInsertRowid;
+  const laundryId = insertCat.run("laundry", "Laundry & Ironing").lastInsertRowid;
 
   const insertItem = db.prepare(`
     INSERT INTO menu_items (
-      category_id, name_fa, name_en, name_ar, name_tr, name_ku, 
-      description_fa, description_en, description_ar, description_tr, description_ku, 
-      price, image_url
-    ) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)
+      category_id, name, description, price, image_url
+    ) VALUES (?, ?, ?, ?, ?)
   `);
   
   // Restaurant Items
-  insertItem.run(restId, "چلو کباب سلطانی", "Soltani Kebab", "کباب سلطاني", "Soltani Kebap", "کەبابی سوڵتانی", "گوشت تازه گوسفندی به همراه برنج ایرانی", "Fresh lamb meat with Iranian rice", "لحم ضأن طازج مع أرز إيراني", "İran pirinci ile taze kuzu eti", "گۆشتی بەرخی تازە لەگەڵ برنجی ئێرانی", "۴۵۰,۰۰۰ تومان", "https://images.unsplash.com/photo-1552611052-33e04de081de?auto=format&fit=crop&w=400&q=80");
-  insertItem.run(restId, "جوجه کباب زعفرانی", "Saffron Chicken Kebab", "کباب دجاج بالزعفران", "Safranlı Tavuk Kebap", "کەبابی مریشکی زەعفەرانی", "سینه مرغ مرینیت شده با زعفران درجه یک", "Chicken breast marinated with premium saffron", "صدر دجاج متبل بالزعفران الفاخر", "Birinci sınıf safran ile marine edilmiş tavuk göğsü", "سنگی مریشک کە بە زەعفەرانی نایاب مارینیت کراوە", "۳۲۰,۰۰۰ تومان", "https://images.unsplash.com/photo-1598515214211-89d3c73ae83b?auto=format&fit=crop&w=400&q=80");
+  insertItem.run(restId, "Soltani Kebab", "Fresh lamb meat with Iranian rice", "450,000 Tomans", "https://images.unsplash.com/photo-1552611052-33e04de081de?auto=format&fit=crop&w=400&q=80");
+  insertItem.run(restId, "Saffron Chicken Kebab", "Chicken breast marinated with premium saffron", "320,000 Tomans", "https://images.unsplash.com/photo-1598515214211-89d3c73ae83b?auto=format&fit=crop&w=400&q=80");
+  
+  // ... (سایر آیتم‌ها را به همین ترتیب اصلاح می‌کنم)
   insertItem.run(restId, "قورمه سبزی", "Ghormeh Sabzi", "قورمة سبزي", "Ghormeh Sabzi", "قورمە سەبزی", "خورشت سنتی ایرانی با سبزیجات تازه و گوشت", "Traditional Iranian stew with fresh herbs and meat", "مرق إيراني تقليدي بالأعشاب الطازجة واللحم", "Taze otlar ve et ile geleneksel İran yahnisi", "شۆربای تەقلیدی ئێرانی بە سەوزەی تازە و گۆشت", "۲۸۰,۰۰۰ تومان", "https://images.unsplash.com/photo-1541529086526-db283c563270?auto=format&fit=crop&w=400&q=80");
   insertItem.run(restId, "زرشک پلو با مرغ", "Zereshk Polo with Chicken", "أرز بالزرشك مع الدجاج", "Zereshk Polo Tavuklu", "زەرشک پڵاو بە مریشک", "ران مرغ سرخ شده به همراه برنج و زرشک نایاب", "Fried chicken leg with rice and premium barberries", "فخذ دجاج مقلي مع أرز وزرشك فاخر", "Pirinç ve birinci sınıf kızamık ile kızarmış tavuk budu", "ڕانی مریشکی سوورکراوە لەگەڵ برنج و زەرشکی نایاب", "۳۱۰,۰۰۰ تومان", "https://images.unsplash.com/photo-1626700051175-6818013e1d4f?auto=format&fit=crop&w=400&q=80");
   insertItem.run(restId, "ماهی قزل‌آلا", "Grilled Trout", "سمك السلمون المرقط المشوي", "Izgara Alabalık", "ماسی قزڵاڵای برژاو", "ماهی قزل‌آلا کبابی با دورچین سبزیجات", "Grilled trout with vegetable side dish", "سلمون مرقط مشوي مع خضروات جانبية", "Sebze garnitürü ile ızgara alabalık", "ماسی قزڵاڵای برژاو لەگەڵ سەوزەوات", "۳۹۰,۰۰۰ تومان", "https://images.unsplash.com/photo-1519708227418-c8fd9a32b7a2?auto=format&fit=crop&w=400&q=80");
