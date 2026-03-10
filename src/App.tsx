@@ -98,7 +98,7 @@ export default function App() {
         </div>
       </header>
 
-      <main className="max-w-2xl mx-auto p-6 pb-32">
+      <main className="max-w-5xl mx-auto p-6 pb-32">
         <AnimatePresence mode="wait">
           {activeTab === 'home' && <HomeGrid key="home" setActiveTab={setActiveTab} t={t} />}
           {activeTab === 'info' && <InfoSection key="info" info={data?.info || []} phones={data?.phones || []} t={t} />}
