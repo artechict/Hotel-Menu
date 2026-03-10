@@ -11,6 +11,11 @@ const db = new Database("hotel.db");
 
 // Initialize Database
 db.exec(`
+  CREATE TABLE IF NOT EXISTS settings (
+    key TEXT PRIMARY KEY,
+    value TEXT
+  );
+
   CREATE TABLE IF NOT EXISTS categories (
     id INTEGER PRIMARY KEY AUTOINCREMENT,
     type TEXT NOT NULL,
@@ -117,6 +122,10 @@ if (categoryCount.count === 0) {
   insertPhone.run("خانه‌داری", "Housekeeping", "التدبير المنزلي", "Kat Hizmetleri", "ماڵداری", "110");
   insertPhone.run("لاندری", "Laundry", "المغسلة", "Çamaşırhane", "لاندری", "115");
   insertPhone.run("نگهبانی", "Security", "الأمن", "Güvenlik", "ئاسایش", "120");
+
+  const insertSetting = db.prepare("INSERT INTO settings (key, value) VALUES (?, ?)");
+  insertSetting.run("hotel_name", "Royal Hotel");
+  insertSetting.run("logo_url", "https://images.unsplash.com/photo-1566073771259-6a8506099945?auto=format&fit=crop&w=200&q=80");
 }
 
 async function startServer() {
@@ -131,10 +140,35 @@ async function startServer() {
     const items = db.prepare("SELECT * FROM menu_items").all();
     const info = db.prepare("SELECT * FROM hotel_info").all();
     const phones = db.prepare("SELECT * FROM phone_numbers").all();
-    res.json({ categories, items, info, phones });
+    const settings = db.prepare("SELECT * FROM settings").all();
+    res.json({ categories, items, info, phones, settings });
   });
 
   // Admin API
+  app.put("/api/settings", (req, res) => {
+    const { key, value } = req.body;
+    db.prepare("UPDATE settings SET value = ? WHERE key = ?").run(value, key);
+    res.json({ success: true });
+  });
+
+  app.put("/api/categories/:id", (req, res) => {
+    const { name_fa, name_en, name_ar, name_tr, name_ku } = req.body;
+    db.prepare("UPDATE categories SET name_fa = ?, name_en = ?, name_ar = ?, name_tr = ?, name_ku = ? WHERE id = ?").run(name_fa, name_en, name_ar, name_tr, name_ku, req.params.id);
+    res.json({ success: true });
+  });
+
+  app.put("/api/items/:id", (req, res) => {
+    const { name_fa, name_en, name_ar, name_tr, name_ku, description_fa, description_en, description_ar, description_tr, description_ku, price, image_url } = req.body;
+    db.prepare(`UPDATE menu_items SET name_fa = ?, name_en = ?, name_ar = ?, name_tr = ?, name_ku = ?, description_fa = ?, description_en = ?, description_ar = ?, description_tr = ?, description_ku = ?, price = ?, image_url = ? WHERE id = ?`).run(name_fa, name_en, name_ar, name_tr, name_ku, description_fa, description_en, description_ar, description_tr, description_ku, price, image_url, req.params.id);
+    res.json({ success: true });
+  });
+
+  app.put("/api/phones/:id", (req, res) => {
+    const { name_fa, name_en, name_ar, name_tr, name_ku, number } = req.body;
+    db.prepare("UPDATE phone_numbers SET name_fa = ?, name_en = ?, name_ar = ?, name_tr = ?, name_ku = ?, number = ? WHERE id = ?").run(name_fa, name_en, name_ar, name_tr, name_ku, number, req.params.id);
+    res.json({ success: true });
+  });
+
   app.post("/api/categories", (req, res) => {
     const { type, name_fa, name_en, name_ar, name_tr, name_ku } = req.body;
     const result = db.prepare("INSERT INTO categories (type, name_fa, name_en, name_ar, name_tr, name_ku) VALUES (?, ?, ?, ?, ?, ?)").run(type, name_fa, name_en, name_ar, name_tr, name_ku);

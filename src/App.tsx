@@ -59,6 +59,7 @@ const UI_STRINGS = {
 
 export default function App() {
   const [data, setData] = useState<AppData | null>(null);
+  const [settings, setSettings] = useState<{ hotel_name: string, logo_url: string } | null>(null);
   const [lang, setLang] = useState<Language>('fa');
   const [activeTab, setActiveTab] = useState<'home' | 'restaurant' | 'cafe' | 'laundry' | 'info' | 'phones' | 'admin'>('home');
   const [theme, setTheme] = useState<'light' | 'dark'>(() => {
@@ -73,6 +74,11 @@ export default function App() {
 
   const t = UI_STRINGS[lang];
   const isRtl = lang === 'fa' || lang === 'ar' || lang === 'ku';
+
+  const toEnglishDigits = (str: string) => {
+    return str.replace(/[۰-۹]/g, (d) => '۰۱۲۳۴۵۶۷۸۹'.indexOf(d).toString())
+              .replace(/[٠-٩]/g, (d) => '٠١٢٣٤٥٦٧٨٩'.indexOf(d).toString());
+  };
 
   useEffect(() => { fetchData(); }, []);
 
@@ -90,6 +96,8 @@ export default function App() {
       const res = await fetch('/api/data');
       const json = await res.json();
       setData(json);
+      const s = json.settings.reduce((acc: any, curr: any) => ({ ...acc, [curr.key]: curr.value }), {});
+      setSettings(s);
     } catch (e) {
       console.error(e);
     } finally {
@@ -109,11 +117,11 @@ export default function App() {
       <header className="sticky top-0 z-50 bg-white/80 dark:bg-zinc-950/80 backdrop-blur-2xl border-b border-zinc-200 dark:border-white/5 px-6 py-4 transition-colors duration-300">
         <div className="max-w-4xl mx-auto flex justify-between items-center">
           <div className="flex items-center gap-4">
-            <div className="w-12 h-12 bg-emerald-500 rounded-2xl flex items-center justify-center text-white shadow-lg shadow-emerald-500/20">
-              <Utensils size={24} />
+            <div className="w-12 h-12 rounded-2xl flex items-center justify-center shadow-lg shadow-emerald-500/20 overflow-hidden">
+              <img src={settings?.logo_url} className="w-full h-full object-cover" referrerPolicy="no-referrer" />
             </div>
             <div>
-              <h1 className="text-xl font-black tracking-tight">{t.hotelName}</h1>
+              <h1 className="text-xl font-black tracking-tight">{settings?.hotel_name}</h1>
               <p className="text-[10px] text-zinc-500 dark:text-zinc-400 font-bold uppercase tracking-widest">{t.welcome}</p>
             </div>
           </div>
@@ -153,10 +161,10 @@ export default function App() {
           {activeTab === 'home' && <HomeGrid key="home" setActiveTab={setActiveTab} t={t} />}
           {activeTab === 'info' && <InfoSection key="info" info={data?.info || []} phones={data?.phones || []} lang={lang} t={t} />}
           {(activeTab === 'restaurant' || activeTab === 'cafe' || activeTab === 'laundry') && (
-            <MenuSection key={activeTab} type={activeTab} categories={data?.categories.filter(c => c.type === activeTab) || []} items={data?.items || []} lang={lang} t={t} />
+            <MenuSection key={activeTab} type={activeTab} categories={data?.categories.filter(c => c.type === activeTab) || []} items={data?.items || []} lang={lang} t={t} toEnglishDigits={toEnglishDigits} />
           )}
           {activeTab === 'phones' && <PhoneSection key="phones" phones={data?.phones || []} lang={lang} t={t} />}
-          {activeTab === 'admin' && <AdminSection key="admin" isAdmin={isAdmin} onLogin={(p: string) => { if(p === 'admin123') setIsAdmin(true); else alert('Wrong password'); }} data={data} refresh={fetchData} lang={lang} t={t} />}
+          {activeTab === 'admin' && <AdminSection key="admin" isAdmin={isAdmin} onLogin={(p: string) => { if(p === 'admin123') setIsAdmin(true); else alert('Wrong password'); }} data={data} refresh={fetchData} lang={lang} t={t} settings={settings} />}
         </AnimatePresence>
       </main>
 
@@ -250,7 +258,7 @@ function InfoSection({ info, phones, lang, t }: any) {
   );
 }
 
-function MenuSection({ type, categories, items, lang, t }: any) {
+function MenuSection({ type, categories, items, lang, t, toEnglishDigits }: any) {
   return (
     <motion.div initial={{ opacity: 0, x: 20 }} animate={{ opacity: 1, x: 0 }} exit={{ opacity: 0, x: -20 }} className="space-y-12">
       <div className="flex items-center justify-between px-2">
@@ -276,7 +284,7 @@ function MenuSection({ type, categories, items, lang, t }: any) {
                   <div>
                     <div className="flex justify-between items-start mb-2">
                       <h4 className="text-lg font-bold text-zinc-900 dark:text-zinc-100">{(item as any)[`name_${lang}`]}</h4>
-                      <span className="text-emerald-600 dark:text-emerald-400 font-black text-lg">{item.price}</span>
+                      <span className="text-emerald-600 dark:text-emerald-400 font-black text-lg">{toEnglishDigits(item.price)}</span>
                     </div>
                     <p className="text-sm text-zinc-500 dark:text-zinc-500 leading-relaxed line-clamp-2">{(item as any)[`description_${lang}`]}</p>
                   </div>
@@ -314,9 +322,9 @@ function PhoneSection({ phones, lang, t }: any) {
   );
 }
 
-function AdminSection({ isAdmin, onLogin, data, refresh, lang, t }: any) {
+function AdminSection({ isAdmin, onLogin, data, refresh, lang, t, settings }: any) {
   const [pass, setPass] = useState('');
-  const [activeSub, setActiveSub] = useState<'info' | 'cat' | 'item' | 'phone'>('info');
+  const [activeSub, setActiveSub] = useState<'info' | 'cat' | 'item' | 'phone' | 'settings'>('settings');
 
   if (!isAdmin) return (
     <div className="max-w-sm mx-auto mt-12 bg-white dark:bg-zinc-900 border border-zinc-200 dark:border-white/10 p-8 rounded-[2.5rem] shadow-2xl text-center transition-colors">
@@ -337,6 +345,7 @@ function AdminSection({ isAdmin, onLogin, data, refresh, lang, t }: any) {
       </div>
 
       <div className="flex gap-2 overflow-x-auto pb-2 no-scrollbar">
+        <SubNavBtn active={activeSub === 'settings'} onClick={() => setActiveSub('settings')} label="Settings" />
         <SubNavBtn active={activeSub === 'info'} onClick={() => setActiveSub('info')} label={t.hotelSettings} />
         <SubNavBtn active={activeSub === 'cat'} onClick={() => setActiveSub('cat')} label={t.catMgmt} />
         <SubNavBtn active={activeSub === 'item'} onClick={() => setActiveSub('item')} label={t.itemMgmt} />
@@ -344,10 +353,35 @@ function AdminSection({ isAdmin, onLogin, data, refresh, lang, t }: any) {
       </div>
 
       <div className="bg-white dark:bg-zinc-900/50 border border-zinc-200 dark:border-white/10 rounded-[2rem] p-8 shadow-sm transition-colors">
+        {activeSub === 'settings' && <AdminSettings settings={settings} refresh={refresh} t={t} />}
         {activeSub === 'info' && <AdminInfo info={data.info} refresh={refresh} t={t} />}
         {activeSub === 'cat' && <AdminCat categories={data.categories} refresh={refresh} t={t} />}
         {activeSub === 'item' && <AdminItem items={data.items} categories={data.categories} refresh={refresh} t={t} />}
         {activeSub === 'phone' && <AdminPhone phones={data.phones} refresh={refresh} t={t} />}
+      </div>
+    </div>
+  );
+}
+
+function AdminSettings({ settings, refresh, t }: any) {
+  const update = async (key: string, value: string) => {
+    await fetch('/api/settings', {
+      method: 'PUT',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ key, value })
+    });
+    refresh();
+  };
+
+  return (
+    <div className="space-y-6">
+      <div className="space-y-2">
+        <label className="text-xs font-bold text-zinc-500 uppercase">Hotel Name</label>
+        <input defaultValue={settings.hotel_name} onBlur={e => update('hotel_name', e.target.value)} className="w-full bg-zinc-50 dark:bg-zinc-950 border border-zinc-200 dark:border-white/10 p-4 rounded-xl" />
+      </div>
+      <div className="space-y-2">
+        <label className="text-xs font-bold text-zinc-500 uppercase">Logo URL</label>
+        <input defaultValue={settings.logo_url} onBlur={e => update('logo_url', e.target.value)} className="w-full bg-zinc-50 dark:bg-zinc-950 border border-zinc-200 dark:border-white/10 p-4 rounded-xl" />
       </div>
     </div>
   );
@@ -388,13 +422,23 @@ function AdminInfo({ info, refresh, t }: any) {
 
 function AdminCat({ categories, refresh, t }: any) {
   const [newCat, setNewCat] = useState({ type: 'restaurant', name_fa: '', name_en: '', name_ar: '', name_tr: '', name_ku: '' });
+  const [editing, setEditing] = useState<any>(null);
 
   const add = async () => {
-    await fetch('/api/categories', {
-      method: 'POST',
-      headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify(newCat)
-    });
+    if (editing) {
+      await fetch(`/api/categories/${editing.id}`, {
+        method: 'PUT',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify(newCat)
+      });
+      setEditing(null);
+    } else {
+      await fetch('/api/categories', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify(newCat)
+      });
+    }
     setNewCat({ type: 'restaurant', name_fa: '', name_en: '', name_ar: '', name_tr: '', name_ku: '' });
     refresh();
   };
@@ -404,6 +448,11 @@ function AdminCat({ categories, refresh, t }: any) {
       await fetch(`/api/categories/${id}`, { method: 'DELETE' });
       refresh();
     }
+  };
+
+  const edit = (c: any) => {
+    setEditing(c);
+    setNewCat(c);
   };
 
   return (
@@ -418,7 +467,7 @@ function AdminCat({ categories, refresh, t }: any) {
           <input placeholder="Name (FA)" value={newCat.name_fa} onChange={e => setNewCat({...newCat, name_fa: e.target.value})} className="bg-white dark:bg-zinc-900 border border-zinc-200 dark:border-white/10 p-4 rounded-xl text-sm" />
           <input placeholder="Name (EN)" value={newCat.name_en} onChange={e => setNewCat({...newCat, name_en: e.target.value})} className="bg-white dark:bg-zinc-900 border border-zinc-200 dark:border-white/10 p-4 rounded-xl text-sm" />
         </div>
-        <button onClick={add} className="bg-emerald-500 text-white p-4 rounded-xl font-bold flex items-center justify-center gap-2"><Plus size={20} /> {t.add}</button>
+        <button onClick={add} className="bg-emerald-500 text-white p-4 rounded-xl font-bold flex items-center justify-center gap-2"><Plus size={20} /> {editing ? 'Update' : t.add}</button>
       </div>
 
       <div className="space-y-2">
@@ -428,7 +477,10 @@ function AdminCat({ categories, refresh, t }: any) {
               <span className="text-[10px] uppercase font-black text-emerald-500 mr-3">{c.type}</span>
               <span className="font-bold">{c.name_en} / {c.name_fa}</span>
             </div>
-            <button onClick={() => del(c.id)} className="text-zinc-400 hover:text-red-500 transition-colors"><Trash2 size={18} /></button>
+            <div className="flex gap-2">
+              <button onClick={() => edit(c)} className="text-zinc-400 hover:text-emerald-500 transition-colors">Edit</button>
+              <button onClick={() => del(c.id)} className="text-zinc-400 hover:text-red-500 transition-colors"><Trash2 size={18} /></button>
+            </div>
           </div>
         ))}
       </div>
@@ -438,13 +490,23 @@ function AdminCat({ categories, refresh, t }: any) {
 
 function AdminItem({ items, categories, refresh, t }: any) {
   const [newItem, setNewItem] = useState({ category_id: '', name_fa: '', name_en: '', name_ar: '', name_tr: '', name_ku: '', description_fa: '', description_en: '', description_ar: '', description_tr: '', description_ku: '', price: '', image_url: '' });
+  const [editing, setEditing] = useState<any>(null);
 
   const add = async () => {
-    await fetch('/api/items', {
-      method: 'POST',
-      headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify(newItem)
-    });
+    if (editing) {
+      await fetch(`/api/items/${editing.id}`, {
+        method: 'PUT',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify(newItem)
+      });
+      setEditing(null);
+    } else {
+      await fetch('/api/items', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify(newItem)
+      });
+    }
     setNewItem({ category_id: '', name_fa: '', name_en: '', name_ar: '', name_tr: '', name_ku: '', description_fa: '', description_en: '', description_ar: '', description_tr: '', description_ku: '', price: '', image_url: '' });
     refresh();
   };
@@ -454,6 +516,11 @@ function AdminItem({ items, categories, refresh, t }: any) {
       await fetch(`/api/items/${id}`, { method: 'DELETE' });
       refresh();
     }
+  };
+
+  const edit = (i: any) => {
+    setEditing(i);
+    setNewItem(i);
   };
 
   return (
@@ -469,7 +536,7 @@ function AdminItem({ items, categories, refresh, t }: any) {
         </div>
         <input placeholder="Price" value={newItem.price} onChange={e => setNewItem({...newItem, price: e.target.value})} className="bg-white dark:bg-zinc-900 border border-zinc-200 dark:border-white/10 p-4 rounded-xl text-sm" />
         <input placeholder="Image URL" value={newItem.image_url} onChange={e => setNewItem({...newItem, image_url: e.target.value})} className="bg-white dark:bg-zinc-900 border border-zinc-200 dark:border-white/10 p-4 rounded-xl text-sm" />
-        <button onClick={add} className="bg-emerald-500 text-white p-4 rounded-xl font-bold flex items-center justify-center gap-2"><Plus size={20} /> {t.add}</button>
+        <button onClick={add} className="bg-emerald-500 text-white p-4 rounded-xl font-bold flex items-center justify-center gap-2"><Plus size={20} /> {editing ? 'Update' : t.add}</button>
       </div>
 
       <div className="space-y-2">
@@ -479,7 +546,10 @@ function AdminItem({ items, categories, refresh, t }: any) {
               <img src={i.image_url} className="w-10 h-10 rounded-lg object-cover" referrerPolicy="no-referrer" />
               <span className="font-bold">{i.name_en}</span>
             </div>
-            <button onClick={() => del(i.id)} className="text-zinc-400 hover:text-red-500 transition-colors"><Trash2 size={18} /></button>
+            <div className="flex gap-2">
+              <button onClick={() => edit(i)} className="text-zinc-400 hover:text-emerald-500 transition-colors">Edit</button>
+              <button onClick={() => del(i.id)} className="text-zinc-400 hover:text-red-500 transition-colors"><Trash2 size={18} /></button>
+            </div>
           </div>
         ))}
       </div>
@@ -489,13 +559,23 @@ function AdminItem({ items, categories, refresh, t }: any) {
 
 function AdminPhone({ phones, refresh, t }: any) {
   const [newPhone, setNewPhone] = useState({ name_fa: '', name_en: '', name_ar: '', name_tr: '', name_ku: '', number: '' });
+  const [editing, setEditing] = useState<any>(null);
 
   const add = async () => {
-    await fetch('/api/phones', {
-      method: 'POST',
-      headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify(newPhone)
-    });
+    if (editing) {
+      await fetch(`/api/phones/${editing.id}`, {
+        method: 'PUT',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify(newPhone)
+      });
+      setEditing(null);
+    } else {
+      await fetch('/api/phones', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify(newPhone)
+      });
+    }
     setNewPhone({ name_fa: '', name_en: '', name_ar: '', name_tr: '', name_ku: '', number: '' });
     refresh();
   };
@@ -507,6 +587,11 @@ function AdminPhone({ phones, refresh, t }: any) {
     }
   };
 
+  const edit = (p: any) => {
+    setEditing(p);
+    setNewPhone(p);
+  };
+
   return (
     <div className="space-y-8">
       <div className="grid gap-4 p-6 bg-emerald-500/5 rounded-3xl border border-emerald-500/10">
@@ -515,14 +600,17 @@ function AdminPhone({ phones, refresh, t }: any) {
           <input placeholder="Name (EN)" value={newPhone.name_en} onChange={e => setNewPhone({...newPhone, name_en: e.target.value})} className="bg-white dark:bg-zinc-900 border border-zinc-200 dark:border-white/10 p-4 rounded-xl text-sm" />
         </div>
         <input placeholder="Number" value={newPhone.number} onChange={e => setNewPhone({...newPhone, number: e.target.value})} className="bg-white dark:bg-zinc-900 border border-zinc-200 dark:border-white/10 p-4 rounded-xl text-sm" />
-        <button onClick={add} className="bg-emerald-500 text-white p-4 rounded-xl font-bold flex items-center justify-center gap-2"><Plus size={20} /> {t.add}</button>
+        <button onClick={add} className="bg-emerald-500 text-white p-4 rounded-xl font-bold flex items-center justify-center gap-2"><Plus size={20} /> {editing ? 'Update' : t.add}</button>
       </div>
 
       <div className="space-y-2">
         {phones.map((p: any) => (
           <div key={p.id} className="flex justify-between items-center p-4 bg-zinc-50 dark:bg-zinc-950 rounded-xl border border-zinc-200 dark:border-white/5">
             <span className="font-bold">{p.name_en}: {p.number}</span>
-            <button onClick={() => del(p.id)} className="text-zinc-400 hover:text-red-500 transition-colors"><Trash2 size={18} /></button>
+            <div className="flex gap-2">
+              <button onClick={() => edit(p)} className="text-zinc-400 hover:text-emerald-500 transition-colors">Edit</button>
+              <button onClick={() => del(p.id)} className="text-zinc-400 hover:text-red-500 transition-colors"><Trash2 size={18} /></button>
+            </div>
           </div>
         ))}
       </div>
