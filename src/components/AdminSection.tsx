@@ -98,7 +98,11 @@ function AdminTabBtn({ active, onClick, icon, label }: any) {
 }
 
 function AdminSettings({ settings, refresh, t, seedDatabase }: any) {
-  const [newSettings, setNewSettings] = useState(settings || { hotel_name: '', logo_url: '' });
+  const [newSettings, setNewSettings] = useState(settings || { 
+    hotel_name: '', 
+    logo_url: '', 
+    tile_images: { info: '', restaurant: '', cafe: '', laundry: '', phones: '' } 
+  });
 
   const save = async () => {
     try {
@@ -120,6 +124,16 @@ function AdminSettings({ settings, refresh, t, seedDatabase }: any) {
           <input value={newSettings.hotel_name} onChange={e => setNewSettings({...newSettings, hotel_name: e.target.value})} className="w-full bg-zinc-50 dark:bg-zinc-950 border border-zinc-200 dark:border-white/10 p-4 rounded-2xl outline-none focus:border-emerald-500 transition-all" />
         </div>
         <ImageUploader label="Hotel Logo" value={newSettings.logo_url} onChange={(val) => setNewSettings({...newSettings, logo_url: val})} />
+        
+        <div className="space-y-4 pt-4 border-t border-zinc-200 dark:border-white/5">
+          <h4 className="text-xs font-bold text-zinc-500 uppercase tracking-widest">Tile Images</h4>
+          <ImageUploader label="Restaurant" value={newSettings.tile_images?.restaurant} onChange={(val) => setNewSettings({...newSettings, tile_images: {...newSettings.tile_images, restaurant: val}})} />
+          <ImageUploader label="Cafe" value={newSettings.tile_images?.cafe} onChange={(val) => setNewSettings({...newSettings, tile_images: {...newSettings.tile_images, cafe: val}})} />
+          <ImageUploader label="Laundry" value={newSettings.tile_images?.laundry} onChange={(val) => setNewSettings({...newSettings, tile_images: {...newSettings.tile_images, laundry: val}})} />
+          <ImageUploader label="Info" value={newSettings.tile_images?.info} onChange={(val) => setNewSettings({...newSettings, tile_images: {...newSettings.tile_images, info: val}})} />
+          <ImageUploader label="Phones" value={newSettings.tile_images?.phones} onChange={(val) => setNewSettings({...newSettings, tile_images: {...newSettings.tile_images, phones: val}})} />
+        </div>
+
         <button onClick={save} className="bg-emerald-500 text-white p-4 rounded-2xl font-bold shadow-lg shadow-emerald-500/20 hover:bg-emerald-600 transition-all">{t.save}</button>
       </div>
       

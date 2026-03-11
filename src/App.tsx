@@ -4,7 +4,7 @@ import {
 } from 'lucide-react';
 import { motion, AnimatePresence } from 'motion/react';
 import { supabase, isSupabaseConfigured } from './services/supabaseClient';
-import { AppData } from './types';
+import { AppData, HotelSettings } from './types';
 import { initialMockData } from './mockData';
 
 // Modular Components & Utils
@@ -17,7 +17,7 @@ import { AdminSection } from './components/AdminSection';
 
 export default function App() {
   const [data, setData] = useState<AppData | null>(null);
-  const [settings, setSettings] = useState<{ hotel_name: string, logo_url: string } | null>(null);
+  const [settings, setSettings] = useState<HotelSettings | null>(null);
   const [lang, setLang] = useState<Language>('en');
   const t = (UI_STRINGS as any)[lang];
   const [activeTab, setActiveTab] = useState<'home' | 'restaurant' | 'cafe' | 'laundry' | 'info' | 'admin'>('home');
@@ -94,7 +94,7 @@ export default function App() {
       if (itemsError) throw itemsError;
 
       if (settingsData) {
-        setSettings({ hotel_name: settingsData.hotel_name, logo_url: settingsData.logo_url });
+        setSettings(settingsData as HotelSettings);
         setData({
           menus: menusData || [],
           categories: categoriesData || [],
