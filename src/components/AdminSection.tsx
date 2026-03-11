@@ -98,10 +98,10 @@ function AdminTabBtn({ active, onClick, icon, label }: any) {
 }
 
 function AdminSettings({ settings, refresh, t, seedDatabase }: any) {
-  const [newSettings, setNewSettings] = useState(settings || { 
-    hotel_name: '', 
-    logo_url: '', 
-    tile_images: { info: '', restaurant: '', cafe: '', laundry: '', phones: '' } 
+  const [newSettings, setNewSettings] = useState({
+    hotel_name: settings?.hotel_name || '',
+    logo_url: settings?.logo_url || '',
+    tile_images: settings?.tile_images || { info: '', restaurant: '', cafe: '', laundry: '', phones: '' }
   });
 
   const save = async () => {
