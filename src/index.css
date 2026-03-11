@@ -4,3 +4,21 @@
 @theme {
   --font-sans: "Vazirmatn", ui-sans-serif, system-ui, sans-serif;
 }
+
+@layer base {
+  .atmospheric-bg {
+    @apply fixed inset-0 -z-10 overflow-hidden pointer-events-none;
+  }
+  
+  .blob {
+    @apply absolute rounded-full mix-blend-multiply filter blur-[80px] opacity-20 dark:opacity-30 animate-pulse;
+  }
+}
+
+.no-scrollbar::-webkit-scrollbar {
+  display: none;
+}
+.no-scrollbar {
+  -ms-overflow-style: none;
+  scrollbar-width: none;
+}

@@ -234,9 +234,16 @@ export default function App() {
   );
 
   return (
-    <div className={`min-h-screen transition-colors duration-500 ${theme === 'dark' ? 'bg-zinc-950 text-zinc-100' : 'bg-zinc-50 text-zinc-900'}`}>
+    <div className={`min-h-screen transition-colors duration-500 relative ${theme === 'dark' ? 'bg-zinc-950 text-zinc-100' : 'bg-zinc-50 text-zinc-900'}`}>
+      {/* Atmospheric Background */}
+      <div className="atmospheric-bg">
+        <div className="blob w-[500px] h-[500px] bg-emerald-500/20 -top-24 -left-24 animate-[pulse_8s_infinite]" />
+        <div className="blob w-[400px] h-[400px] bg-blue-500/20 top-1/2 -right-24 animate-[pulse_10s_infinite]" />
+        <div className="blob w-[300px] h-[300px] bg-purple-500/20 -bottom-24 left-1/4 animate-[pulse_12s_infinite]" />
+      </div>
+
       {/* Premium Header */}
-      <header className="sticky top-0 z-50 bg-white/80 dark:bg-zinc-950/80 backdrop-blur-2xl border-b border-zinc-200 dark:border-white/5 px-6 py-4 transition-colors duration-300">
+      <header className="sticky top-0 z-50 bg-white/60 dark:bg-zinc-950/40 backdrop-blur-2xl border-b border-zinc-200 dark:border-white/5 px-6 py-4 transition-colors duration-300">
         <div className="max-w-4xl mx-auto flex justify-between items-center">
           <div className="flex items-center gap-4">
             {activeTab !== 'home' && (
@@ -284,7 +291,7 @@ export default function App() {
       </main>
 
       {/* Modern Bottom Nav */}
-      <nav className="fixed bottom-6 left-6 right-6 md:hidden bg-white/90 dark:bg-zinc-900/90 backdrop-blur-2xl border border-zinc-200 dark:border-white/10 rounded-3xl px-4 py-3 flex justify-around items-center z-50 shadow-2xl transition-colors duration-300">
+      <nav className="fixed bottom-6 left-6 right-6 md:hidden bg-white/60 dark:bg-zinc-900/40 backdrop-blur-2xl border border-zinc-200 dark:border-white/10 rounded-3xl px-4 py-3 flex justify-around items-center z-50 shadow-2xl transition-colors duration-300">
         <NavBtn active={activeTab === 'home'} onClick={() => setActiveTab('home')} icon={<HomeIcon size={20} />} label={t.home} />
         <NavBtn active={activeTab === 'info'} onClick={() => setActiveTab('info')} icon={<Info size={20} />} label={t.info} />
         <NavBtn active={activeTab === 'restaurant'} onClick={() => setActiveTab('restaurant')} icon={<Utensils size={20} />} label={t.restaurant} />
@@ -306,22 +313,25 @@ function HomeGrid({ navigateTo, t, settings }: any) {
   ];
 
   return (
-    <motion.div initial={{ opacity: 0, y: 20 }} animate={{ opacity: 1, y: 0 }} exit={{ opacity: 0, y: -20 }} className="grid grid-cols-2 lg:grid-cols-3 gap-4">
+    <motion.div initial={{ opacity: 0, y: 20 }} animate={{ opacity: 1, y: 0 }} exit={{ opacity: 0, y: -20 }} className="grid grid-cols-2 lg:grid-cols-3 gap-6">
       {tiles.map((tile) => (
         <motion.button
-          whileHover={{ scale: 1.02 }}
+          whileHover={{ scale: 1.02, y: -4 }}
           whileTap={{ scale: 0.98 }}
           key={tile.id}
           onClick={() => navigateTo(tile.id as any)}
-          className="relative h-48 rounded-[2.5rem] overflow-hidden group shadow-lg"
+          className="relative h-56 rounded-[3rem] overflow-hidden group shadow-xl border border-white/10"
         >
           <img src={tile.img} className="absolute inset-0 w-full h-full object-cover transition-transform duration-700 group-hover:scale-110" referrerPolicy="no-referrer" />
-          <div className={`absolute inset-0 bg-gradient-to-br ${tile.color} opacity-60 group-hover:opacity-40 transition-opacity`} />
-          <div className="absolute inset-0 bg-black/20" />
-          <div className="absolute inset-0 flex flex-col items-center justify-center text-white p-4">
-            <div className="mb-3 p-3 bg-white/20 backdrop-blur-md rounded-2xl">{tile.icon}</div>
-            <span className="text-xl font-black tracking-tight uppercase">{tile.label}</span>
+          <div className={`absolute inset-0 bg-gradient-to-br ${tile.color} opacity-40 group-hover:opacity-30 transition-opacity`} />
+          <div className="absolute inset-0 bg-zinc-950/20 group-hover:bg-zinc-950/10 transition-colors" />
+          <div className="absolute inset-0 flex flex-col items-center justify-center text-white p-6">
+            <div className="mb-4 p-4 bg-white/10 backdrop-blur-xl rounded-[2rem] border border-white/20 shadow-2xl transition-transform duration-500 group-hover:scale-110 group-hover:rotate-3">
+              {tile.icon}
+            </div>
+            <span className="text-xl font-black tracking-tight uppercase drop-shadow-lg">{tile.label}</span>
           </div>
+          <div className="absolute bottom-0 left-0 right-0 h-1/2 bg-gradient-to-t from-black/60 to-transparent opacity-0 group-hover:opacity-100 transition-opacity duration-500" />
         </motion.button>
       ))}
     </motion.div>
@@ -351,7 +361,7 @@ function InfoSection({ info, phones, t }: any) {
 
       <div className="grid gap-4">
         {info.map((item: any) => (
-          <div key={item.key} className="bg-white dark:bg-zinc-900/50 border border-zinc-200 dark:border-white/5 p-5 rounded-2xl flex justify-between items-center hover:bg-zinc-50 dark:hover:bg-zinc-900 transition-colors shadow-sm">
+          <div key={item.key} className="bg-white/60 dark:bg-zinc-900/40 backdrop-blur-xl border border-zinc-200 dark:border-white/5 p-5 rounded-2xl flex justify-between items-center hover:bg-white/80 dark:hover:bg-zinc-900/60 transition-colors shadow-sm">
             <span className="text-zinc-500 dark:text-zinc-400 font-medium">{item.label}</span>
             <span className="font-bold text-emerald-600 dark:text-emerald-400">{item.value}</span>
           </div>
@@ -469,7 +479,7 @@ function MenuSection({ type, categories, items, t }: any) {
                     animate={{ opacity: 1, y: 0 }}
                     whileHover={{ y: -4 }} 
                     key={item.id} 
-                    className="bg-white dark:bg-zinc-900/40 border border-zinc-200 dark:border-white/5 rounded-3xl overflow-hidden flex flex-col sm:flex-row group transition-all hover:bg-zinc-50 dark:hover:bg-zinc-900 hover:border-zinc-300 dark:hover:border-white/10 shadow-sm"
+                    className="bg-white/60 dark:bg-zinc-900/40 backdrop-blur-xl border border-zinc-200 dark:border-white/5 rounded-3xl overflow-hidden flex flex-col sm:flex-row group transition-all hover:bg-white/80 dark:hover:bg-zinc-900/60 hover:border-zinc-300 dark:hover:border-white/10 shadow-sm"
                   >
                     <div className="w-full sm:w-40 h-40 shrink-0 overflow-hidden">
                       <img src={item.image_url || `https://picsum.photos/seed/${item.id}/300/300`} className="w-full h-full object-cover transition-transform duration-500 group-hover:scale-110" referrerPolicy="no-referrer" />
@@ -500,7 +510,7 @@ function PhoneSection({ phones, t }: any) {
       <h2 className="text-3xl font-black px-2 text-zinc-900 dark:text-zinc-100">{t.contact}</h2>
       <div className="grid gap-4">
         {phones.map((p: any) => (
-          <div key={p.id} className="bg-white dark:bg-zinc-900/50 border border-zinc-200 dark:border-white/5 p-6 rounded-3xl flex justify-between items-center group hover:bg-zinc-50 dark:hover:bg-zinc-900 transition-all shadow-sm">
+          <div key={p.id} className="bg-white/60 dark:bg-zinc-900/40 backdrop-blur-xl border border-zinc-200 dark:border-white/5 p-6 rounded-3xl flex justify-between items-center group hover:bg-white/80 dark:hover:bg-zinc-900/60 transition-all shadow-sm">
             <div className="flex items-center gap-5">
               <div className="w-14 h-14 bg-zinc-50 dark:bg-zinc-950 rounded-2xl flex items-center justify-center text-zinc-400 dark:text-zinc-500 group-hover:text-emerald-600 dark:group-hover:text-emerald-400 border border-zinc-200 dark:border-white/5 transition-all">
                 <Phone size={24} />
@@ -550,7 +560,7 @@ function AdminSection({ isAdmin, onLogin, data, refresh, t, settings, seedDataba
         <SubNavBtn active={activeSub === 'menu'} onClick={() => setActiveSub('menu')} label="Global Menus" />
       </div>
 
-      <div className="bg-white dark:bg-zinc-900/50 border border-zinc-200 dark:border-white/10 rounded-[1.5rem] md:rounded-[2rem] p-4 md:p-8 shadow-sm transition-colors">
+      <div className="bg-white/60 dark:bg-zinc-900/40 backdrop-blur-xl border border-zinc-200 dark:border-white/10 rounded-[1.5rem] md:rounded-[2rem] p-4 md:p-8 shadow-sm transition-colors">
         {activeSub === 'settings' && <AdminSettings settings={settings} refresh={refresh} t={t} seedDatabase={seedDatabase} />}
         {(activeSub === 'restaurant' || activeSub === 'cafe' || activeSub === 'laundry') && (
           <AdminMenuManager 
