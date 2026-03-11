@@ -10,45 +10,46 @@ interface InfoSectionProps {
 
 export const InfoSection = React.memo(function InfoSection({ info, phones, t }: InfoSectionProps) {
   return (
-    <div className="grid grid-cols-1 md:grid-cols-2 gap-4 md:gap-8">
-      <div className="space-y-4 md:space-y-6">
-        <div className="flex items-center gap-3 px-2">
-          <div className="w-2 h-8 bg-emerald-500 rounded-full" />
-          <h2 className="text-2xl md:text-3xl font-black tracking-tight text-zinc-900">{t.workingHours}</h2>
+    <div className="w-full grid grid-cols-1 md:grid-cols-2 gap-6">
+      {/* Working Hours */}
+      <div className="w-full">
+        <div className="flex items-center gap-2 mb-4">
+          <div className="w-1 h-6 bg-emerald-500 rounded-full" />
+          <h2 className="text-lg font-black text-zinc-900">{t.workingHours}</h2>
         </div>
-        <div className="grid gap-4">
+        <div className="grid grid-cols-1 gap-2">
           {info.map((item) => (
-            <div key={item.key} className="p-4 md:p-6 bg-white border border-zinc-200 rounded-3xl flex items-start gap-4 shadow-sm">
-              <div className="p-3 bg-emerald-500/10 rounded-2xl text-emerald-600">
-                {item.label.toLowerCase().includes('hour') ? <Clock size={24} /> : <InfoIcon size={24} />}
+            <div key={item.key} className="p-3 bg-white border border-zinc-100 rounded-xl flex items-start gap-3 shadow-sm">
+              <div className="p-2 bg-emerald-500/10 rounded-lg text-emerald-600 shrink-0">
+                {item.label.toLowerCase().includes('hour') ? <Clock size={16} /> : <InfoIcon size={16} />}
               </div>
-              <div>
-                <h3 className="font-bold text-zinc-900 mb-1">{item.label}</h3>
-                <p className="text-sm text-zinc-500 leading-relaxed">{item.value}</p>
+              <div className="min-w-0 flex-1">
+                <h3 className="font-bold text-zinc-900 text-xs">{item.label}</h3>
+                <p className="text-[11px] text-zinc-500 break-words">{item.value}</p>
               </div>
             </div>
           ))}
         </div>
       </div>
 
-      <div className="space-y-4 md:space-y-6">
-        <div className="flex items-center gap-3 px-2">
-          <div className="w-2 h-8 bg-zinc-400 rounded-full" />
-          <h2 className="text-2xl md:text-3xl font-black tracking-tight text-zinc-900">{t.internalPhones}</h2>
+      {/* Internal Phones */}
+      <div className="w-full">
+        <div className="flex items-center gap-2 mb-4">
+          <div className="w-1 h-6 bg-zinc-400 rounded-full" />
+          <h2 className="text-lg font-black text-zinc-900">{t.internalPhones}</h2>
         </div>
-        <div className="p-4 md:p-8 bg-zinc-900 rounded-[32px] md:rounded-[40px] text-white shadow-2xl relative overflow-hidden">
-          <div className="absolute top-0 right-0 w-64 h-64 bg-emerald-500/10 blur-[100px] rounded-full -mr-32 -mt-32" />
-          <div className="grid grid-cols-1 gap-4 md:gap-8 relative z-10">
+        <div className="p-4 bg-zinc-900 rounded-2xl text-white shadow-xl relative overflow-hidden">
+          <div className="grid grid-cols-1 gap-2 relative z-10">
             {phones.map((p) => (
-              <div key={p.id} className="flex items-center justify-between border-b border-white/10 pb-2 md:pb-4">
-                <span className="text-zinc-400 font-medium text-sm md:text-base">{p.name}</span>
-                <span className="text-lg md:text-2xl font-black text-emerald-400 tracking-tighter">{p.number}</span>
+              <div key={p.id} className="flex items-center justify-between border-b border-white/5 pb-2 last:border-0 last:pb-0">
+                <span className="text-zinc-400 font-medium text-xs truncate mr-2">{p.name}</span>
+                <span className="text-sm font-black text-emerald-400 shrink-0">{p.number}</span>
               </div>
             ))}
           </div>
-          <div className="mt-6 md:mt-10 flex items-center gap-4 p-4 bg-white/5 rounded-2xl border border-white/10">
-            <div className="p-2 bg-emerald-500 rounded-lg"><Phone size={18} /></div>
-            <p className="text-xs text-zinc-400 font-medium">{t.callInstruction}</p>
+          <div className="mt-4 flex items-center gap-2 p-2 bg-white/5 rounded-lg border border-white/5">
+            <div className="p-1 bg-emerald-500 rounded-md shrink-0"><Phone size={12} /></div>
+            <p className="text-[9px] text-zinc-400">{t.callInstruction}</p>
           </div>
         </div>
       </div>

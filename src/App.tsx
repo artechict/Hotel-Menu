@@ -219,7 +219,7 @@ export default function App() {
         </div>
       </header>
 
-      <main className="max-w-5xl mx-auto p-4 pb-32">
+      <main className="max-w-5xl mx-auto p-4 pb-32 overflow-hidden">
           {activeTab === 'home' && <HomeGrid navigateTo={navigateTo} t={t} settings={settings} />}
           {activeTab === 'info' && <InfoSection info={data?.info || []} phones={data?.phones || []} t={t} />}
           {(activeTab === 'restaurant' || activeTab === 'cafe' || activeTab === 'laundry') && (
