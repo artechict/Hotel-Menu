@@ -123,15 +123,15 @@ export function MenuSection({ type, categories, items, t, lang }: MenuSectionPro
                       </>
                     ) : (
                       <>
-                        <div className={`${viewMode === 'list' ? 'w-full sm:w-40 h-40' : 'w-full h-48'} shrink-0 overflow-hidden cursor-pointer`} onClick={() => setZoomedImage(item.image_url || `https://picsum.photos/seed/${item.id}/600/600`)}>
+                        <div className={`${viewMode === 'list' ? 'w-24 sm:w-40 h-24 sm:h-40' : 'w-full h-48'} shrink-0 overflow-hidden cursor-pointer`} onClick={() => setZoomedImage(item.image_url || `https://picsum.photos/seed/${item.id}/600/600`)}>
                           <img src={item.image_url || `https://picsum.photos/seed/${item.id}/300/300`} className="w-full h-full object-cover transition-transform duration-500 group-hover:scale-110" referrerPolicy="no-referrer" loading="lazy" />
                         </div>
-                        <div className="p-6 flex flex-col justify-between flex-1">
-                          <div className="flex justify-between items-start mb-2">
-                            <h4 className="text-lg font-bold text-zinc-900 dark:text-zinc-100">{getTranslated(item, 'name', lang)}</h4>
-                            <span className="text-emerald-600 dark:text-emerald-400 font-black text-lg">{item.price}</span>
+                        <div className="p-4 sm:p-6 flex flex-col justify-between flex-1 min-w-0">
+                          <div className="flex justify-between items-start gap-2 mb-2">
+                            <h4 className="text-sm sm:text-lg font-bold text-zinc-900 dark:text-zinc-100 truncate">{getTranslated(item, 'name', lang)}</h4>
+                            <span className="text-emerald-600 dark:text-emerald-400 font-black text-sm sm:text-lg shrink-0">{item.price}</span>
                           </div>
-                          {viewMode === 'list' && <p className="text-sm text-zinc-500 dark:text-zinc-500 leading-relaxed line-clamp-2">{getTranslated(item, 'description', lang)}</p>}
+                          {viewMode === 'list' && <p className="text-xs sm:text-sm text-zinc-500 dark:text-zinc-500 leading-relaxed line-clamp-2">{getTranslated(item, 'description', lang)}</p>}
                         </div>
                       </>
                     )}
