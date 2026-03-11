@@ -12,11 +12,26 @@ interface MenuSectionProps {
   lang: string;
 }
 
+import React, { useState, useEffect, useCallback, useRef } from 'react';
+import { motion, AnimatePresence } from 'motion/react';
+import { ChevronLeft, ChevronRight, LayoutGrid, List, X } from 'lucide-react';
+import { Category, MenuItem } from '../types';
+import { getTranslated } from '../utils/translation';
+
+interface MenuSectionProps {
+  type: string;
+  categories: Category[];
+  items: MenuItem[];
+  t: any;
+  lang: string;
+}
+
 export function MenuSection({ type, categories, items, t, lang }: MenuSectionProps) {
   const [activeCatId, setActiveCatId] = useState<number | null>(null);
   const [viewMode, setViewMode] = useState<'list' | 'grid'>('list');
   const [showLeftArrow, setShowLeftArrow] = useState(false);
   const [showRightArrow, setShowRightArrow] = useState(false);
+  const [zoomedImage, setZoomedImage] = useState<string | null>(null);
   const scrollRef = useRef<HTMLDivElement>(null);
 
   const isLaundry = type === 'laundry';
@@ -60,11 +75,10 @@ export function MenuSection({ type, categories, items, t, lang }: MenuSectionPro
         <h2 className="text-2xl md:text-3xl font-black tracking-tight text-zinc-900 dark:text-zinc-100">{t[type]}</h2>
         {!isLaundry && (
           <div className="flex bg-zinc-100 dark:bg-zinc-800 rounded-xl p-1">
-            <button onClick={() => setViewMode('list')} className={`px-4 py-2 rounded-lg text-xs font-bold ${viewMode === 'list' ? 'bg-white dark:bg-zinc-700 shadow' : ''}`}>List</button>
-            <button onClick={() => setViewMode('grid')} className={`px-4 py-2 rounded-lg text-xs font-bold ${viewMode === 'grid' ? 'bg-white dark:bg-zinc-700 shadow' : ''}`}>Grid</button>
+            <button onClick={() => setViewMode('list')} className={`p-2 rounded-lg ${viewMode === 'list' ? 'bg-white dark:bg-zinc-700 shadow' : ''}`}><List size={18} /></button>
+            <button onClick={() => setViewMode('grid')} className={`p-2 rounded-lg ${viewMode === 'grid' ? 'bg-white dark:bg-zinc-700 shadow' : ''}`}><LayoutGrid size={18} /></button>
           </div>
         )}
-        <div className="h-px flex-1 bg-zinc-200 dark:bg-white/10 mx-4 md:mx-6" />
       </div>
 
       {categories.length === 0 ? (
@@ -74,25 +88,12 @@ export function MenuSection({ type, categories, items, t, lang }: MenuSectionPro
           {/* Categories Tabs */}
           <div className="flex items-center gap-2 group/scroll relative">
             {showLeftArrow && (
-              <button 
-                onClick={() => scroll('left')} 
-                className="shrink-0 p-2 bg-white dark:bg-zinc-900 rounded-full shadow-md border border-zinc-200 dark:border-white/10 transition-all hidden md:block z-10"
-              >
-                <ChevronLeft size={20} />
-              </button>
+              <button onClick={() => scroll('left')} className="shrink-0 p-2 bg-white dark:bg-zinc-900 rounded-full shadow-md border border-zinc-200 dark:border-white/10 transition-all hidden md:block z-10"><ChevronLeft size={20} /></button>
             )}
             
-            <div 
-              ref={scrollRef}
-              onScroll={checkScroll}
-              className="flex-1 flex gap-4 overflow-x-auto no-scrollbar pb-4 px-2 scroll-smooth"
-            >
+            <div ref={scrollRef} onScroll={checkScroll} className="flex-1 flex gap-4 overflow-x-auto no-scrollbar pb-4 px-2 scroll-smooth">
               {categories.map((cat: any) => (
-                <button
-                  key={cat.id}
-                  onClick={() => setActiveCatId(cat.id)}
-                  className={`flex flex-col items-center gap-3 shrink-0 transition-all ${activeCatId === cat.id ? 'scale-105' : 'opacity-60 hover:opacity-100'}`}
-                >
+                <button key={cat.id} onClick={() => setActiveCatId(cat.id)} className={`flex flex-col items-center gap-3 shrink-0 transition-all ${activeCatId === cat.id ? 'scale-105' : 'opacity-60 hover:opacity-100'}`}>
                   <div className={`w-16 h-16 md:w-20 md:h-20 rounded-2xl overflow-hidden border-2 transition-all ${activeCatId === cat.id ? 'border-emerald-500 shadow-lg shadow-emerald-500/20' : 'border-transparent'}`}>
                     <img src={cat.image_url || `https://picsum.photos/seed/${cat.id}/200/200`} className="w-full h-full object-cover" referrerPolicy="no-referrer" />
                   </div>
@@ -102,12 +103,7 @@ export function MenuSection({ type, categories, items, t, lang }: MenuSectionPro
             </div>
 
             {showRightArrow && (
-              <button 
-                onClick={() => scroll('right')} 
-                className="shrink-0 p-2 bg-white dark:bg-zinc-900 rounded-full shadow-md border border-zinc-200 dark:border-white/10 transition-all hidden md:block z-10"
-              >
-                <ChevronRight size={20} />
-              </button>
+              <button onClick={() => scroll('right')} className="shrink-0 p-2 bg-white dark:bg-zinc-900 rounded-full shadow-md border border-zinc-200 dark:border-white/10 transition-all hidden md:block z-10"><ChevronRight size={20} /></button>
             )}
           </div>
 
@@ -118,7 +114,7 @@ export function MenuSection({ type, categories, items, t, lang }: MenuSectionPro
               <h3 className="text-xl font-bold text-zinc-900 dark:text-zinc-100">{getTranslated(activeCategory, 'name', lang)}</h3>
             </div>
             
-            <div className={isLaundry ? "space-y-2" : (viewMode === 'grid' ? "grid grid-cols-2 gap-4" : "grid gap-6")}>
+            <div className={isLaundry ? "space-y-2" : (viewMode === 'grid' ? "grid grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-4" : "grid gap-6")}>
               {filteredItems.length === 0 ? (
                 <div className="text-center py-10 text-zinc-400 dark:text-zinc-600 italic">No items in this category yet.</div>
               ) : (
@@ -131,9 +127,7 @@ export function MenuSection({ type, categories, items, t, lang }: MenuSectionPro
                     key={item.id} 
                     className={isLaundry 
                       ? "p-4 bg-white/60 dark:bg-zinc-900/40 backdrop-blur-xl border border-zinc-200 dark:border-white/5 rounded-2xl flex justify-between items-center"
-                      : (viewMode === 'grid' 
-                        ? "bg-white/60 dark:bg-zinc-900/40 backdrop-blur-xl border border-zinc-200 dark:border-white/5 rounded-3xl overflow-hidden flex flex-col group transition-all hover:bg-white/80 dark:hover:bg-zinc-900/60 hover:border-zinc-300 dark:hover:border-white/10 shadow-sm"
-                        : "bg-white/60 dark:bg-zinc-900/40 backdrop-blur-xl border border-zinc-200 dark:border-white/5 rounded-3xl overflow-hidden flex flex-col sm:flex-row group transition-all hover:bg-white/80 dark:hover:bg-zinc-900/60 hover:border-zinc-300 dark:hover:border-white/10 shadow-sm")
+                      : "bg-white/60 dark:bg-zinc-900/40 backdrop-blur-xl border border-zinc-200 dark:border-white/5 rounded-3xl overflow-hidden flex flex-col group transition-all hover:bg-white/80 dark:hover:bg-zinc-900/60 hover:border-zinc-300 dark:hover:border-white/10 shadow-sm"
                     }
                   >
                     {isLaundry ? (
@@ -143,24 +137,15 @@ export function MenuSection({ type, categories, items, t, lang }: MenuSectionPro
                       </>
                     ) : (
                       <>
-                        {viewMode === 'list' && (
-                          <div className="w-full sm:w-40 h-40 shrink-0 overflow-hidden">
-                            <img src={item.image_url || `https://picsum.photos/seed/${item.id}/300/300`} className="w-full h-full object-cover transition-transform duration-500 group-hover:scale-110" referrerPolicy="no-referrer" />
-                          </div>
-                        )}
-                        {viewMode === 'grid' && (
-                          <div className="w-full h-40 shrink-0 overflow-hidden">
-                            <img src={item.image_url || `https://picsum.photos/seed/${item.id}/300/300`} className="w-full h-full object-cover transition-transform duration-500 group-hover:scale-110" referrerPolicy="no-referrer" />
-                          </div>
-                        )}
+                        <div className="w-full h-48 shrink-0 overflow-hidden cursor-pointer" onClick={() => setZoomedImage(item.image_url || `https://picsum.photos/seed/${item.id}/600/600`)}>
+                          <img src={item.image_url || `https://picsum.photos/seed/${item.id}/300/300`} className="w-full h-full object-cover transition-transform duration-500 group-hover:scale-110" referrerPolicy="no-referrer" />
+                        </div>
                         <div className="p-6 flex flex-col justify-between flex-1">
-                          <div>
-                            <div className="flex justify-between items-start mb-2">
-                              <h4 className="text-lg font-bold text-zinc-900 dark:text-zinc-100">{getTranslated(item, 'name', lang)}</h4>
-                              <span className="text-emerald-600 dark:text-emerald-400 font-black text-lg">{item.price}</span>
-                            </div>
-                            {viewMode === 'list' && <p className="text-sm text-zinc-500 dark:text-zinc-500 leading-relaxed line-clamp-2">{getTranslated(item, 'description', lang)}</p>}
+                          <div className="flex justify-between items-start mb-2">
+                            <h4 className="text-lg font-bold text-zinc-900 dark:text-zinc-100">{getTranslated(item, 'name', lang)}</h4>
+                            <span className="text-emerald-600 dark:text-emerald-400 font-black text-lg">{item.price}</span>
                           </div>
+                          {viewMode === 'list' && <p className="text-sm text-zinc-500 dark:text-zinc-500 leading-relaxed line-clamp-2">{getTranslated(item, 'description', lang)}</p>}
                         </div>
                       </>
                     )}
@@ -171,6 +156,15 @@ export function MenuSection({ type, categories, items, t, lang }: MenuSectionPro
           </div>
         </div>
       )}
+
+      <AnimatePresence>
+        {zoomedImage && (
+          <motion.div initial={{ opacity: 0 }} animate={{ opacity: 1 }} exit={{ opacity: 0 }} className="fixed inset-0 z-50 flex items-center justify-center bg-black/80 p-4" onClick={() => setZoomedImage(null)}>
+            <button className="absolute top-4 right-4 p-2 bg-white/10 rounded-full text-white"><X size={24} /></button>
+            <img src={zoomedImage} className="max-w-full max-h-full rounded-2xl" referrerPolicy="no-referrer" />
+          </motion.div>
+        )}
+      </AnimatePresence>
     </motion.div>
   );
 }
