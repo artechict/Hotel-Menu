@@ -8,6 +8,7 @@ export const UI_STRINGS = {
     adminTitle: 'Professional Admin Panel', hotelSettings: 'Hotel Settings', catMgmt: 'Category Management', itemMgmt: 'Menu Management', phoneMgmt: 'Contact Management',
     add: 'Add', delete: 'Delete', save: 'Save', name: 'Name', desc: 'Description', price: 'Price', imageUrl: 'Image URL', type: 'Type',
     catName: 'Category Name', itemName: 'Item Name', phoneName: 'Section Name', phoneNumber: 'Number', selectCat: 'Select Category...',
+    edit: 'Edit', update: 'Update',
   },
   ar: {
     hotelName: 'فندق رويال', welcome: 'أهلاً بك', info: 'معلومات', restaurant: 'مطعم', cafe: 'مقهى', laundry: 'مغسلة', contact: 'اتصل بنا', admin: 'مدير', home: 'الرئيسية',
@@ -16,14 +17,16 @@ export const UI_STRINGS = {
     adminTitle: 'لوحة تحكم المدير', hotelSettings: 'إعدادات الفندق', catMgmt: 'إدارة الفئات', itemMgmt: 'إدارة القائمة', phoneMgmt: 'إدارة جهات الاتصال',
     add: 'إضافة', delete: 'حذف', save: 'حفظ', name: 'الاسم', desc: 'الوصف', price: 'السعر', imageUrl: 'رابط الصورة', type: 'النوع',
     catName: 'اسم الفئة', itemName: 'اسم العنصر', phoneName: 'اسم القسم', phoneNumber: 'الرقم', selectCat: 'اختر فئة...',
+    edit: 'تعديل', update: 'تحديث',
   },
   tr: {
     hotelName: 'Royal Otel', welcome: 'Hoş Geldiniz', info: 'Bilgi', restaurant: 'Restoran', cafe: 'Kafe', laundry: 'Çamaşırhane', contact: 'İletişim', admin: 'Yönetici', home: 'Ana Sayfa',
-    login: 'Yönetici Girişi', password: 'Şifre', enter: 'Giriş', logout: 'Çıkış', workingHours: 'Çalışما Saatleri & Bilgi', internalPhones: 'Dahili Telefonlar',
+    login: 'Yönetici Girişi', password: 'Şifre', enter: 'Giriş', logout: 'Çıkış', workingHours: 'Çalışma Saatleri & Bilgi', internalPhones: 'Dahili Telefonlar',
     noItems: 'Görüntülenecek öğe yok.', callInstruction: 'Odanızdan aramak için yukarıdaki numaraları tuşlayın.',
     adminTitle: 'Profesyonel Yönetici Paneli', hotelSettings: 'Otel Ayarları', catMgmt: 'Kategori Yönetimi', itemMgmt: 'Menü Yönetimi', phoneMgmt: 'İletişim Yönetimi',
     add: 'Ekle', delete: 'Sil', save: 'Kaydet', name: 'İsim', desc: 'Açıklama', price: 'Fiyat', imageUrl: 'Resim URL', type: 'Tür',
     catName: 'Kategori Adı', itemName: 'Öğe Adı', phoneName: 'Bölüm Adı', phoneNumber: 'Numara', selectCat: 'Kategori Seç...',
+    edit: 'Düzenle', update: 'Güncelle',
   },
   ku: {
     hotelName: 'فۆتێلی ڕۆیاڵ', welcome: 'بەخێربێیت', info: 'زانیاری', restaurant: 'چێشتخانە', cafe: 'کافێ', laundry: 'جلشۆر', contact: 'پەیوەندی', admin: 'بەڕێوەبەر', home: 'سەرەکی',
@@ -32,6 +35,7 @@ export const UI_STRINGS = {
     adminTitle: 'پانێڵی بەڕێوەبردنی پێشەیی', hotelSettings: 'ڕێکخستنەکانی هۆتێل', catMgmt: 'بەڕێوەبردنی جۆرەکان', itemMgmt: 'بەڕێوەبردنی لیست', phoneMgmt: 'بەڕێوەبردنی پەیوەندییەکان',
     add: 'زیادکردن', delete: 'سڕینەوە', save: 'پاشکەوتکردن', name: 'ناو', desc: 'وەسف', price: 'نرخ', imageUrl: 'بەستەری وێنە', type: 'جۆر',
     catName: 'ناوی جۆر', itemName: 'ناوی بڕگە', phoneName: 'ناوی بەش', phoneNumber: 'ژمارە', selectCat: 'جۆرێک هەڵبژێرە...',
+    edit: 'دەستکاری', update: 'نوێکردنەوە',
   }
 };
 
