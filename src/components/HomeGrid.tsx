@@ -13,7 +13,6 @@ export function HomeGrid({ navigateTo, t, settings }: HomeGridProps) {
     { id: 'restaurant', icon: <Utensils size={32} />, label: t.restaurant, image: settings?.tile_images?.restaurant || "https://picsum.photos/seed/gourmet-dinner-table/400/400", delay: 0.1 },
     { id: 'cafe', icon: <Coffee size={32} />, label: t.cafe, image: settings?.tile_images?.cafe || "https://picsum.photos/seed/coffee-shop-interior/400/400", delay: 0.2 },
     { id: 'laundry', icon: <Shirt size={32} />, label: t.laundry, image: settings?.tile_images?.laundry || "https://picsum.photos/seed/folded-clothes-laundry/400/400", delay: 0.3 },
-    { id: 'phones', icon: <Phone size={32} />, label: t.contact, image: settings?.tile_images?.phones || "https://picsum.photos/seed/hotel-concierge-phone/400/400", delay: 0.4 },
     { id: 'info', icon: <Info size={32} />, label: t.info, image: settings?.tile_images?.info || "https://picsum.photos/seed/hotel-reception-desk/400/400", delay: 0.5 },
   ];
 

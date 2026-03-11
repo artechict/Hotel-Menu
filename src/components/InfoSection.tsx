@@ -11,7 +11,7 @@ interface InfoSectionProps {
 
 export function InfoSection({ info, phones, t }: InfoSectionProps) {
   return (
-    <motion.div initial={{ opacity: 0, y: 20 }} animate={{ opacity: 1, y: 0 }} exit={{ opacity: 0, y: -20 }} className="space-y-12">
+    <motion.div initial={{ opacity: 0, y: 20 }} animate={{ opacity: 1, y: 0 }} exit={{ opacity: 0, y: -20 }} className="grid grid-cols-1 md:grid-cols-2 gap-8">
       <div className="space-y-6">
         <div className="flex items-center gap-3 px-2">
           <div className="w-2 h-8 bg-emerald-500 rounded-full" />
@@ -39,7 +39,7 @@ export function InfoSection({ info, phones, t }: InfoSectionProps) {
         </div>
         <div className="p-8 bg-zinc-900 dark:bg-zinc-950 rounded-[40px] text-white shadow-2xl relative overflow-hidden">
           <div className="absolute top-0 right-0 w-64 h-64 bg-emerald-500/10 blur-[100px] rounded-full -mr-32 -mt-32" />
-          <div className="grid grid-cols-1 sm:grid-cols-2 gap-8 relative z-10">
+          <div className="grid grid-cols-1 gap-8 relative z-10">
             {phones.map((p) => (
               <div key={p.id} className="flex items-center justify-between border-b border-white/10 pb-4">
                 <span className="text-zinc-400 font-medium">{p.name}</span>

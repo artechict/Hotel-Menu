@@ -1,6 +1,6 @@
 import React, { useState, useEffect } from 'react';
 import { 
-  Settings, Globe, Sun, Moon, Home as HomeIcon, Utensils, Coffee, Shirt, Info, Phone, ChevronLeft
+  Settings, Globe, Sun, Moon, Home as HomeIcon, Utensils, Coffee, Shirt, Info, ChevronLeft
 } from 'lucide-react';
 import { motion, AnimatePresence } from 'motion/react';
 import { supabase, isSupabaseConfigured } from './services/supabaseClient';
@@ -12,7 +12,6 @@ import { UI_STRINGS, getTranslated, Language } from './utils/translation';
 import { NavBtn } from './components/Navigation';
 import { HomeGrid } from './components/HomeGrid';
 import { InfoSection } from './components/InfoSection';
-import { PhoneSection } from './components/PhoneSection';
 import { MenuSection } from './components/MenuSection';
 import { AdminSection } from './components/AdminSection';
 
@@ -21,7 +20,7 @@ export default function App() {
   const [settings, setSettings] = useState<{ hotel_name: string, logo_url: string } | null>(null);
   const [lang, setLang] = useState<Language>('en');
   const t = (UI_STRINGS as any)[lang];
-  const [activeTab, setActiveTab] = useState<'home' | 'restaurant' | 'cafe' | 'laundry' | 'info' | 'phones' | 'admin'>('home');
+  const [activeTab, setActiveTab] = useState<'home' | 'restaurant' | 'cafe' | 'laundry' | 'info' | 'admin'>('home');
   const [history, setHistory] = useState<typeof activeTab[]>(['home']);
 
   const navigateTo = (tab: typeof activeTab) => {
@@ -250,7 +249,6 @@ export default function App() {
           {(activeTab === 'restaurant' || activeTab === 'cafe' || activeTab === 'laundry') && (
             <MenuSection type={activeTab} categories={data?.categories.filter(c => c.type === activeTab) || []} items={data?.items || []} t={t} lang={lang} />
           )}
-          {activeTab === 'phones' && <PhoneSection phones={data?.phones || []} t={t} />}
           {activeTab === 'admin' && (
             <AdminSection 
               isAdmin={isAdmin} 
@@ -272,7 +270,6 @@ export default function App() {
         <NavBtn active={activeTab === 'restaurant'} onClick={() => setActiveTab('restaurant')} icon={<Utensils size={20} />} label={t.restaurant} />
         <NavBtn active={activeTab === 'cafe'} onClick={() => setActiveTab('cafe')} icon={<Coffee size={20} />} label={t.cafe} />
         <NavBtn active={activeTab === 'laundry'} onClick={() => setActiveTab('laundry')} icon={<Shirt size={20} />} label={t.laundry} />
-        <NavBtn active={activeTab === 'phones'} onClick={() => setActiveTab('phones')} icon={<Phone size={20} />} label={t.contact} />
       </nav>
     </div>
   );
