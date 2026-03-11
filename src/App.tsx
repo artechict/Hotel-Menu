@@ -235,18 +235,6 @@ function InfoSection({ info, phones, t }: any) {
           </div>
         ))}
       </div>
-
-      <div className="bg-white dark:bg-zinc-900/50 border border-zinc-200 dark:border-white/5 p-6 rounded-3xl space-y-6 shadow-sm">
-        <h3 className="text-lg font-bold flex items-center gap-3 text-zinc-900 dark:text-zinc-100"><Phone size={20} className="text-emerald-500" /> {t.internalPhones}</h3>
-        <div className="grid grid-cols-2 gap-4">
-          {phones.map((p: any) => (
-            <div key={p.id} className="bg-zinc-50 dark:bg-zinc-950 p-4 rounded-2xl border border-zinc-200 dark:border-white/5 flex flex-col items-center gap-1 group hover:border-emerald-500/30 transition-all">
-              <span className="text-[10px] text-zinc-500 uppercase font-bold tracking-widest">{p.name}</span>
-              <span className="text-xl font-black text-zinc-900 dark:text-zinc-100 tracking-widest group-hover:text-emerald-600 dark:group-hover:text-emerald-400 transition-colors">{p.number}</span>
-            </div>
-          ))}
-        </div>
-      </div>
     </motion.div>
   );
 }
@@ -449,28 +437,70 @@ function SubNavBtn({ active, onClick, label }: any) {
 
 function AdminInfo({ info, refresh, t }: any) {
   const [localInfo, setLocalInfo] = useState(info);
+  const [newItem, setNewItem] = useState({ label: '', value: '' });
 
   const save = async () => {
-    const data = JSON.parse(localStorage.getItem('appData_v2') || '{}');
+    const data = JSON.parse(localStorage.getItem('appData_v4') || '{}');
     data.info = localInfo;
-    localStorage.setItem('appData_v2', JSON.stringify(data));
+    localStorage.setItem('appData_v4', JSON.stringify(data));
     refresh();
     alert('Info saved!');
   };
 
+  const addItem = () => {
+    if (!newItem.label || !newItem.value) return;
+    setLocalInfo([...localInfo, { ...newItem, key: Date.now().toString() }]);
+    setNewItem({ label: '', value: '' });
+  };
+
+  const removeItem = (key: string) => {
+    if (confirm('Delete this info item?')) {
+      setLocalInfo(localInfo.filter((i: any) => i.key !== key));
+    }
+  };
+
   return (
     <div className="space-y-8">
-      {localInfo.map((item: any, index: number) => (
-        <div key={item.key} className="space-y-4 p-6 bg-zinc-50 dark:bg-zinc-950 rounded-2xl border border-zinc-200 dark:border-white/5">
-          <h4 className="font-bold text-zinc-400 uppercase text-[10px] tracking-widest">{item.label}</h4>
-          <input value={item.value} onChange={e => {
-            const newInfo = [...localInfo];
-            newInfo[index].value = e.target.value;
-            setLocalInfo(newInfo);
-          }} className="w-full bg-white dark:bg-zinc-900 border border-zinc-200 dark:border-white/10 p-4 rounded-xl text-sm" />
+      <div className="grid gap-4 p-6 bg-emerald-500/5 rounded-3xl border border-emerald-500/10">
+        <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
+          <div className="space-y-2">
+            <label className="text-[10px] font-bold text-zinc-500 uppercase tracking-widest ml-1">New Label</label>
+            <input placeholder="e.g. Wi-Fi" value={newItem.label} onChange={e => setNewItem({...newItem, label: e.target.value})} className="w-full bg-white dark:bg-zinc-900 border border-zinc-200 dark:border-white/10 p-4 rounded-xl text-sm" />
+          </div>
+          <div className="space-y-2">
+            <label className="text-[10px] font-bold text-zinc-500 uppercase tracking-widest ml-1">New Value</label>
+            <input placeholder="e.g. Password123" value={newItem.value} onChange={e => setNewItem({...newItem, value: e.target.value})} className="w-full bg-white dark:bg-zinc-900 border border-zinc-200 dark:border-white/10 p-4 rounded-xl text-sm" />
+          </div>
         </div>
-      ))}
-      <button onClick={save} className="w-full bg-emerald-500 text-white p-4 rounded-xl font-bold">Save Info</button>
+        <button onClick={addItem} className="bg-emerald-500 text-white p-4 rounded-xl font-bold flex items-center justify-center gap-2 hover:bg-emerald-600 transition-colors"><Plus size={20} /> Add Info Item</button>
+      </div>
+
+      <div className="space-y-4">
+        {localInfo.map((item: any, index: number) => (
+          <div key={item.key} className="space-y-4 p-6 bg-zinc-50 dark:bg-zinc-950 rounded-2xl border border-zinc-200 dark:border-white/5 relative group">
+            <button onClick={() => removeItem(item.key)} className="absolute top-4 right-4 text-zinc-400 hover:text-red-500 opacity-0 group-hover:opacity-100 transition-all"><Trash2 size={18} /></button>
+            <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
+              <div className="space-y-2">
+                <label className="text-[10px] font-bold text-zinc-500 uppercase tracking-widest ml-1">Label</label>
+                <input value={item.label} onChange={e => {
+                  const newInfo = [...localInfo];
+                  newInfo[index].label = e.target.value;
+                  setLocalInfo(newInfo);
+                }} className="w-full bg-white dark:bg-zinc-900 border border-zinc-200 dark:border-white/10 p-3 rounded-lg text-sm font-bold" />
+              </div>
+              <div className="space-y-2">
+                <label className="text-[10px] font-bold text-zinc-500 uppercase tracking-widest ml-1">Value</label>
+                <input value={item.value} onChange={e => {
+                  const newInfo = [...localInfo];
+                  newInfo[index].value = e.target.value;
+                  setLocalInfo(newInfo);
+                }} className="w-full bg-white dark:bg-zinc-900 border border-zinc-200 dark:border-white/10 p-3 rounded-lg text-sm" />
+              </div>
+            </div>
+          </div>
+        ))}
+      </div>
+      <button onClick={save} className="w-full bg-emerald-500 text-white p-4 rounded-xl font-bold shadow-lg shadow-emerald-500/20 hover:bg-emerald-600 transition-colors">Save All Info</button>
     </div>
   );
 }
