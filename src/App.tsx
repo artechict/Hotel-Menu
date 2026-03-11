@@ -169,15 +169,22 @@ export default function App() {
   };
 
   const seedDatabase = async () => {
-    if (!confirm("This will seed the database with initial data. Existing data might be duplicated or overwritten. Continue?")) return;
+    if (!confirm("This will RESET the database and seed it with initial data. ALL existing data will be deleted. Continue?")) return;
     setLoading(true);
     try {
+      // Clear existing data in reverse order of dependencies
+      await supabase.from('items').delete().neq('id', 0);
+      await supabase.from('categories').delete().neq('id', 0);
+      await supabase.from('menus').delete().neq('id', 0);
+      await supabase.from('phones').delete().neq('id', 0);
+      await supabase.from('info').delete().neq('id', 0);
+      
       // Seed settings
       await supabase.from('settings').upsert({ id: 1, ...initialMockData.settings });
       
       // Seed info
       for (const item of initialMockData.info) {
-        await supabase.from('info').upsert({ key: item.key, label: item.label, value: item.value });
+        await supabase.from('info').insert({ key: item.key, label: item.label, value: item.value });
       }
 
       // Seed phones
@@ -210,11 +217,11 @@ export default function App() {
         }
       }
       
-      alert("Database seeded successfully!");
+      alert("Database reset and seeded successfully!");
       fetchData();
     } catch (e) {
       console.error("Error seeding database:", e);
-      alert("Error seeding database. Check console.");
+      alert("Error seeding database. Make sure you have applied the latest SQL schema in Supabase SQL Editor.");
     } finally {
       setLoading(false);
     }
