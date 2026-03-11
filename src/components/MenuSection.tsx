@@ -14,7 +14,7 @@ interface MenuSectionProps {
 
 export function MenuSection({ type, categories, items, t, lang }: MenuSectionProps) {
   const [activeCatId, setActiveCatId] = useState<number | null>(null);
-  const [viewMode, setViewMode] = useState<'list' | 'grid'>('list');
+  const [viewMode, setViewMode] = useState<'list' | 'grid'>('grid');
   const [showLeftArrow, setShowLeftArrow] = useState(false);
   const [showRightArrow, setShowRightArrow] = useState(false);
   const [zoomedImage, setZoomedImage] = useState<string | null>(null);
