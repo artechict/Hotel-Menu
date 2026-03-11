@@ -102,8 +102,10 @@ function AdminSettings({ settings, refresh, t, seedDatabase }: any) {
     logo_url: settings?.logo_url || '',
     tile_images: settings?.tile_images || { info: '', restaurant: '', cafe: '', laundry: '', phones: '' }
   });
+  const [saving, setSaving] = useState(false);
 
   const save = async () => {
+    setSaving(true);
     try {
       // 1. Save settings (hotel_name, logo_url)
       const { error: settingsError } = await supabase.from('settings').upsert({ 
@@ -132,6 +134,8 @@ function AdminSettings({ settings, refresh, t, seedDatabase }: any) {
     } catch (e) {
       console.error(e);
       alert('Error saving settings');
+    } finally {
+      setSaving(false);
     }
   };
 
@@ -153,7 +157,9 @@ function AdminSettings({ settings, refresh, t, seedDatabase }: any) {
           <ImageUploader label="Phones" value={newSettings.tile_images?.phones} onChange={(val) => setNewSettings({...newSettings, tile_images: {...newSettings.tile_images, phones: val}})} />
         </div>
 
-        <button onClick={save} className="bg-emerald-500 text-white p-4 rounded-2xl font-bold shadow-lg shadow-emerald-500/20 hover:bg-emerald-600 transition-all">{t.save}</button>
+        <button onClick={save} disabled={saving} className="bg-emerald-500 text-white p-4 rounded-2xl font-bold shadow-lg shadow-emerald-500/20 hover:bg-emerald-600 transition-all disabled:opacity-50">
+          {saving ? 'Saving...' : t.save}
+        </button>
       </div>
       
       <div className="pt-8 border-t border-zinc-200 dark:border-white/5">
