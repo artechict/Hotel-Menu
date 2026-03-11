@@ -33,8 +33,8 @@ export const initialMockData = {
     { id: 3, menu_id: 1, name: 'Laundry Services', type: 'laundry' }
   ],
   items: [
-    { id: 1, category_id: 1, name: 'Grilled Steak', description: 'Premium beef steak served with roasted seasonal vegetables and red wine reduction.', price: '$25.00', image_url: 'https://images.unsplash.com/photo-1546241072-48010ad28c2c?auto=format&fit=crop&w=600&q=80' },
-    { id: 2, category_id: 1, name: 'Cheeseburger', description: 'Classic gourmet burger with aged cheddar, fresh lettuce, and our secret house sauce.', price: '$15.00', image_url: 'https://images.unsplash.com/photo-1568901346375-23c9450c58cd?auto=format&fit=crop&w=600&q=80' },
+    { id: 1, category_id: 1, name: 'Grilled Steak', description: 'Premium beef steak served with roasted seasonal vegetables and red wine reduction.', price: '$25.00', image_url: 'https://images.unsplash.com/photo-1600891964092-4316c288032e?auto=format&fit=crop&w=600&q=80' },
+    { id: 2, category_id: 1, name: 'Cheeseburger', description: 'Classic gourmet burger with aged cheddar, fresh lettuce, and our secret house sauce.', price: '$15.00', image_url: 'https://images.unsplash.com/photo-1571091718767-18b5b1457add?auto=format&fit=crop&w=600&q=80' },
     { id: 3, category_id: 1, name: 'Pasta Carbonara', description: 'Authentic Italian pasta with crispy pancetta, egg yolk, and pecorino romano.', price: '$18.00', image_url: 'https://images.unsplash.com/photo-1612874742237-6526221588e3?auto=format&fit=crop&w=600&q=80' },
     { id: 4, category_id: 1, name: 'Caesar Salad', description: 'Crisp romaine lettuce, herb croutons, and parmesan shavings with grilled chicken breast.', price: '$12.00', image_url: 'https://images.unsplash.com/photo-1550304943-4f24f54ddde9?auto=format&fit=crop&w=600&q=80' },
     { id: 5, category_id: 1, name: 'Tomato Soup', description: 'Creamy roasted tomato soup served with a side of toasted sourdough bread.', price: '$8.00', image_url: 'https://images.unsplash.com/photo-1547592110-803653f54358?auto=format&fit=crop&w=600&q=80' },

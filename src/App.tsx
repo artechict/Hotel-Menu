@@ -440,7 +440,7 @@ function AdminSection({ isAdmin, onLogin, data, refresh, t, settings, seedDataba
         <button onClick={() => window.location.reload()} className="p-2 text-zinc-500 hover:text-red-400 transition-colors"><LogOut size={24} /></button>
       </div>
 
-      <div className="flex gap-2 overflow-x-auto pb-2 no-scrollbar">
+      <div className="flex flex-wrap gap-2 pb-2">
         <SubNavBtn active={activeSub === 'settings'} onClick={() => setActiveSub('settings')} label="Settings" />
         <SubNavBtn active={activeSub === 'restaurant'} onClick={() => setActiveSub('restaurant')} label={t.restaurant} />
         <SubNavBtn active={activeSub === 'cafe'} onClick={() => setActiveSub('cafe')} label={t.cafe} />
