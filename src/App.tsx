@@ -1,4 +1,4 @@
-import React, { useState, useEffect, useMemo } from 'react';
+import React, { useState, useEffect, useMemo, useCallback } from 'react';
 import { 
   Utensils, Coffee, Shirt, Info, Phone, Settings, Plus, Trash2, 
   Clock, Globe, LogOut, Save, Image as ImageIcon, ChevronLeft, ChevronRight,
@@ -363,17 +363,35 @@ function InfoSection({ info, phones, t }: any) {
 
 function MenuSection({ type, categories, items, t }: any) {
   const [activeCatId, setActiveCatId] = useState<number | null>(null);
+  const [showLeftArrow, setShowLeftArrow] = useState(false);
+  const [showRightArrow, setShowRightArrow] = useState(false);
   const scrollRef = React.useRef<HTMLDivElement>(null);
+
+  const checkScroll = useCallback(() => {
+    if (scrollRef.current) {
+      const { scrollLeft, scrollWidth, clientWidth } = scrollRef.current;
+      setShowLeftArrow(scrollLeft > 10);
+      setShowRightArrow(scrollLeft < scrollWidth - clientWidth - 10);
+    }
+  }, []);
 
   useEffect(() => {
     if (categories.length > 0 && activeCatId === null) {
       setActiveCatId(categories[0].id);
     }
-  }, [categories, activeCatId]);
+    
+    const timer = setTimeout(checkScroll, 100);
+    window.addEventListener('resize', checkScroll);
+    
+    return () => {
+      clearTimeout(timer);
+      window.removeEventListener('resize', checkScroll);
+    };
+  }, [categories, activeCatId, checkScroll]);
 
   const scroll = (direction: 'left' | 'right') => {
     if (scrollRef.current) {
-      const { scrollLeft, clientWidth } = scrollRef.current;
+      const { scrollLeft } = scrollRef.current;
       const scrollTo = direction === 'left' ? scrollLeft - 200 : scrollLeft + 200;
       scrollRef.current.scrollTo({ left: scrollTo, behavior: 'smooth' });
     }
@@ -385,8 +403,8 @@ function MenuSection({ type, categories, items, t }: any) {
   return (
     <motion.div initial={{ opacity: 0, x: 20 }} animate={{ opacity: 1, x: 0 }} exit={{ opacity: 0, x: -20 }} className="space-y-8">
       <div className="flex items-center justify-between px-2">
-        <h2 className="text-3xl font-black tracking-tight text-zinc-900 dark:text-zinc-100">{t[type]}</h2>
-        <div className="h-px flex-1 bg-zinc-200 dark:bg-white/10 mx-6" />
+        <h2 className="text-2xl md:text-3xl font-black tracking-tight text-zinc-900 dark:text-zinc-100">{t[type]}</h2>
+        <div className="h-px flex-1 bg-zinc-200 dark:bg-white/10 mx-4 md:mx-6" />
       </div>
 
       {categories.length === 0 ? (
@@ -394,16 +412,19 @@ function MenuSection({ type, categories, items, t }: any) {
       ) : (
         <div className="space-y-8">
           {/* Categories Tabs */}
-          <div className="flex items-center gap-2 group/scroll">
-            <button 
-              onClick={() => scroll('left')} 
-              className="shrink-0 p-2 bg-white dark:bg-zinc-900 rounded-full shadow-md border border-zinc-200 dark:border-white/10 opacity-0 group-hover/scroll:opacity-100 transition-opacity hidden md:block"
-            >
-              <ChevronLeft size={20} />
-            </button>
+          <div className="flex items-center gap-2 group/scroll relative">
+            {showLeftArrow && (
+              <button 
+                onClick={() => scroll('left')} 
+                className="shrink-0 p-2 bg-white dark:bg-zinc-900 rounded-full shadow-md border border-zinc-200 dark:border-white/10 transition-all hidden md:block z-10"
+              >
+                <ChevronLeft size={20} />
+              </button>
+            )}
             
             <div 
               ref={scrollRef}
+              onScroll={checkScroll}
               className="flex-1 flex gap-4 overflow-x-auto no-scrollbar pb-4 px-2 scroll-smooth"
             >
               {categories.map((cat: any) => (
@@ -412,20 +433,22 @@ function MenuSection({ type, categories, items, t }: any) {
                   onClick={() => setActiveCatId(cat.id)}
                   className={`flex flex-col items-center gap-3 shrink-0 transition-all ${activeCatId === cat.id ? 'scale-105' : 'opacity-60 hover:opacity-100'}`}
                 >
-                  <div className={`w-20 h-20 rounded-2xl overflow-hidden border-2 transition-all ${activeCatId === cat.id ? 'border-emerald-500 shadow-lg shadow-emerald-500/20' : 'border-transparent'}`}>
+                  <div className={`w-16 h-16 md:w-20 md:h-20 rounded-2xl overflow-hidden border-2 transition-all ${activeCatId === cat.id ? 'border-emerald-500 shadow-lg shadow-emerald-500/20' : 'border-transparent'}`}>
                     <img src={cat.image_url || `https://picsum.photos/seed/${cat.id}/200/200`} className="w-full h-full object-cover" referrerPolicy="no-referrer" />
                   </div>
-                  <span className={`text-xs font-black uppercase tracking-widest ${activeCatId === cat.id ? 'text-emerald-500' : 'text-zinc-500'}`}>{cat.name}</span>
+                  <span className={`text-[10px] md:text-xs font-black uppercase tracking-widest ${activeCatId === cat.id ? 'text-emerald-500' : 'text-zinc-500'}`}>{cat.name}</span>
                 </button>
               ))}
             </div>
 
-            <button 
-              onClick={() => scroll('right')} 
-              className="shrink-0 p-2 bg-white dark:bg-zinc-900 rounded-full shadow-md border border-zinc-200 dark:border-white/10 opacity-0 group-hover/scroll:opacity-100 transition-opacity hidden md:block"
-            >
-              <ChevronRight size={20} />
-            </button>
+            {showRightArrow && (
+              <button 
+                onClick={() => scroll('right')} 
+                className="shrink-0 p-2 bg-white dark:bg-zinc-900 rounded-full shadow-md border border-zinc-200 dark:border-white/10 transition-all hidden md:block z-10"
+              >
+                <ChevronRight size={20} />
+              </button>
+            )}
           </div>
 
           {/* Active Category Items */}
@@ -517,7 +540,7 @@ function AdminSection({ isAdmin, onLogin, data, refresh, t, settings, seedDataba
         <button onClick={() => window.location.reload()} className="p-2 text-zinc-500 hover:text-red-400 transition-colors"><LogOut size={24} /></button>
       </div>
 
-      <div className="flex flex-wrap gap-2 pb-2">
+      <div className="flex flex-wrap gap-2 pb-2 justify-center md:justify-start">
         <SubNavBtn active={activeSub === 'settings'} onClick={() => setActiveSub('settings')} label="Settings" />
         <SubNavBtn active={activeSub === 'restaurant'} onClick={() => setActiveSub('restaurant')} label={t.restaurant} />
         <SubNavBtn active={activeSub === 'cafe'} onClick={() => setActiveSub('cafe')} label={t.cafe} />
@@ -527,7 +550,7 @@ function AdminSection({ isAdmin, onLogin, data, refresh, t, settings, seedDataba
         <SubNavBtn active={activeSub === 'menu'} onClick={() => setActiveSub('menu')} label="Global Menus" />
       </div>
 
-      <div className="bg-white dark:bg-zinc-900/50 border border-zinc-200 dark:border-white/10 rounded-[2rem] p-8 shadow-sm transition-colors">
+      <div className="bg-white dark:bg-zinc-900/50 border border-zinc-200 dark:border-white/10 rounded-[1.5rem] md:rounded-[2rem] p-4 md:p-8 shadow-sm transition-colors">
         {activeSub === 'settings' && <AdminSettings settings={settings} refresh={refresh} t={t} seedDatabase={seedDatabase} />}
         {(activeSub === 'restaurant' || activeSub === 'cafe' || activeSub === 'laundry') && (
           <AdminMenuManager 
@@ -834,16 +857,16 @@ function AdminMenuManager({ type, categories, items, menus, refresh, t }: any) {
 
   return (
     <div className="space-y-6">
-      <div className="flex gap-4 border-b border-zinc-200 dark:border-white/5 pb-4">
+      <div className="flex gap-4 border-b border-zinc-200 dark:border-white/5 pb-4 overflow-x-auto no-scrollbar">
         <button 
           onClick={() => setActiveTab('cats')}
-          className={`text-sm font-bold uppercase tracking-widest transition-all ${activeTab === 'cats' ? 'text-emerald-500' : 'text-zinc-400 hover:text-zinc-600'}`}
+          className={`text-xs md:text-sm font-bold uppercase tracking-widest transition-all shrink-0 ${activeTab === 'cats' ? 'text-emerald-500' : 'text-zinc-400 hover:text-zinc-600'}`}
         >
           Categories
         </button>
         <button 
           onClick={() => setActiveTab('items')}
-          className={`text-sm font-bold uppercase tracking-widest transition-all ${activeTab === 'items' ? 'text-emerald-500' : 'text-zinc-400 hover:text-zinc-600'}`}
+          className={`text-xs md:text-sm font-bold uppercase tracking-widest transition-all shrink-0 ${activeTab === 'items' ? 'text-emerald-500' : 'text-zinc-400 hover:text-zinc-600'}`}
         >
           Items
         </button>
