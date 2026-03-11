@@ -18,7 +18,7 @@ export const InfoSection = React.memo(function InfoSection({ info, phones, t }: 
           <h2 className="text-lg font-black text-zinc-900">{t.workingHours}</h2>
         </div>
         <div className="grid grid-cols-1 gap-2">
-          {info.map((item) => (
+          {info.filter(item => item.label !== 'Tile Images').map((item) => (
             <div key={item.key} className="p-3 bg-white border border-zinc-100 rounded-xl flex items-start gap-3 shadow-sm">
               <div className="p-2 bg-emerald-500/10 rounded-lg text-emerald-600 shrink-0">
                 {item.label.toLowerCase().includes('hour') ? <Clock size={16} /> : <InfoIcon size={16} />}
