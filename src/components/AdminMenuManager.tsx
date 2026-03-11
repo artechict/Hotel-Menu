@@ -64,8 +64,38 @@ export function AdminCat({ categories, menus, refresh, t, defaultType }: any) {
     setNewCat(c);
   };
 
+  const translateAll = async () => {
+    if (!confirm('Translate all categories? This might take a while.')) return;
+    setTranslating(true);
+    try {
+      for (const cat of categories) {
+        if (!cat.name_ar || !cat.name_tr || !cat.name_ku) {
+          const trans = await translateText(cat.name);
+          await supabase.from('categories').update({
+            name_ar: cat.name_ar || trans.ar,
+            name_tr: cat.name_tr || trans.tr,
+            name_ku: cat.name_ku || trans.ku
+          }).eq('id', cat.id);
+        }
+      }
+      refresh();
+      alert('All categories translated!');
+    } catch (e) {
+      console.error(e);
+      alert('Error translating categories');
+    } finally {
+      setTranslating(false);
+    }
+  };
+
   return (
     <div className="space-y-8">
+      <div className="flex justify-end">
+        <button onClick={translateAll} disabled={translating} className="bg-emerald-500 text-white p-4 rounded-xl font-bold flex items-center gap-2">
+          {translating ? <Clock size={20} className="animate-spin" /> : <Plus size={20} />}
+          Translate All Categories
+        </button>
+      </div>
       <div className="grid gap-4 p-6 bg-emerald-500/5 rounded-3xl border border-emerald-500/10">
         <select value={newCat.menu_id} onChange={e => setNewCat({...newCat, menu_id: parseInt(e.target.value)})} className="bg-white dark:bg-zinc-900 border border-zinc-200 dark:border-white/10 p-4 rounded-xl">
           <option value="">Select Menu</option>
@@ -196,8 +226,38 @@ export function AdminItem({ items, categories, refresh, t }: any) {
     setNewItem(i);
   };
 
+  const translateAll = async () => {
+    if (!confirm('Translate all items? This might take a while.')) return;
+    setTranslating(true);
+    try {
+      for (const item of items) {
+        if (!item.name_ar || !item.name_tr || !item.name_ku) {
+          const trans = await translateText(item.name);
+          await supabase.from('items').update({
+            name_ar: item.name_ar || trans.ar,
+            name_tr: item.name_tr || trans.tr,
+            name_ku: item.name_ku || trans.ku
+          }).eq('id', item.id);
+        }
+      }
+      refresh();
+      alert('All items translated!');
+    } catch (e) {
+      console.error(e);
+      alert('Error translating items');
+    } finally {
+      setTranslating(false);
+    }
+  };
+
   return (
     <div className="space-y-8">
+      <div className="flex justify-end">
+        <button onClick={translateAll} disabled={translating} className="bg-emerald-500 text-white p-4 rounded-xl font-bold flex items-center gap-2">
+          {translating ? <Clock size={20} className="animate-spin" /> : <Plus size={20} />}
+          Translate All Items
+        </button>
+      </div>
       <div className="grid gap-6 p-6 bg-emerald-500/5 rounded-3xl border border-emerald-500/10">
         <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
           <div className="space-y-4">
