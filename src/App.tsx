@@ -8,6 +8,7 @@ import { motion, AnimatePresence } from 'motion/react';
 import { supabase, isSupabaseConfigured } from './services/supabaseClient';
 import { AppData, Category, MenuItem, HotelInfo, PhoneNumber } from './types';
 import { initialMockData } from './mockData';
+import { translateText } from './services/geminiService';
 
 type Language = 'en' | 'ar' | 'tr' | 'ku';
 
@@ -37,13 +38,19 @@ const UI_STRINGS = {
     catName: 'Kategori Adı', itemName: 'Öğe Adı', phoneName: 'Bölüm Adı', phoneNumber: 'Numara', selectCat: 'Kategori Seç...',
   },
   ku: {
-    hotelName: 'Royal Hotel', welcome: 'Bi xêr hatî', info: 'Agahî', restaurant: 'Restoran', cafe: 'Kafe', laundry: 'Cilşo', contact: 'Têkilî', admin: 'Rêveber', home: 'Malper',
-    login: 'Têketina Rêveber', password: 'Şîfre', enter: 'Têketin', logout: 'Derketin', workingHours: 'Demjimêrên Kar & Agahî', internalPhones: 'Telefonên Navxweyî',
-    noItems: 'Ti tişt ji bo nîşandanê tune.', callInstruction: 'Ji bo gazîkirinê ji odeya xwe, hejmarên li jor lêxin.',
-    adminTitle: 'Panela Rêveberiya Pîşeyî', hotelSettings: 'Mîhengên Otêlê', catMgmt: 'Rêveberiya Kategoriyan', itemMgmt: 'Rêveberiya Menûyê', phoneMgmt: 'Rêveberiya Têkiliyan',
-    add: 'Zêde bike', delete: 'Jê bibe', save: 'Tomar bike', name: 'Nav', desc: 'Danasîn', price: 'Biha', imageUrl: 'URL-ya Wêne', type: 'Cure',
-    catName: 'Navê Kategoriyê', itemName: 'Navê Tiştê', phoneName: 'Navê Beşê', phoneNumber: 'Hejmar', selectCat: 'Kategorî hilbijêre...',
+    hotelName: 'فۆتێلی ڕۆیاڵ', welcome: 'بەخێربێیت', info: 'زانیاری', restaurant: 'چێشتخانە', cafe: 'کافێ', laundry: 'جلشۆر', contact: 'پەیوەندی', admin: 'بەڕێوەبەر', home: 'سەرەکی',
+    login: 'چوونەژوورەوەی بەڕێوەبەر', password: 'وشەی نهێنی', enter: 'چوونەژوورەوە', logout: 'چوونەدەرەوە', workingHours: 'کاتەکانی کارکردن و زانیاری', internalPhones: 'تەلەفۆنە ناوخۆییەکان',
+    noItems: 'هیچ بڕگەیەک نییە بۆ پیشاندان.', callInstruction: 'بۆ پەیوەندیکردن لە ژوورەکەتەوە، ژمارەکانی سەرەوە لێبدە.',
+    adminTitle: 'پانێڵی بەڕێوەبردنی پێشەیی', hotelSettings: 'ڕێکخستنەکانی هۆتێل', catMgmt: 'بەڕێوەبردنی جۆرەکان', itemMgmt: 'بەڕێوەبردنی لیست', phoneMgmt: 'بەڕێوەبردنی پەیوەندییەکان',
+    add: 'زیادکردن', delete: 'سڕینەوە', save: 'پاشکەوتکردن', name: 'ناو', desc: 'وەسف', price: 'نرخ', imageUrl: 'بەستەری وێنە', type: 'جۆر',
+    catName: 'ناوی جۆر', itemName: 'ناوی بڕگە', phoneName: 'ناوی بەش', phoneNumber: 'ژمارە', selectCat: 'جۆرێک هەڵبژێرە...',
   }
+};
+
+const getTranslated = (obj: any, field: string, lang: string) => {
+  if (lang === 'en') return obj[field];
+  const translated = obj[`${field}_${lang}`];
+  return translated || obj[field];
 };
 
 export default function App() {
@@ -295,7 +302,7 @@ export default function App() {
           {activeTab === 'home' && <HomeGrid key="home" navigateTo={navigateTo} t={t} settings={settings} />}
           {activeTab === 'info' && <InfoSection key="info" info={data?.info || []} phones={data?.phones || []} t={t} />}
           {(activeTab === 'restaurant' || activeTab === 'cafe' || activeTab === 'laundry') && (
-            <MenuSection key={activeTab} type={activeTab} categories={data?.categories.filter(c => c.type === activeTab) || []} items={data?.items || []} t={t} />
+            <MenuSection key={activeTab} type={activeTab} categories={data?.categories.filter(c => c.type === activeTab) || []} items={data?.items || []} t={t} lang={lang} />
           )}
           {activeTab === 'phones' && <PhoneSection key="phones" phones={data?.phones || []} t={t} />}
           {activeTab === 'admin' && <AdminSection key="admin" isAdmin={isAdmin} onLogin={(p: string) => { if(p === 'admin123') setIsAdmin(true); else alert('Wrong password'); }} data={data} refresh={fetchData} t={t} settings={settings} seedDatabase={seedDatabase} />}
@@ -383,7 +390,7 @@ function InfoSection({ info, phones, t }: any) {
   );
 }
 
-function MenuSection({ type, categories, items, t }: any) {
+function MenuSection({ type, categories, items, t, lang }: any) {
   const [activeCatId, setActiveCatId] = useState<number | null>(null);
   const [showLeftArrow, setShowLeftArrow] = useState(false);
   const [showRightArrow, setShowRightArrow] = useState(false);
@@ -458,7 +465,7 @@ function MenuSection({ type, categories, items, t }: any) {
                   <div className={`w-16 h-16 md:w-20 md:h-20 rounded-2xl overflow-hidden border-2 transition-all ${activeCatId === cat.id ? 'border-emerald-500 shadow-lg shadow-emerald-500/20' : 'border-transparent'}`}>
                     <img src={cat.image_url || `https://picsum.photos/seed/${cat.id}/200/200`} className="w-full h-full object-cover" referrerPolicy="no-referrer" />
                   </div>
-                  <span className={`text-[10px] md:text-xs font-black uppercase tracking-widest ${activeCatId === cat.id ? 'text-emerald-500' : 'text-zinc-500'}`}>{cat.name}</span>
+                  <span className={`text-[10px] md:text-xs font-black uppercase tracking-widest ${activeCatId === cat.id ? 'text-emerald-500' : 'text-zinc-500'}`}>{getTranslated(cat, 'name', lang)}</span>
                 </button>
               ))}
             </div>
@@ -477,7 +484,7 @@ function MenuSection({ type, categories, items, t }: any) {
           <div className="space-y-6">
             <div className="flex items-center gap-3 px-2">
               <div className="w-2 h-8 bg-emerald-500 rounded-full" />
-              <h3 className="text-xl font-bold text-zinc-900 dark:text-zinc-100">{activeCategory?.name}</h3>
+              <h3 className="text-xl font-bold text-zinc-900 dark:text-zinc-100">{getTranslated(activeCategory, 'name', lang)}</h3>
             </div>
             
             <div className="grid gap-6">
@@ -499,10 +506,10 @@ function MenuSection({ type, categories, items, t }: any) {
                     <div className="p-6 flex flex-col justify-between flex-1">
                       <div>
                         <div className="flex justify-between items-start mb-2">
-                          <h4 className="text-lg font-bold text-zinc-900 dark:text-zinc-100">{item.name}</h4>
+                          <h4 className="text-lg font-bold text-zinc-900 dark:text-zinc-100">{getTranslated(item, 'name', lang)}</h4>
                           <span className="text-emerald-600 dark:text-emerald-400 font-black text-lg">{item.price}</span>
                         </div>
-                        <p className="text-sm text-zinc-500 dark:text-zinc-500 leading-relaxed line-clamp-2">{item.description}</p>
+                        <p className="text-sm text-zinc-500 dark:text-zinc-500 leading-relaxed line-clamp-2">{getTranslated(item, 'description', lang)}</p>
                       </div>
                     </div>
                   </motion.div>
@@ -906,30 +913,43 @@ function AdminMenuManager({ type, categories, items, menus, refresh, t }: any) {
 }
 
 function AdminCat({ categories, menus, refresh, t, defaultType }: any) {
-  const [newCat, setNewCat] = useState({ menu_id: menus[0]?.id || '', type: defaultType || 'restaurant', name: '', image_url: '' });
+  const [newCat, setNewCat] = useState<any>({ menu_id: menus[0]?.id || '', type: defaultType || 'restaurant', name: '', name_ar: '', name_tr: '', name_ku: '', image_url: '' });
   const [editing, setEditing] = useState<any>(null);
+  const [translating, setTranslating] = useState(false);
+  const [showTranslations, setShowTranslations] = useState(false);
 
   useEffect(() => {
     if (defaultType) {
-      setNewCat(prev => ({ ...prev, type: defaultType }));
+      setNewCat((prev: any) => ({ ...prev, type: defaultType }));
     }
   }, [defaultType]);
 
   const add = async () => {
+    setTranslating(true);
     try {
+      let catToSave = { ...newCat };
+      if (catToSave.name && (!catToSave.name_ar || !catToSave.name_tr || !catToSave.name_ku)) {
+        const trans = await translateText(catToSave.name);
+        catToSave.name_ar = catToSave.name_ar || trans.ar;
+        catToSave.name_tr = catToSave.name_tr || trans.tr;
+        catToSave.name_ku = catToSave.name_ku || trans.ku;
+      }
+
       if (editing) {
-        const { error } = await supabase.from('categories').update(newCat).eq('id', editing.id);
+        const { error } = await supabase.from('categories').update(catToSave).eq('id', editing.id);
         if (error) throw error;
       } else {
-        const { error } = await supabase.from('categories').insert(newCat);
+        const { error } = await supabase.from('categories').insert(catToSave);
         if (error) throw error;
       }
       setEditing(null);
-      setNewCat({ menu_id: menus[0]?.id || '', type: defaultType || 'restaurant', name: '', image_url: '' });
+      setNewCat({ menu_id: menus[0]?.id || '', type: defaultType || 'restaurant', name: '', name_ar: '', name_tr: '', name_ku: '', image_url: '' });
       refresh();
     } catch (e) {
       console.error(e);
       alert('Error saving category');
+    } finally {
+      setTranslating(false);
     }
   };
 
@@ -967,13 +987,40 @@ function AdminCat({ categories, menus, refresh, t, defaultType }: any) {
         )}
         <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
           <div className="space-y-4">
-            <input placeholder="Name" value={newCat.name} onChange={e => setNewCat({...newCat, name: e.target.value})} className="w-full bg-white dark:bg-zinc-900 border border-zinc-200 dark:border-white/10 p-4 rounded-xl text-sm" />
+            <div className="space-y-2">
+              <label className="text-[10px] font-bold text-zinc-500 uppercase tracking-widest ml-1">English Name</label>
+              <input placeholder="Name" value={newCat.name} onChange={e => setNewCat({...newCat, name: e.target.value})} className="w-full bg-white dark:bg-zinc-900 border border-zinc-200 dark:border-white/10 p-4 rounded-xl text-sm" />
+            </div>
+            
+            <button onClick={() => setShowTranslations(!showTranslations)} className="text-[10px] font-bold text-emerald-500 uppercase tracking-widest ml-1 hover:underline">
+              {showTranslations ? 'Hide Translations' : 'Show Translations (Auto-filled)'}
+            </button>
+
+            {showTranslations && (
+              <div className="space-y-4 p-4 bg-zinc-100/50 dark:bg-zinc-950/50 rounded-2xl border border-zinc-200 dark:border-white/5">
+                <div className="space-y-2">
+                  <label className="text-[10px] font-bold text-zinc-500 uppercase tracking-widest ml-1">Arabic Name</label>
+                  <input dir="rtl" placeholder="الاسم بالعربية" value={newCat.name_ar} onChange={e => setNewCat({...newCat, name_ar: e.target.value})} className="w-full bg-white dark:bg-zinc-900 border border-zinc-200 dark:border-white/10 p-3 rounded-xl text-sm" />
+                </div>
+                <div className="space-y-2">
+                  <label className="text-[10px] font-bold text-zinc-500 uppercase tracking-widest ml-1">Turkish Name</label>
+                  <input placeholder="Türkçe İsim" value={newCat.name_tr} onChange={e => setNewCat({...newCat, name_tr: e.target.value})} className="w-full bg-white dark:bg-zinc-900 border border-zinc-200 dark:border-white/10 p-3 rounded-xl text-sm" />
+                </div>
+                <div className="space-y-2">
+                  <label className="text-[10px] font-bold text-zinc-500 uppercase tracking-widest ml-1">Kurdish Sorani Name</label>
+                  <input dir="rtl" placeholder="ناوی کوردی" value={newCat.name_ku} onChange={e => setNewCat({...newCat, name_ku: e.target.value})} className="w-full bg-white dark:bg-zinc-900 border border-zinc-200 dark:border-white/10 p-3 rounded-xl text-sm" />
+                </div>
+              </div>
+            )}
           </div>
           <div className="space-y-4">
-            <ImageUploader label="Category Image" value={newCat.image_url} onChange={(val) => setNewCat({...newCat, image_url: val})} />
+            <ImageUploader label="Category Image" value={newCat.image_url} onChange={(val: string) => setNewCat({...newCat, image_url: val})} />
           </div>
         </div>
-        <button onClick={add} className="bg-emerald-500 text-white p-4 rounded-xl font-bold flex items-center justify-center gap-2"><Plus size={20} /> {editing ? 'Update' : t.add}</button>
+        <button onClick={add} disabled={translating} className={`bg-emerald-500 text-white p-4 rounded-xl font-bold flex items-center justify-center gap-2 ${translating ? 'opacity-50 cursor-not-allowed' : 'hover:bg-emerald-600'}`}>
+          {translating ? <Clock size={20} className="animate-spin" /> : <Plus size={20} />} 
+          {translating ? 'Translating & Saving...' : (editing ? 'Update' : t.add)}
+        </button>
       </div>
 
       <div className="space-y-2">
@@ -995,25 +1042,48 @@ function AdminCat({ categories, menus, refresh, t, defaultType }: any) {
 }
 
 function AdminItem({ items, categories, refresh, t }: any) {
-  const [newItem, setNewItem] = useState({ category_id: '', name: '', description: '', price: '', image_url: '' });
+  const [newItem, setNewItem] = useState<any>({ category_id: '', name: '', name_ar: '', name_tr: '', name_ku: '', description: '', description_ar: '', description_tr: '', description_ku: '', price: '', image_url: '' });
   const [editing, setEditing] = useState<any>(null);
+  const [translating, setTranslating] = useState(false);
+  const [showTranslations, setShowTranslations] = useState(false);
 
   const add = async () => {
+    setTranslating(true);
     try {
+      let itemToSave = { ...newItem };
+      
+      // Translate Name if needed
+      if (itemToSave.name && (!itemToSave.name_ar || !itemToSave.name_tr || !itemToSave.name_ku)) {
+        const trans = await translateText(itemToSave.name);
+        itemToSave.name_ar = itemToSave.name_ar || trans.ar;
+        itemToSave.name_tr = itemToSave.name_tr || trans.tr;
+        itemToSave.name_ku = itemToSave.name_ku || trans.ku;
+      }
+
+      // Translate Description if needed
+      if (itemToSave.description && (!itemToSave.description_ar || !itemToSave.description_tr || !itemToSave.description_ku)) {
+        const trans = await translateText(itemToSave.description);
+        itemToSave.description_ar = itemToSave.description_ar || trans.ar;
+        itemToSave.description_tr = itemToSave.description_tr || trans.tr;
+        itemToSave.description_ku = itemToSave.description_ku || trans.ku;
+      }
+
       if (editing) {
-        const { error } = await supabase.from('items').update(newItem).eq('id', editing.id);
+        const { error } = await supabase.from('items').update(itemToSave).eq('id', editing.id);
         if (error) throw error;
       } else {
-        const { error } = await supabase.from('items').insert(newItem);
+        const { error } = await supabase.from('items').insert(itemToSave);
         if (error) throw error;
       }
       
-      setNewItem({ category_id: '', name: '', description: '', price: '', image_url: '' });
+      setNewItem({ category_id: '', name: '', name_ar: '', name_tr: '', name_ku: '', description: '', description_ar: '', description_tr: '', description_ku: '', price: '', image_url: '' });
       setEditing(null);
       refresh();
     } catch (e) {
       console.error(e);
       alert('Error saving item');
+    } finally {
+      setTranslating(false);
     }
   };
 
@@ -1042,17 +1112,51 @@ function AdminItem({ items, categories, refresh, t }: any) {
           <div className="space-y-4">
             <select value={newItem.category_id} onChange={e => setNewItem({...newItem, category_id: e.target.value})} className="w-full bg-white dark:bg-zinc-900 border border-zinc-200 dark:border-white/10 p-4 rounded-xl">
               <option value="">{t.selectCat}</option>
-              {categories.map((c: any) => <option key={c.id} value={c.id}>{c.name} ({c.type})</option>)}
+              {categories.map((c: any) => <option key={c.id} value={c.id}>{getTranslated(c, 'name', 'en')} ({c.type})</option>)}
             </select>
-            <input placeholder="Name" value={newItem.name} onChange={e => setNewItem({...newItem, name: e.target.value})} className="w-full bg-white dark:bg-zinc-900 border border-zinc-200 dark:border-white/10 p-4 rounded-xl text-sm" />
-            <textarea placeholder="Description" value={newItem.description} onChange={e => setNewItem({...newItem, description: e.target.value})} className="w-full bg-white dark:bg-zinc-900 border border-zinc-200 dark:border-white/10 p-4 rounded-xl text-sm h-24 resize-none" />
+            <div className="space-y-2">
+              <label className="text-[10px] font-bold text-zinc-500 uppercase tracking-widest ml-1">English Name</label>
+              <input placeholder="Name" value={newItem.name} onChange={e => setNewItem({...newItem, name: e.target.value})} className="w-full bg-white dark:bg-zinc-900 border border-zinc-200 dark:border-white/10 p-4 rounded-xl text-sm" />
+            </div>
+            <div className="space-y-2">
+              <label className="text-[10px] font-bold text-zinc-500 uppercase tracking-widest ml-1">English Description</label>
+              <textarea placeholder="Description" value={newItem.description} onChange={e => setNewItem({...newItem, description: e.target.value})} className="w-full bg-white dark:bg-zinc-900 border border-zinc-200 dark:border-white/10 p-4 rounded-xl text-sm h-24 resize-none" />
+            </div>
+            
+            <button onClick={() => setShowTranslations(!showTranslations)} className="text-[10px] font-bold text-emerald-500 uppercase tracking-widest ml-1 hover:underline">
+              {showTranslations ? 'Hide Translations' : 'Show Translations (Auto-filled)'}
+            </button>
+
+            {showTranslations && (
+              <div className="space-y-6 p-4 bg-zinc-100/50 dark:bg-zinc-950/50 rounded-2xl border border-zinc-200 dark:border-white/5">
+                <div className="space-y-4">
+                  <h5 className="text-[10px] font-black uppercase text-zinc-400 border-b border-zinc-200 dark:border-white/5 pb-1">Arabic</h5>
+                  <input dir="rtl" placeholder="الاسم بالعربية" value={newItem.name_ar} onChange={e => setNewItem({...newItem, name_ar: e.target.value})} className="w-full bg-white dark:bg-zinc-900 border border-zinc-200 dark:border-white/10 p-3 rounded-xl text-sm" />
+                  <textarea dir="rtl" placeholder="الوصف بالعربية" value={newItem.description_ar} onChange={e => setNewItem({...newItem, description_ar: e.target.value})} className="w-full bg-white dark:bg-zinc-900 border border-zinc-200 dark:border-white/10 p-3 rounded-xl text-sm h-20 resize-none" />
+                </div>
+                <div className="space-y-4">
+                  <h5 className="text-[10px] font-black uppercase text-zinc-400 border-b border-zinc-200 dark:border-white/5 pb-1">Turkish</h5>
+                  <input placeholder="Türkçe İsim" value={newItem.name_tr} onChange={e => setNewItem({...newItem, name_tr: e.target.value})} className="w-full bg-white dark:bg-zinc-900 border border-zinc-200 dark:border-white/10 p-3 rounded-xl text-sm" />
+                  <textarea placeholder="Türkçe Açıklama" value={newItem.description_tr} onChange={e => setNewItem({...newItem, description_tr: e.target.value})} className="w-full bg-white dark:bg-zinc-900 border border-zinc-200 dark:border-white/10 p-3 rounded-xl text-sm h-20 resize-none" />
+                </div>
+                <div className="space-y-4">
+                  <h5 className="text-[10px] font-black uppercase text-zinc-400 border-b border-zinc-200 dark:border-white/5 pb-1">Kurdish Sorani</h5>
+                  <input dir="rtl" placeholder="ناوی کوردی" value={newItem.name_ku} onChange={e => setNewItem({...newItem, name_ku: e.target.value})} className="w-full bg-white dark:bg-zinc-900 border border-zinc-200 dark:border-white/10 p-3 rounded-xl text-sm" />
+                  <textarea dir="rtl" placeholder="وەسفی کوردی" value={newItem.description_ku} onChange={e => setNewItem({...newItem, description_ku: e.target.value})} className="w-full bg-white dark:bg-zinc-900 border border-zinc-200 dark:border-white/10 p-3 rounded-xl text-sm h-20 resize-none" />
+                </div>
+              </div>
+            )}
+            
             <input placeholder="Price" value={newItem.price} onChange={e => setNewItem({...newItem, price: e.target.value})} className="w-full bg-white dark:bg-zinc-900 border border-zinc-200 dark:border-white/10 p-4 rounded-xl text-sm" />
           </div>
           <div className="space-y-4">
-            <ImageUploader label="Item Image" value={newItem.image_url} onChange={(val) => setNewItem({...newItem, image_url: val})} />
+            <ImageUploader label="Item Image" value={newItem.image_url} onChange={(val: string) => setNewItem({...newItem, image_url: val})} />
           </div>
         </div>
-        <button onClick={add} className="bg-emerald-500 text-white p-4 rounded-xl font-bold flex items-center justify-center gap-2 hover:bg-emerald-600 transition-all shadow-lg shadow-emerald-500/20"><Plus size={20} /> {editing ? 'Update Item' : t.add}</button>
+        <button onClick={add} disabled={translating} className={`bg-emerald-500 text-white p-4 rounded-xl font-bold flex items-center justify-center gap-2 ${translating ? 'opacity-50 cursor-not-allowed' : 'hover:bg-emerald-600 transition-all shadow-lg shadow-emerald-500/20'}`}>
+          {translating ? <Clock size={20} className="animate-spin" /> : <Plus size={20} />} 
+          {translating ? 'Translating & Saving...' : (editing ? 'Update Item' : t.add)}
+        </button>
       </div>
 
       <div className="space-y-2">

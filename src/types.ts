@@ -7,6 +7,9 @@ export interface Category {
   id: number;
   menu_id: number;
   name: string;
+  name_ar?: string;
+  name_tr?: string;
+  name_ku?: string;
   type: string;
   image_url?: string;
 }
@@ -15,7 +18,13 @@ export interface MenuItem {
   id: number;
   category_id: number;
   name: string;
+  name_ar?: string;
+  name_tr?: string;
+  name_ku?: string;
   description: string;
+  description_ar?: string;
+  description_tr?: string;
+  description_ku?: string;
   price: string;
   image_url: string;
 }
