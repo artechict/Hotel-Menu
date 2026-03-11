@@ -14,9 +14,12 @@ interface MenuSectionProps {
 
 export function MenuSection({ type, categories, items, t, lang }: MenuSectionProps) {
   const [activeCatId, setActiveCatId] = useState<number | null>(null);
+  const [viewMode, setViewMode] = useState<'list' | 'grid'>('list');
   const [showLeftArrow, setShowLeftArrow] = useState(false);
   const [showRightArrow, setShowRightArrow] = useState(false);
   const scrollRef = useRef<HTMLDivElement>(null);
+
+  const isLaundry = type === 'laundry';
 
   const checkScroll = useCallback(() => {
     if (scrollRef.current) {
@@ -55,6 +58,12 @@ export function MenuSection({ type, categories, items, t, lang }: MenuSectionPro
     <motion.div initial={{ opacity: 0, x: 20 }} animate={{ opacity: 1, x: 0 }} exit={{ opacity: 0, x: -20 }} className="space-y-8">
       <div className="flex items-center justify-between px-2">
         <h2 className="text-2xl md:text-3xl font-black tracking-tight text-zinc-900 dark:text-zinc-100">{t[type]}</h2>
+        {!isLaundry && (
+          <div className="flex bg-zinc-100 dark:bg-zinc-800 rounded-xl p-1">
+            <button onClick={() => setViewMode('list')} className={`px-4 py-2 rounded-lg text-xs font-bold ${viewMode === 'list' ? 'bg-white dark:bg-zinc-700 shadow' : ''}`}>List</button>
+            <button onClick={() => setViewMode('grid')} className={`px-4 py-2 rounded-lg text-xs font-bold ${viewMode === 'grid' ? 'bg-white dark:bg-zinc-700 shadow' : ''}`}>Grid</button>
+          </div>
+        )}
         <div className="h-px flex-1 bg-zinc-200 dark:bg-white/10 mx-4 md:mx-6" />
       </div>
 
@@ -109,7 +118,7 @@ export function MenuSection({ type, categories, items, t, lang }: MenuSectionPro
               <h3 className="text-xl font-bold text-zinc-900 dark:text-zinc-100">{getTranslated(activeCategory, 'name', lang)}</h3>
             </div>
             
-            <div className="grid gap-6">
+            <div className={isLaundry ? "space-y-2" : (viewMode === 'grid' ? "grid grid-cols-2 gap-4" : "grid gap-6")}>
               {filteredItems.length === 0 ? (
                 <div className="text-center py-10 text-zinc-400 dark:text-zinc-600 italic">No items in this category yet.</div>
               ) : (
@@ -120,20 +129,41 @@ export function MenuSection({ type, categories, items, t, lang }: MenuSectionPro
                     animate={{ opacity: 1, y: 0 }}
                     whileHover={{ y: -4 }} 
                     key={item.id} 
-                    className="bg-white/60 dark:bg-zinc-900/40 backdrop-blur-xl border border-zinc-200 dark:border-white/5 rounded-3xl overflow-hidden flex flex-col sm:flex-row group transition-all hover:bg-white/80 dark:hover:bg-zinc-900/60 hover:border-zinc-300 dark:hover:border-white/10 shadow-sm"
+                    className={isLaundry 
+                      ? "p-4 bg-white/60 dark:bg-zinc-900/40 backdrop-blur-xl border border-zinc-200 dark:border-white/5 rounded-2xl flex justify-between items-center"
+                      : (viewMode === 'grid' 
+                        ? "bg-white/60 dark:bg-zinc-900/40 backdrop-blur-xl border border-zinc-200 dark:border-white/5 rounded-3xl overflow-hidden flex flex-col group transition-all hover:bg-white/80 dark:hover:bg-zinc-900/60 hover:border-zinc-300 dark:hover:border-white/10 shadow-sm"
+                        : "bg-white/60 dark:bg-zinc-900/40 backdrop-blur-xl border border-zinc-200 dark:border-white/5 rounded-3xl overflow-hidden flex flex-col sm:flex-row group transition-all hover:bg-white/80 dark:hover:bg-zinc-900/60 hover:border-zinc-300 dark:hover:border-white/10 shadow-sm")
+                    }
                   >
-                    <div className="w-full sm:w-40 h-40 shrink-0 overflow-hidden">
-                      <img src={item.image_url || `https://picsum.photos/seed/${item.id}/300/300`} className="w-full h-full object-cover transition-transform duration-500 group-hover:scale-110" referrerPolicy="no-referrer" />
-                    </div>
-                    <div className="p-6 flex flex-col justify-between flex-1">
-                      <div>
-                        <div className="flex justify-between items-start mb-2">
-                          <h4 className="text-lg font-bold text-zinc-900 dark:text-zinc-100">{getTranslated(item, 'name', lang)}</h4>
-                          <span className="text-emerald-600 dark:text-emerald-400 font-black text-lg">{item.price}</span>
+                    {isLaundry ? (
+                      <>
+                        <h4 className="font-bold text-zinc-900 dark:text-zinc-100">{getTranslated(item, 'name', lang)}</h4>
+                        <span className="text-emerald-600 dark:text-emerald-400 font-black">{item.price}</span>
+                      </>
+                    ) : (
+                      <>
+                        {viewMode === 'list' && (
+                          <div className="w-full sm:w-40 h-40 shrink-0 overflow-hidden">
+                            <img src={item.image_url || `https://picsum.photos/seed/${item.id}/300/300`} className="w-full h-full object-cover transition-transform duration-500 group-hover:scale-110" referrerPolicy="no-referrer" />
+                          </div>
+                        )}
+                        {viewMode === 'grid' && (
+                          <div className="w-full h-40 shrink-0 overflow-hidden">
+                            <img src={item.image_url || `https://picsum.photos/seed/${item.id}/300/300`} className="w-full h-full object-cover transition-transform duration-500 group-hover:scale-110" referrerPolicy="no-referrer" />
+                          </div>
+                        )}
+                        <div className="p-6 flex flex-col justify-between flex-1">
+                          <div>
+                            <div className="flex justify-between items-start mb-2">
+                              <h4 className="text-lg font-bold text-zinc-900 dark:text-zinc-100">{getTranslated(item, 'name', lang)}</h4>
+                              <span className="text-emerald-600 dark:text-emerald-400 font-black text-lg">{item.price}</span>
+                            </div>
+                            {viewMode === 'list' && <p className="text-sm text-zinc-500 dark:text-zinc-500 leading-relaxed line-clamp-2">{getTranslated(item, 'description', lang)}</p>}
+                          </div>
                         </div>
-                        <p className="text-sm text-zinc-500 dark:text-zinc-500 leading-relaxed line-clamp-2">{getTranslated(item, 'description', lang)}</p>
-                      </div>
-                    </div>
+                      </>
+                    )}
                   </motion.div>
                 ))
               )}
