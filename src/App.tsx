@@ -94,7 +94,13 @@ export default function App() {
       if (itemsError) throw itemsError;
 
       if (settingsData) {
-        setSettings(settingsData as HotelSettings);
+        const tileImagesInfo = infoData?.find(i => i.key === 'tile_images');
+        const tileImages = tileImagesInfo ? JSON.parse(tileImagesInfo.value) : { info: '', restaurant: '', cafe: '', laundry: '', phones: '' };
+        
+        setSettings({ 
+          ...settingsData, 
+          tile_images: tileImages 
+        } as HotelSettings);
         setData({
           menus: menusData || [],
           categories: categoriesData || [],

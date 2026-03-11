@@ -106,8 +106,28 @@ function AdminSettings({ settings, refresh, t, seedDatabase }: any) {
 
   const save = async () => {
     try {
-      const { error } = await supabase.from('settings').upsert({ id: settings?.id || 1, ...newSettings });
-      if (error) throw error;
+      // 1. Save settings (hotel_name, logo_url)
+      const { error: settingsError } = await supabase.from('settings').upsert({ 
+        id: settings?.id || 1, 
+        hotel_name: newSettings.hotel_name, 
+        logo_url: newSettings.logo_url 
+      });
+      if (settingsError) throw settingsError;
+
+      // 2. Save tile_images to info table
+      const tileImagesInfo = await supabase.from('info').select('*').eq('key', 'tile_images').single();
+      const tileImagesData = { 
+        key: 'tile_images', 
+        label: 'Tile Images', 
+        value: JSON.stringify(newSettings.tile_images) 
+      };
+
+      if (tileImagesInfo.data) {
+        await supabase.from('info').update(tileImagesData).eq('id', tileImagesInfo.data.id);
+      } else {
+        await supabase.from('info').insert(tileImagesData);
+      }
+
       refresh();
       alert('Settings saved');
     } catch (e) {
