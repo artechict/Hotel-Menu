@@ -1,13 +1,13 @@
 import React, { useState } from 'react';
 import { motion } from 'motion/react';
-import { Settings as SettingsIcon, LayoutGrid, ListOrdered, PhoneCall, LogOut, Database, Plus, Trash2 } from 'lucide-react';
+import { Settings as SettingsIcon, LayoutGrid, ListOrdered, PhoneCall, LogOut, Database, Plus, Trash2, ChevronLeft, Info } from 'lucide-react';
 import { supabase } from '../services/supabaseClient';
 import { ImageUploader } from './ImageUploader';
 import { AdminCat, AdminItem } from './AdminMenuManager';
 
 export function AdminSection({ isAdmin, onLogin, data, refresh, t, settings, seedDatabase }: any) {
   const [pass, setPass] = useState('');
-  const [activeAdminTab, setActiveAdminTab] = useState('settings');
+  const [activeAdminView, setActiveAdminView] = useState<'dashboard' | 'settings' | 'menus' | 'categories' | 'items' | 'phones' | 'info'>('dashboard');
 
   if (!isAdmin) {
     return (
@@ -33,15 +33,29 @@ export function AdminSection({ isAdmin, onLogin, data, refresh, t, settings, see
     );
   }
 
+  const dashboardCards = [
+    { id: 'settings', label: t.hotelSettings, icon: <SettingsIcon size={24} /> },
+    { id: 'menus', label: 'Menus', icon: <LayoutGrid size={24} /> },
+    { id: 'categories', label: t.catMgmt, icon: <LayoutGrid size={24} /> },
+    { id: 'items', label: t.itemMgmt, icon: <ListOrdered size={24} /> },
+    { id: 'phones', label: t.phoneMgmt, icon: <PhoneCall size={24} /> },
+    { id: 'info', label: 'Info Sections', icon: <Info size={24} /> },
+  ];
+
   return (
     <motion.div initial={{ opacity: 0 }} animate={{ opacity: 1 }} className="space-y-8">
       <div className="flex flex-col md:flex-row justify-between items-start md:items-center gap-4 bg-white/60 dark:bg-zinc-900/40 backdrop-blur-xl p-6 rounded-[2.5rem] border border-zinc-200 dark:border-white/5 shadow-sm">
         <div className="flex items-center gap-4">
+          {activeAdminView !== 'dashboard' && (
+            <button onClick={() => setActiveAdminView('dashboard')} className="p-3 rounded-2xl bg-zinc-100 dark:bg-white/5 text-zinc-600 dark:text-zinc-400 hover:text-emerald-500 transition-all">
+              <ChevronLeft size={20} />
+            </button>
+          )}
           <div className="p-3 bg-emerald-500 text-white rounded-2xl shadow-lg shadow-emerald-500/20">
             <SettingsIcon size={24} />
           </div>
           <div>
-            <h2 className="text-xl font-black text-zinc-900 dark:text-zinc-100 uppercase tracking-tight">{t.adminTitle}</h2>
+            <h2 className="text-xl font-black text-zinc-900 dark:text-zinc-100 uppercase tracking-tight">{activeAdminView === 'dashboard' ? t.adminTitle : dashboardCards.find(c => c.id === activeAdminView)?.label}</h2>
             <p className="text-[10px] font-bold text-zinc-500 uppercase tracking-[0.2em]">Management Console</p>
           </div>
         </div>
@@ -50,26 +64,30 @@ export function AdminSection({ isAdmin, onLogin, data, refresh, t, settings, see
         </button>
       </div>
 
-      <div className="flex gap-2 overflow-x-auto no-scrollbar pb-2">
-        <AdminTabBtn active={activeAdminTab === 'settings'} onClick={() => setActiveAdminTab('settings')} icon={<SettingsIcon size={18} />} label={t.hotelSettings} />
-        <AdminTabBtn active={activeAdminTab === 'menus'} onClick={() => setActiveAdminTab('menus')} icon={<LayoutGrid size={18} />} label="Menus" />
-        <AdminTabBtn active={activeAdminTab === 'categories'} onClick={() => setActiveAdminTab('categories')} icon={<LayoutGrid size={18} />} label={t.catMgmt} />
-        <AdminTabBtn active={activeAdminTab === 'items'} onClick={() => setActiveAdminTab('items')} icon={<ListOrdered size={18} />} label={t.itemMgmt} />
-        <AdminTabBtn active={activeAdminTab === 'phones'} onClick={() => setActiveAdminTab('phones')} icon={<PhoneCall size={18} />} label={t.phoneMgmt} />
-        <AdminTabBtn active={activeAdminTab === 'info'} onClick={() => setActiveAdminTab('info')} icon={<PhoneCall size={18} />} label="Info Sections" />
-      </div>
-
-      <div className="bg-white/60 dark:bg-zinc-900/40 backdrop-blur-xl p-8 rounded-[2.5rem] border border-zinc-200 dark:border-white/5 shadow-sm">
-        {activeAdminTab === 'settings' && <AdminSettings settings={settings} refresh={refresh} t={t} seedDatabase={seedDatabase} />}
-        {activeAdminTab === 'menus' && <AdminMenu menus={data?.menus || []} refresh={refresh} t={t} />}
-        {activeAdminTab === 'categories' && <AdminCat categories={data?.categories || []} menus={data?.menus || []} refresh={refresh} t={t} />}
-        {activeAdminTab === 'items' && <AdminItem items={data?.items || []} categories={data?.categories || []} refresh={refresh} t={t} />}
-        {activeAdminTab === 'phones' && <AdminPhone phones={data?.phones || []} refresh={refresh} t={t} />}
-        {activeAdminTab === 'info' && <AdminInfo info={data?.info || []} refresh={refresh} t={t} />}
-      </div>
+      {activeAdminView === 'dashboard' ? (
+        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+          {dashboardCards.map(card => (
+            <button key={card.id} onClick={() => setActiveAdminView(card.id as any)} className="p-8 bg-white/60 dark:bg-zinc-900/40 backdrop-blur-xl border border-zinc-200 dark:border-white/5 rounded-[2.5rem] shadow-sm hover:shadow-lg transition-all flex flex-col items-center gap-4 text-center">
+              <div className="p-4 bg-emerald-500/10 text-emerald-500 rounded-2xl">{card.icon}</div>
+              <h3 className="font-black text-lg uppercase tracking-tight">{card.label}</h3>
+            </button>
+          ))}
+        </div>
+      ) : (
+        <div className="bg-white/60 dark:bg-zinc-900/40 backdrop-blur-xl p-8 rounded-[2.5rem] border border-zinc-200 dark:border-white/5 shadow-sm">
+          {activeAdminView === 'settings' && <AdminSettings settings={settings} refresh={refresh} t={t} seedDatabase={seedDatabase} />}
+          {activeAdminView === 'menus' && <AdminMenu menus={data?.menus || []} refresh={refresh} t={t} />}
+          {activeAdminView === 'categories' && <AdminCat categories={data?.categories || []} menus={data?.menus || []} refresh={refresh} t={t} />}
+          {activeAdminView === 'items' && <AdminItem items={data?.items || []} categories={data?.categories || []} refresh={refresh} t={t} />}
+          {activeAdminView === 'phones' && <AdminPhone phones={data?.phones || []} refresh={refresh} t={t} />}
+          {activeAdminView === 'info' && <AdminInfo info={data?.info || []} refresh={refresh} t={t} />}
+        </div>
+      )}
     </motion.div>
   );
 }
+// ... (rest of the functions remain the same)
+
 
 function AdminTabBtn({ active, onClick, icon, label }: any) {
   return (
