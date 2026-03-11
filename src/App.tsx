@@ -265,18 +265,26 @@ export default function App() {
           </div>
           
           <div className="flex items-center gap-2">
-            <select value={lang} onChange={e => setLang(e.target.value as Language)} className="p-3 rounded-2xl bg-zinc-100 dark:bg-white/5 text-zinc-600 dark:text-zinc-400 hover:text-emerald-500 transition-all">
-              <option value="en">EN</option>
-              <option value="ar">AR</option>
-              <option value="tr">TR</option>
-              <option value="ku">KU</option>
-            </select>
-            <button onClick={() => setTheme(theme === 'dark' ? 'light' : 'dark')} className="p-3 rounded-2xl bg-zinc-100 dark:bg-white/5 text-zinc-600 dark:text-zinc-400 hover:text-emerald-500 transition-all">
-              {theme === 'dark' ? <Sun size={20} /> : <Moon size={20} />}
+            <div className="relative flex items-center group">
+              <Globe size={14} className="absolute left-3 text-zinc-400 group-hover:text-emerald-500 transition-colors pointer-events-none" />
+              <select 
+                value={lang} 
+                onChange={e => setLang(e.target.value as Language)} 
+                className="pl-8 pr-3 py-2 rounded-xl bg-zinc-100 dark:bg-white/5 text-[11px] font-bold text-zinc-600 dark:text-zinc-400 hover:text-emerald-500 transition-all appearance-none cursor-pointer border border-transparent hover:border-emerald-500/30 outline-none"
+              >
+                <option value="en">English</option>
+                <option value="ar">العربية</option>
+                <option value="tr">Türkçe</option>
+                <option value="ku">کوردی</option>
+              </select>
+            </div>
+            
+            <button onClick={() => setTheme(theme === 'dark' ? 'light' : 'dark')} className="p-2.5 rounded-xl bg-zinc-100 dark:bg-white/5 text-zinc-600 dark:text-zinc-400 hover:text-emerald-500 transition-all border border-transparent hover:border-emerald-500/30">
+              {theme === 'dark' ? <Sun size={18} /> : <Moon size={18} />}
             </button>
             
-            <button onClick={() => navigateTo('admin')} className={`p-3 rounded-2xl transition-all ${activeTab === 'admin' ? 'bg-emerald-500 text-white' : 'bg-zinc-100 dark:bg-white/5 text-zinc-600 dark:text-zinc-400 hover:text-emerald-500'}`}>
-              <Settings size={20} />
+            <button onClick={() => navigateTo('admin')} className={`p-2.5 rounded-xl transition-all border border-transparent ${activeTab === 'admin' ? 'bg-emerald-500 text-white shadow-lg shadow-emerald-500/20' : 'bg-zinc-100 dark:bg-white/5 text-zinc-600 dark:text-zinc-400 hover:text-emerald-500 hover:border-emerald-500/30'}`}>
+              <Settings size={18} />
             </button>
           </div>
         </div>
