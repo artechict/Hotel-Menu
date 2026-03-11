@@ -178,46 +178,48 @@ export default function App() {
   return (
     <div className="min-h-screen bg-white text-zinc-900">
       {/* Header */}
-      <header className="sticky top-0 z-50 bg-white border-b border-zinc-200 px-6 py-4">
-        <div className="max-w-4xl mx-auto flex justify-between items-center">
-          <div className="flex items-center gap-4">
-            {activeTab !== 'home' && (
-              <button onClick={goBack} className="p-3 rounded-2xl bg-zinc-100 text-zinc-600 hover:text-emerald-500 transition-all">
-                <ChevronLeft size={20} />
-              </button>
-            )}
-            <div className="w-12 h-12 rounded-2xl flex items-center justify-center shadow-md overflow-hidden">
+      <header className="sticky top-0 z-50 bg-white border-b border-zinc-200 px-4 py-3">
+        <div className="max-w-4xl mx-auto">
+          {/* Top Row: Logo + Name */}
+          <div className="flex items-center gap-3 mb-3">
+            <div className="w-10 h-10 rounded-xl shadow-md overflow-hidden">
               <img src={settings?.logo_url} className="w-full h-full object-cover" referrerPolicy="no-referrer" />
             </div>
-            <div>
-              <h1 className="text-xl font-black tracking-tight">{settings?.hotel_name}</h1>
-              <p className="text-[10px] text-zinc-500 font-bold uppercase tracking-widest">{t.welcome}</p>
-            </div>
+            <h1 className="text-lg font-black tracking-tight">{settings?.hotel_name}</h1>
           </div>
-          
-          <div className="flex items-center gap-2">
-            <div className="relative flex items-center">
-              <Globe size={14} className="absolute left-3 text-zinc-400 pointer-events-none" />
-              <select 
-                value={lang} 
-                onChange={e => setLang(e.target.value as Language)} 
-                className="pl-8 pr-3 py-2 rounded-xl bg-zinc-100 text-[11px] font-bold text-zinc-600 appearance-none cursor-pointer border border-transparent outline-none"
-              >
-                <option value="en">English</option>
-                <option value="ar">العربية</option>
-                <option value="tr">Türkçe</option>
-                <option value="ku">کوردی</option>
-              </select>
+          {/* Bottom Row: Back + Settings + Language */}
+          <div className="flex items-center justify-between">
+            {activeTab !== 'home' ? (
+              <button onClick={goBack} className="p-2 rounded-xl bg-zinc-100 text-zinc-600 hover:text-emerald-500 transition-all">
+                <ChevronLeft size={18} />
+              </button>
+            ) : (
+              <div />
+            )}
+            <div className="flex items-center gap-2">
+              <div className="relative flex items-center">
+                <Globe size={14} className="absolute left-3 text-zinc-400 pointer-events-none" />
+                <select 
+                  value={lang} 
+                  onChange={e => setLang(e.target.value as Language)} 
+                  className="pl-8 pr-3 py-2 rounded-xl bg-zinc-100 text-[11px] font-bold text-zinc-600 appearance-none cursor-pointer border border-transparent outline-none"
+                >
+                  <option value="en">English</option>
+                  <option value="ar">العربية</option>
+                  <option value="tr">Türkçe</option>
+                  <option value="ku">کوردی</option>
+                </select>
+              </div>
+              
+              <button onClick={() => navigateTo('admin')} className={`p-2.5 rounded-xl transition-all border border-transparent ${activeTab === 'admin' ? 'bg-emerald-500 text-white shadow-lg' : 'bg-zinc-100 text-zinc-600 hover:text-emerald-500'}`}>
+                <Settings size={18} />
+              </button>
             </div>
-            
-            <button onClick={() => navigateTo('admin')} className={`p-2.5 rounded-xl transition-all border border-transparent ${activeTab === 'admin' ? 'bg-emerald-500 text-white shadow-lg' : 'bg-zinc-100 text-zinc-600 hover:text-emerald-500'}`}>
-              <Settings size={18} />
-            </button>
           </div>
         </div>
       </header>
 
-      <main className="max-w-5xl mx-auto p-6 pb-32">
+      <main className="max-w-5xl mx-auto p-4 pb-32">
           {activeTab === 'home' && <HomeGrid navigateTo={navigateTo} t={t} settings={settings} />}
           {activeTab === 'info' && <InfoSection info={data?.info || []} phones={data?.phones || []} t={t} />}
           {(activeTab === 'restaurant' || activeTab === 'cafe' || activeTab === 'laundry') && (

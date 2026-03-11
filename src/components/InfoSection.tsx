@@ -8,10 +8,10 @@ interface InfoSectionProps {
   t: any;
 }
 
-export function InfoSection({ info, phones, t }: InfoSectionProps) {
+export const InfoSection = React.memo(function InfoSection({ info, phones, t }: InfoSectionProps) {
   return (
-    <div className="grid grid-cols-1 md:grid-cols-2 gap-8">
-      <div className="space-y-6">
+    <div className="grid grid-cols-1 md:grid-cols-2 gap-4 md:gap-8">
+      <div className="space-y-4 md:space-y-6">
         <div className="flex items-center gap-3 px-2">
           <div className="w-2 h-8 bg-emerald-500 rounded-full" />
           <h2 className="text-2xl md:text-3xl font-black tracking-tight text-zinc-900">{t.workingHours}</h2>
@@ -31,7 +31,7 @@ export function InfoSection({ info, phones, t }: InfoSectionProps) {
         </div>
       </div>
 
-      <div className="space-y-6">
+      <div className="space-y-4 md:space-y-6">
         <div className="flex items-center gap-3 px-2">
           <div className="w-2 h-8 bg-zinc-400 rounded-full" />
           <h2 className="text-2xl md:text-3xl font-black tracking-tight text-zinc-900">{t.internalPhones}</h2>
@@ -54,4 +54,4 @@ export function InfoSection({ info, phones, t }: InfoSectionProps) {
       </div>
     </div>
   );
-}
+});
