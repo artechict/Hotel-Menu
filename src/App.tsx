@@ -394,17 +394,17 @@ function MenuSection({ type, categories, items, t }: any) {
       ) : (
         <div className="space-y-8">
           {/* Categories Tabs */}
-          <div className="relative group/scroll">
+          <div className="flex items-center gap-2 group/scroll">
             <button 
               onClick={() => scroll('left')} 
-              className="absolute left-0 top-1/2 -translate-y-1/2 z-10 p-2 bg-white/80 dark:bg-zinc-900/80 backdrop-blur-md rounded-full shadow-lg border border-zinc-200 dark:border-white/10 opacity-0 group-hover/scroll:opacity-100 transition-opacity hidden md:block"
+              className="shrink-0 p-2 bg-white dark:bg-zinc-900 rounded-full shadow-md border border-zinc-200 dark:border-white/10 opacity-0 group-hover/scroll:opacity-100 transition-opacity hidden md:block"
             >
               <ChevronLeft size={20} />
             </button>
             
             <div 
               ref={scrollRef}
-              className="flex gap-4 overflow-x-auto no-scrollbar pb-4 px-2 scroll-smooth"
+              className="flex-1 flex gap-4 overflow-x-auto no-scrollbar pb-4 px-2 scroll-smooth"
             >
               {categories.map((cat: any) => (
                 <button
@@ -422,7 +422,7 @@ function MenuSection({ type, categories, items, t }: any) {
 
             <button 
               onClick={() => scroll('right')} 
-              className="absolute right-0 top-1/2 -translate-y-1/2 z-10 p-2 bg-white/80 dark:bg-zinc-900/80 backdrop-blur-md rounded-full shadow-lg border border-zinc-200 dark:border-white/10 opacity-0 group-hover/scroll:opacity-100 transition-opacity hidden md:block"
+              className="shrink-0 p-2 bg-white dark:bg-zinc-900 rounded-full shadow-md border border-zinc-200 dark:border-white/10 opacity-0 group-hover/scroll:opacity-100 transition-opacity hidden md:block"
             >
               <ChevronRight size={20} />
             </button>
