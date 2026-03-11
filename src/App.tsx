@@ -228,18 +228,22 @@ export default function App() {
   };
 
   if (loading) return (
-    <div className="min-h-screen bg-zinc-950 flex items-center justify-center">
-      <motion.div animate={{ scale: [1, 1.2, 1], opacity: [0.5, 1, 0.5] }} transition={{ repeat: Infinity, duration: 2 }} className="w-16 h-16 bg-emerald-500 rounded-full shadow-2xl shadow-emerald-500/50" />
+    <div className="min-h-screen bg-[#08080a] flex items-center justify-center overflow-hidden relative">
+      <div className="absolute inset-0 opacity-20">
+        <div className="blob w-[300px] h-[300px] bg-emerald-500/30 top-1/4 left-1/4 animate-pulse" />
+        <div className="blob w-[300px] h-[300px] bg-blue-500/20 bottom-1/4 right-1/4 animate-pulse" />
+      </div>
+      <motion.div animate={{ scale: [1, 1.2, 1], opacity: [0.5, 1, 0.5] }} transition={{ repeat: Infinity, duration: 2 }} className="w-16 h-16 bg-emerald-500 rounded-full shadow-2xl shadow-emerald-500/50 z-10" />
     </div>
   );
 
   return (
-    <div className={`min-h-screen transition-colors duration-500 relative ${theme === 'dark' ? 'bg-zinc-950 text-zinc-100' : 'bg-zinc-50 text-zinc-900'}`}>
+    <div className={`min-h-screen transition-colors duration-500 relative text-zinc-900 dark:text-zinc-100`}>
       {/* Atmospheric Background */}
-      <div className="atmospheric-bg">
-        <div className="blob w-[500px] h-[500px] bg-emerald-500/20 -top-24 -left-24 animate-[pulse_8s_infinite]" />
-        <div className="blob w-[400px] h-[400px] bg-blue-500/20 top-1/2 -right-24 animate-[pulse_10s_infinite]" />
-        <div className="blob w-[300px] h-[300px] bg-purple-500/20 -bottom-24 left-1/4 animate-[pulse_12s_infinite]" />
+      <div className={`atmospheric-bg transition-colors duration-500 ${theme === 'dark' ? 'bg-[#08080a]' : 'bg-zinc-50'}`}>
+        <div className="blob w-[600px] h-[600px] -top-24 -left-24 animate-[pulse_8s_infinite]" />
+        <div className="blob w-[500px] h-[500px] top-1/2 -right-24 animate-[pulse_10s_infinite]" />
+        <div className="blob w-[400px] h-[400px] -bottom-24 left-1/4 animate-[pulse_12s_infinite]" />
       </div>
 
       {/* Premium Header */}
