@@ -19,22 +19,6 @@ export function HomeGrid({ navigateTo, t, settings }: HomeGridProps) {
 
   return (
     <div className="space-y-12 py-8">
-      <motion.div 
-        initial={{ opacity: 0, y: 30 }} 
-        animate={{ opacity: 1, y: 0 }} 
-        className="text-center space-y-4"
-      >
-        <div className="inline-block p-4 bg-white/10 backdrop-blur-xl rounded-[2.5rem] border border-white/20 shadow-2xl mb-4">
-          <img src={settings?.logo_url || "https://picsum.photos/seed/hotel/200/200"} className="w-24 h-24 md:w-32 md:h-32 rounded-[2rem] object-cover shadow-inner" referrerPolicy="no-referrer" />
-        </div>
-        <h1 className="text-4xl md:text-6xl font-black tracking-tighter text-zinc-900 dark:text-white uppercase">
-          {settings?.hotel_name || t.hotelName}
-        </h1>
-        <p className="text-zinc-500 dark:text-zinc-400 font-medium tracking-widest uppercase text-xs md:text-sm">
-          {t.welcome} • Premium Guest Services
-        </p>
-      </motion.div>
-
       <div className="grid grid-cols-1 md:grid-cols-3 gap-4 md:gap-6">
         {cards.map((card) => (
           <motion.button
