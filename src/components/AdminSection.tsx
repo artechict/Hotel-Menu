@@ -100,7 +100,7 @@ function AdminSettings({ settings, refresh, t, seedDatabase }: any) {
   const [newSettings, setNewSettings] = useState({
     hotel_name: settings?.hotel_name || '',
     logo_url: settings?.logo_url || '',
-    tile_images: settings?.tile_images || { restaurant: '', cafe: '', laundry: '' }
+    tile_images: settings?.tile_images || { restaurant: '', cafe: '', laundry: '', info: '' }
   });
   const [saving, setSaving] = useState(false);
 
@@ -153,6 +153,7 @@ function AdminSettings({ settings, refresh, t, seedDatabase }: any) {
           <ImageUploader label="Restaurant" value={newSettings.tile_images?.restaurant} onChange={(val) => setNewSettings({...newSettings, tile_images: {...newSettings.tile_images, restaurant: val}})} />
           <ImageUploader label="Cafe" value={newSettings.tile_images?.cafe} onChange={(val) => setNewSettings({...newSettings, tile_images: {...newSettings.tile_images, cafe: val}})} />
           <ImageUploader label="Laundry" value={newSettings.tile_images?.laundry} onChange={(val) => setNewSettings({...newSettings, tile_images: {...newSettings.tile_images, laundry: val}})} />
+          <ImageUploader label="Info" value={newSettings.tile_images?.info} onChange={(val) => setNewSettings({...newSettings, tile_images: {...newSettings.tile_images, info: val}})} />
         </div>
 
         <button onClick={save} disabled={saving} className="bg-emerald-500 text-white p-4 rounded-2xl font-bold shadow-lg shadow-emerald-500/20 hover:bg-emerald-600 transition-all disabled:opacity-50">
