@@ -355,41 +355,111 @@ function InfoSection({ info, phones, t }: any) {
 }
 
 function MenuSection({ type, categories, items, t }: any) {
+  const [activeCatId, setActiveCatId] = useState<number | null>(null);
+  const scrollRef = React.useRef<HTMLDivElement>(null);
+
+  useEffect(() => {
+    if (categories.length > 0 && activeCatId === null) {
+      setActiveCatId(categories[0].id);
+    }
+  }, [categories, activeCatId]);
+
+  const scroll = (direction: 'left' | 'right') => {
+    if (scrollRef.current) {
+      const { scrollLeft, clientWidth } = scrollRef.current;
+      const scrollTo = direction === 'left' ? scrollLeft - 200 : scrollLeft + 200;
+      scrollRef.current.scrollTo({ left: scrollTo, behavior: 'smooth' });
+    }
+  };
+
+  const activeCategory = categories.find((c: any) => c.id === activeCatId);
+  const filteredItems = items.filter((i: any) => i.category_id === activeCatId);
+
   return (
-    <motion.div initial={{ opacity: 0, x: 20 }} animate={{ opacity: 1, x: 0 }} exit={{ opacity: 0, x: -20 }} className="space-y-12">
+    <motion.div initial={{ opacity: 0, x: 20 }} animate={{ opacity: 1, x: 0 }} exit={{ opacity: 0, x: -20 }} className="space-y-8">
       <div className="flex items-center justify-between px-2">
         <h2 className="text-3xl font-black tracking-tight text-zinc-900 dark:text-zinc-100">{t[type]}</h2>
         <div className="h-px flex-1 bg-zinc-200 dark:bg-white/10 mx-6" />
       </div>
 
-      {categories.length === 0 && <div className="text-center py-20 text-zinc-400 dark:text-zinc-600 font-medium">{t.noItems}</div>}
-
-      {categories.map((cat: any) => (
-        <div key={cat.id} className="space-y-6">
-          <div className="flex items-center gap-3">
-            <div className="w-2 h-8 bg-emerald-500 rounded-full" />
-            <h3 className="text-xl font-bold text-zinc-900 dark:text-zinc-100">{cat.name}</h3>
-          </div>
-          <div className="grid gap-6">
-            {items.filter((i: any) => i.category_id === cat.id).map((item: any) => (
-              <motion.div whileHover={{ y: -4 }} key={item.id} className="bg-white dark:bg-zinc-900/40 border border-zinc-200 dark:border-white/5 rounded-3xl overflow-hidden flex flex-col sm:flex-row group transition-all hover:bg-zinc-50 dark:hover:bg-zinc-900 hover:border-zinc-300 dark:hover:border-white/10 shadow-sm">
-                <div className="w-full sm:w-40 h-40 shrink-0 overflow-hidden">
-                  <img src={item.image_url || `https://picsum.photos/seed/${item.id}/300/300`} className="w-full h-full object-cover transition-transform duration-500 group-hover:scale-110" referrerPolicy="no-referrer" />
-                </div>
-                <div className="p-6 flex flex-col justify-between flex-1">
-                  <div>
-                    <div className="flex justify-between items-start mb-2">
-                      <h4 className="text-lg font-bold text-zinc-900 dark:text-zinc-100">{item.name}</h4>
-                      <span className="text-emerald-600 dark:text-emerald-400 font-black text-lg">{item.price}</span>
-                    </div>
-                    <p className="text-sm text-zinc-500 dark:text-zinc-500 leading-relaxed line-clamp-2">{item.description}</p>
+      {categories.length === 0 ? (
+        <div className="text-center py-20 text-zinc-400 dark:text-zinc-600 font-medium">{t.noItems}</div>
+      ) : (
+        <div className="space-y-8">
+          {/* Categories Tabs */}
+          <div className="relative group/scroll">
+            <button 
+              onClick={() => scroll('left')} 
+              className="absolute left-0 top-1/2 -translate-y-1/2 z-10 p-2 bg-white/80 dark:bg-zinc-900/80 backdrop-blur-md rounded-full shadow-lg border border-zinc-200 dark:border-white/10 opacity-0 group-hover/scroll:opacity-100 transition-opacity hidden md:block"
+            >
+              <ChevronLeft size={20} />
+            </button>
+            
+            <div 
+              ref={scrollRef}
+              className="flex gap-4 overflow-x-auto no-scrollbar pb-4 px-2 scroll-smooth"
+            >
+              {categories.map((cat: any) => (
+                <button
+                  key={cat.id}
+                  onClick={() => setActiveCatId(cat.id)}
+                  className={`flex flex-col items-center gap-3 shrink-0 transition-all ${activeCatId === cat.id ? 'scale-105' : 'opacity-60 hover:opacity-100'}`}
+                >
+                  <div className={`w-20 h-20 rounded-2xl overflow-hidden border-2 transition-all ${activeCatId === cat.id ? 'border-emerald-500 shadow-lg shadow-emerald-500/20' : 'border-transparent'}`}>
+                    <img src={cat.image_url || `https://picsum.photos/seed/${cat.id}/200/200`} className="w-full h-full object-cover" referrerPolicy="no-referrer" />
                   </div>
-                </div>
-              </motion.div>
-            ))}
+                  <span className={`text-xs font-black uppercase tracking-widest ${activeCatId === cat.id ? 'text-emerald-500' : 'text-zinc-500'}`}>{cat.name}</span>
+                </button>
+              ))}
+            </div>
+
+            <button 
+              onClick={() => scroll('right')} 
+              className="absolute right-0 top-1/2 -translate-y-1/2 z-10 p-2 bg-white/80 dark:bg-zinc-900/80 backdrop-blur-md rounded-full shadow-lg border border-zinc-200 dark:border-white/10 opacity-0 group-hover/scroll:opacity-100 transition-opacity hidden md:block"
+            >
+              <ChevronRight size={20} />
+            </button>
+          </div>
+
+          {/* Active Category Items */}
+          <div className="space-y-6">
+            <div className="flex items-center gap-3 px-2">
+              <div className="w-2 h-8 bg-emerald-500 rounded-full" />
+              <h3 className="text-xl font-bold text-zinc-900 dark:text-zinc-100">{activeCategory?.name}</h3>
+            </div>
+            
+            <div className="grid gap-6">
+              {filteredItems.length === 0 ? (
+                <div className="text-center py-10 text-zinc-400 dark:text-zinc-600 italic">No items in this category yet.</div>
+              ) : (
+                filteredItems.map((item: any) => (
+                  <motion.div 
+                    layout
+                    initial={{ opacity: 0, y: 20 }}
+                    animate={{ opacity: 1, y: 0 }}
+                    whileHover={{ y: -4 }} 
+                    key={item.id} 
+                    className="bg-white dark:bg-zinc-900/40 border border-zinc-200 dark:border-white/5 rounded-3xl overflow-hidden flex flex-col sm:flex-row group transition-all hover:bg-zinc-50 dark:hover:bg-zinc-900 hover:border-zinc-300 dark:hover:border-white/10 shadow-sm"
+                  >
+                    <div className="w-full sm:w-40 h-40 shrink-0 overflow-hidden">
+                      <img src={item.image_url || `https://picsum.photos/seed/${item.id}/300/300`} className="w-full h-full object-cover transition-transform duration-500 group-hover:scale-110" referrerPolicy="no-referrer" />
+                    </div>
+                    <div className="p-6 flex flex-col justify-between flex-1">
+                      <div>
+                        <div className="flex justify-between items-start mb-2">
+                          <h4 className="text-lg font-bold text-zinc-900 dark:text-zinc-100">{item.name}</h4>
+                          <span className="text-emerald-600 dark:text-emerald-400 font-black text-lg">{item.price}</span>
+                        </div>
+                        <p className="text-sm text-zinc-500 dark:text-zinc-500 leading-relaxed line-clamp-2">{item.description}</p>
+                      </div>
+                    </div>
+                  </motion.div>
+                ))
+              )}
+            </div>
           </div>
         </div>
-      ))}
+      )}
     </motion.div>
   );
 }
@@ -784,7 +854,7 @@ function AdminMenuManager({ type, categories, items, menus, refresh, t }: any) {
 }
 
 function AdminCat({ categories, menus, refresh, t, defaultType }: any) {
-  const [newCat, setNewCat] = useState({ menu_id: menus[0]?.id || '', type: defaultType || 'restaurant', name: '' });
+  const [newCat, setNewCat] = useState({ menu_id: menus[0]?.id || '', type: defaultType || 'restaurant', name: '', image_url: '' });
   const [editing, setEditing] = useState<any>(null);
 
   useEffect(() => {
@@ -803,7 +873,7 @@ function AdminCat({ categories, menus, refresh, t, defaultType }: any) {
         if (error) throw error;
       }
       setEditing(null);
-      setNewCat({ menu_id: menus[0]?.id || '', type: defaultType || 'restaurant', name: '' });
+      setNewCat({ menu_id: menus[0]?.id || '', type: defaultType || 'restaurant', name: '', image_url: '' });
       refresh();
     } catch (e) {
       console.error(e);
@@ -843,8 +913,13 @@ function AdminCat({ categories, menus, refresh, t, defaultType }: any) {
             <option value="laundry">Laundry</option>
           </select>
         )}
-        <div className="grid grid-cols-1 gap-2">
-          <input placeholder="Name" value={newCat.name} onChange={e => setNewCat({...newCat, name: e.target.value})} className="bg-white dark:bg-zinc-900 border border-zinc-200 dark:border-white/10 p-4 rounded-xl text-sm" />
+        <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+          <div className="space-y-4">
+            <input placeholder="Name" value={newCat.name} onChange={e => setNewCat({...newCat, name: e.target.value})} className="w-full bg-white dark:bg-zinc-900 border border-zinc-200 dark:border-white/10 p-4 rounded-xl text-sm" />
+          </div>
+          <div className="space-y-4">
+            <ImageUploader label="Category Image" value={newCat.image_url} onChange={(val) => setNewCat({...newCat, image_url: val})} />
+          </div>
         </div>
         <button onClick={add} className="bg-emerald-500 text-white p-4 rounded-xl font-bold flex items-center justify-center gap-2"><Plus size={20} /> {editing ? 'Update' : t.add}</button>
       </div>

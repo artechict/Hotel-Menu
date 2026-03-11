@@ -28,9 +28,9 @@ export const initialMockData = {
     { id: 1, name: 'Main Menu' }
   ],
   categories: [
-    { id: 1, menu_id: 1, name: 'Restaurant', type: 'restaurant' },
-    { id: 2, menu_id: 1, name: 'Cafe', type: 'cafe' },
-    { id: 3, menu_id: 1, name: 'Laundry Services', type: 'laundry' }
+    { id: 1, menu_id: 1, name: 'Restaurant', type: 'restaurant', image_url: 'https://images.unsplash.com/photo-1514362545857-3bc16c4c7d1b?auto=format&fit=crop&w=200&q=80' },
+    { id: 2, menu_id: 1, name: 'Cafe', type: 'cafe', image_url: 'https://images.unsplash.com/photo-1495474472287-4d71bcdd2085?auto=format&fit=crop&w=200&q=80' },
+    { id: 3, menu_id: 1, name: 'Laundry Services', type: 'laundry', image_url: 'https://images.unsplash.com/photo-1545173168-9f1947eebb7f?auto=format&fit=crop&w=200&q=80' }
   ],
   items: [
     { id: 1, category_id: 1, name: 'Grilled Steak', description: 'Premium beef steak served with roasted seasonal vegetables and red wine reduction.', price: '$25.00', image_url: 'https://images.unsplash.com/photo-1600891964092-4316c288032e?auto=format&fit=crop&w=600&q=80' },

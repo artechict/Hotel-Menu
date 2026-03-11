@@ -34,7 +34,8 @@ CREATE TABLE IF NOT EXISTS categories (
   id BIGINT PRIMARY KEY GENERATED ALWAYS AS IDENTITY,
   menu_id BIGINT REFERENCES menus(id) ON DELETE CASCADE,
   name TEXT NOT NULL,
-  type TEXT NOT NULL DEFAULT 'restaurant'
+  type TEXT NOT NULL DEFAULT 'restaurant',
+  image_url TEXT
 );
 
 -- Items table

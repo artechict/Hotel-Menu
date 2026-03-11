@@ -8,6 +8,7 @@ export interface Category {
   menu_id: number;
   name: string;
   type: string;
+  image_url?: string;
 }
 
 export interface MenuItem {
