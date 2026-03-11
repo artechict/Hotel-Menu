@@ -442,19 +442,28 @@ function AdminSection({ isAdmin, onLogin, data, refresh, t, settings, seedDataba
 
       <div className="flex gap-2 overflow-x-auto pb-2 no-scrollbar">
         <SubNavBtn active={activeSub === 'settings'} onClick={() => setActiveSub('settings')} label="Settings" />
-        <SubNavBtn active={activeSub === 'menu'} onClick={() => setActiveSub('menu')} label="Menus" />
+        <SubNavBtn active={activeSub === 'restaurant'} onClick={() => setActiveSub('restaurant')} label={t.restaurant} />
+        <SubNavBtn active={activeSub === 'cafe'} onClick={() => setActiveSub('cafe')} label={t.cafe} />
+        <SubNavBtn active={activeSub === 'laundry'} onClick={() => setActiveSub('laundry')} label={t.laundry} />
         <SubNavBtn active={activeSub === 'info'} onClick={() => setActiveSub('info')} label={t.hotelSettings} />
-        <SubNavBtn active={activeSub === 'cat'} onClick={() => setActiveSub('cat')} label={t.catMgmt} />
-        <SubNavBtn active={activeSub === 'item'} onClick={() => setActiveSub('item')} label={t.itemMgmt} />
         <SubNavBtn active={activeSub === 'phone'} onClick={() => setActiveSub('phone')} label={t.phoneMgmt} />
+        <SubNavBtn active={activeSub === 'menu'} onClick={() => setActiveSub('menu')} label="Global Menus" />
       </div>
 
       <div className="bg-white dark:bg-zinc-900/50 border border-zinc-200 dark:border-white/10 rounded-[2rem] p-8 shadow-sm transition-colors">
         {activeSub === 'settings' && <AdminSettings settings={settings} refresh={refresh} t={t} seedDatabase={seedDatabase} />}
+        {(activeSub === 'restaurant' || activeSub === 'cafe' || activeSub === 'laundry') && (
+          <AdminMenuManager 
+            type={activeSub} 
+            categories={data.categories.filter(c => c.type === activeSub)} 
+            items={data.items} 
+            menus={data.menus}
+            refresh={refresh} 
+            t={t} 
+          />
+        )}
         {activeSub === 'menu' && <AdminMenu menus={data.menus} refresh={refresh} t={t} />}
         {activeSub === 'info' && <AdminInfo info={data.info} refresh={refresh} t={t} />}
-        {activeSub === 'cat' && <AdminCat categories={data.categories} menus={data.menus} refresh={refresh} t={t} />}
-        {activeSub === 'item' && <AdminItem items={data.items} categories={data.categories} refresh={refresh} t={t} />}
         {activeSub === 'phone' && <AdminPhone phones={data.phones} refresh={refresh} t={t} />}
       </div>
     </div>
@@ -743,9 +752,46 @@ function AdminInfo({ info, refresh, t }: any) {
   );
 }
 
-function AdminCat({ categories, menus, refresh, t }: any) {
-  const [newCat, setNewCat] = useState({ menu_id: '', type: 'restaurant', name: '' });
+function AdminMenuManager({ type, categories, items, menus, refresh, t }: any) {
+  const [activeTab, setActiveTab] = useState<'cats' | 'items'>('cats');
+
+  return (
+    <div className="space-y-6">
+      <div className="flex gap-4 border-b border-zinc-200 dark:border-white/5 pb-4">
+        <button 
+          onClick={() => setActiveTab('cats')}
+          className={`text-sm font-bold uppercase tracking-widest transition-all ${activeTab === 'cats' ? 'text-emerald-500' : 'text-zinc-400 hover:text-zinc-600'}`}
+        >
+          Categories
+        </button>
+        <button 
+          onClick={() => setActiveTab('items')}
+          className={`text-sm font-bold uppercase tracking-widest transition-all ${activeTab === 'items' ? 'text-emerald-500' : 'text-zinc-400 hover:text-zinc-600'}`}
+        >
+          Items
+        </button>
+      </div>
+
+      <div className="pt-4">
+        {activeTab === 'cats' ? (
+          <AdminCat categories={categories} menus={menus} refresh={refresh} t={t} defaultType={type} />
+        ) : (
+          <AdminItem items={items.filter((i: any) => categories.some((c: any) => c.id === i.category_id))} categories={categories} refresh={refresh} t={t} />
+        )}
+      </div>
+    </div>
+  );
+}
+
+function AdminCat({ categories, menus, refresh, t, defaultType }: any) {
+  const [newCat, setNewCat] = useState({ menu_id: menus[0]?.id || '', type: defaultType || 'restaurant', name: '' });
   const [editing, setEditing] = useState<any>(null);
+
+  useEffect(() => {
+    if (defaultType) {
+      setNewCat(prev => ({ ...prev, type: defaultType }));
+    }
+  }, [defaultType]);
 
   const add = async () => {
     try {
@@ -757,7 +803,7 @@ function AdminCat({ categories, menus, refresh, t }: any) {
         if (error) throw error;
       }
       setEditing(null);
-      setNewCat({ menu_id: '', type: 'restaurant', name: '' });
+      setNewCat({ menu_id: menus[0]?.id || '', type: defaultType || 'restaurant', name: '' });
       refresh();
     } catch (e) {
       console.error(e);
@@ -790,11 +836,13 @@ function AdminCat({ categories, menus, refresh, t }: any) {
           <option value="">Select Menu</option>
           {menus.map((m: any) => <option key={m.id} value={m.id}>{m.name}</option>)}
         </select>
-        <select value={newCat.type} onChange={e => setNewCat({...newCat, type: e.target.value})} className="bg-white dark:bg-zinc-900 border border-zinc-200 dark:border-white/10 p-4 rounded-xl">
-          <option value="restaurant">Restaurant</option>
-          <option value="cafe">Cafe</option>
-          <option value="laundry">Laundry</option>
-        </select>
+        {!defaultType && (
+          <select value={newCat.type} onChange={e => setNewCat({...newCat, type: e.target.value})} className="bg-white dark:bg-zinc-900 border border-zinc-200 dark:border-white/10 p-4 rounded-xl">
+            <option value="restaurant">Restaurant</option>
+            <option value="cafe">Cafe</option>
+            <option value="laundry">Laundry</option>
+          </select>
+        )}
         <div className="grid grid-cols-1 gap-2">
           <input placeholder="Name" value={newCat.name} onChange={e => setNewCat({...newCat, name: e.target.value})} className="bg-white dark:bg-zinc-900 border border-zinc-200 dark:border-white/10 p-4 rounded-xl text-sm" />
         </div>
