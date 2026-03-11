@@ -21,8 +21,9 @@ export const initialMockData = {
     { id: 1, name: 'Main Menu' }
   ],
   categories: [
-    { id: 1, menu_id: 1, name: 'Restaurant' },
-    { id: 2, menu_id: 1, name: 'Cafe' }
+    { id: 1, menu_id: 1, name: 'Restaurant', type: 'restaurant' },
+    { id: 2, menu_id: 1, name: 'Cafe', type: 'cafe' },
+    { id: 3, menu_id: 1, name: 'Laundry Services', type: 'laundry' }
   ],
   items: [
     { id: 1, category_id: 1, name: 'Grilled Steak', description: 'Juicy beef steak with vegetables', price: '$25.00', image_url: 'https://picsum.photos/seed/steak/400/400' },
@@ -34,6 +35,10 @@ export const initialMockData = {
     { id: 7, category_id: 2, name: 'Latte', description: 'Coffee with steamed milk', price: '$4.50', image_url: 'https://picsum.photos/seed/latte/400/400' },
     { id: 8, category_id: 2, name: 'Cappuccino', description: 'Coffee with foam', price: '$4.50', image_url: 'https://picsum.photos/seed/cappuccino/400/400' },
     { id: 9, category_id: 2, name: 'Hot Chocolate', description: 'Rich cocoa drink', price: '$5.00', image_url: 'https://picsum.photos/seed/chocolate/400/400' },
-    { id: 10, category_id: 2, name: 'Green Tea', description: 'Healthy green tea', price: '$3.50', image_url: 'https://picsum.photos/seed/tea/400/400' }
+    { id: 10, category_id: 2, name: 'Green Tea', description: 'Healthy green tea', price: '$3.50', image_url: 'https://picsum.photos/seed/tea/400/400' },
+    { id: 11, category_id: 3, name: 'Shirt Washing', description: 'Professional cleaning and ironing', price: '$5.00', image_url: 'https://picsum.photos/seed/shirt/400/400' },
+    { id: 12, category_id: 3, name: 'Suit Dry Cleaning', description: 'Complete suit dry cleaning', price: '$15.00', image_url: 'https://picsum.photos/seed/suit/400/400' },
+    { id: 13, category_id: 3, name: 'Dress Cleaning', description: 'Delicate dress cleaning', price: '$12.00', image_url: 'https://picsum.photos/seed/dress/400/400' },
+    { id: 14, category_id: 3, name: 'Pants Ironing', description: 'Professional ironing service', price: '$3.00', image_url: 'https://picsum.photos/seed/pants/400/400' }
   ]
 };
