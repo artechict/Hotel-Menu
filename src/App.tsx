@@ -5,7 +5,7 @@ import {
   Sun, Moon, Home as HomeIcon, LayoutGrid
 } from 'lucide-react';
 import { motion, AnimatePresence } from 'motion/react';
-import { supabase } from './services/supabaseClient';
+import { supabase, isSupabaseConfigured } from './services/supabaseClient';
 import { AppData, Category, MenuItem, HotelInfo, PhoneNumber } from './types';
 import { initialMockData } from './mockData';
 
@@ -87,6 +87,13 @@ export default function App() {
   }, [theme]);
 
   const fetchData = async () => {
+    if (!isSupabaseConfigured) {
+      console.warn("Supabase is not configured. Using mock data.");
+      setData({ menus: initialMockData.menus, categories: initialMockData.categories, items: initialMockData.items, info: initialMockData.info, phones: initialMockData.phones });
+      setSettings(initialMockData.settings);
+      setLoading(false);
+      return;
+    }
     try {
       // Fetch settings
       const { data: settingsData, error: settingsError } = await supabase
@@ -471,6 +478,12 @@ function AdminSettings({ settings, refresh, t, seedDatabase }: any) {
 
   return (
     <div className="space-y-6">
+      {!isSupabaseConfigured && (
+        <div className="p-4 bg-amber-500/10 border border-amber-500/20 rounded-2xl text-amber-600 dark:text-amber-400 text-xs font-medium leading-relaxed">
+          ⚠️ <strong>Supabase is not configured!</strong><br />
+          Please set <code>VITE_SUPABASE_URL</code> and <code>VITE_SUPABASE_ANON_KEY</code> in the environment settings to enable database persistence.
+        </div>
+      )}
       <div className="space-y-2">
         <label className="text-xs font-bold text-zinc-500 uppercase">Hotel Name</label>
         <input value={localSettings.hotel_name} onChange={e => setLocalSettings({...localSettings, hotel_name: e.target.value})} className="w-full bg-zinc-50 dark:bg-zinc-950 border border-zinc-200 dark:border-white/10 p-4 rounded-xl" />
@@ -514,6 +527,7 @@ function AdminMenu({ menus, refresh, t }: any) {
   };
 
   const del = async (id: number) => {
+    if (!isSupabaseConfigured) return;
     if (confirm('Delete menu? All categories and items in this menu will be deleted.')) {
       try {
         const { error } = await supabase.from('menus').delete().eq('id', id);
