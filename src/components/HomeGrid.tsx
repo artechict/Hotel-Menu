@@ -17,8 +17,8 @@ export function HomeGrid({ navigateTo, t, settings }: HomeGridProps) {
   ];
 
   return (
-    <div className="space-y-12 py-8">
-      <div className="grid grid-cols-1 md:grid-cols-2 gap-4 md:gap-6">
+    <div className="py-4">
+      <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
         {cards.map((card) => (
           <motion.button
             key={card.id}
@@ -28,7 +28,7 @@ export function HomeGrid({ navigateTo, t, settings }: HomeGridProps) {
             whileHover={{ scale: 1.02, y: -5 }}
             whileTap={{ scale: 0.98 }}
             onClick={() => navigateTo(card.id)}
-            className="relative overflow-hidden p-8 rounded-[2.5rem] text-left group h-48 md:h-64 flex flex-col justify-between transition-all shadow-xl hover:shadow-2xl"
+            className="relative overflow-hidden p-6 rounded-[2rem] text-left group h-40 md:h-56 flex flex-col justify-between transition-all shadow-xl hover:shadow-2xl"
           >
             <img src={card.image} alt={card.label} className="absolute inset-0 w-full h-full object-cover opacity-90 group-hover:opacity-100 transition-opacity" referrerPolicy="no-referrer" />
             <div className="absolute inset-0 bg-black/40 group-hover:bg-black/20 transition-colors" />

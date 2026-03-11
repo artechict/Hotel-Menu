@@ -185,7 +185,11 @@ export default function App() {
         <div className="blob w-[300px] h-[300px] bg-emerald-500/30 top-1/4 left-1/4 animate-pulse" />
         <div className="blob w-[300px] h-[300px] bg-blue-500/20 bottom-1/4 right-1/4 animate-pulse" />
       </div>
-      <motion.div animate={{ scale: [1, 1.2, 1], opacity: [0.5, 1, 0.5] }} transition={{ repeat: Infinity, duration: 2 }} className="w-16 h-16 bg-emerald-500 rounded-full shadow-2xl shadow-emerald-500/50 z-10" />
+      <motion.div 
+        animate={{ rotate: 360 }} 
+        transition={{ repeat: Infinity, duration: 1.5, ease: "linear" }}
+        className="w-16 h-16 border-4 border-emerald-500 border-t-transparent rounded-full z-10" 
+      />
     </div>
   );
 
