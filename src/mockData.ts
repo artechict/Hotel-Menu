@@ -1,7 +1,14 @@
 export const initialMockData = {
   settings: {
     hotel_name: 'Royal Grand Hotel',
-    logo_url: 'https://picsum.photos/seed/hotel/200/200'
+    logo_url: 'https://images.unsplash.com/photo-1542314831-068cd1dbfeeb?auto=format&fit=crop&w=200&q=80',
+    tile_images: {
+      info: 'https://images.unsplash.com/photo-1566073771259-6a8506099945?auto=format&fit=crop&w=800&q=80',
+      restaurant: 'https://images.unsplash.com/photo-1514362545857-3bc16c4c7d1b?auto=format&fit=crop&w=800&q=80',
+      cafe: 'https://images.unsplash.com/photo-1495474472287-4d71bcdd2085?auto=format&fit=crop&w=800&q=80',
+      laundry: 'https://images.unsplash.com/photo-1545173168-9f1947eebb7f?auto=format&fit=crop&w=800&q=80',
+      phones: 'https://images.unsplash.com/photo-1534536281715-e28d76689b4d?auto=format&fit=crop&w=800&q=80'
+    }
   },
   info: [
     { key: 'checkin', label: 'Check-in', value: '14:00' },
@@ -26,19 +33,19 @@ export const initialMockData = {
     { id: 3, menu_id: 1, name: 'Laundry Services', type: 'laundry' }
   ],
   items: [
-    { id: 1, category_id: 1, name: 'Grilled Steak', description: 'Juicy beef steak with vegetables', price: '$25.00', image_url: 'https://picsum.photos/seed/steak/400/400' },
-    { id: 2, category_id: 1, name: 'Cheeseburger', description: 'Classic burger with cheese', price: '$15.00', image_url: 'https://picsum.photos/seed/burger/400/400' },
-    { id: 3, category_id: 1, name: 'Pasta Carbonara', description: 'Creamy pasta with bacon', price: '$18.00', image_url: 'https://picsum.photos/seed/pasta/400/400' },
-    { id: 4, category_id: 1, name: 'Caesar Salad', description: 'Fresh salad with chicken', price: '$12.00', image_url: 'https://picsum.photos/seed/salad/400/400' },
-    { id: 5, category_id: 1, name: 'Tomato Soup', description: 'Warm tomato soup', price: '$8.00', image_url: 'https://picsum.photos/seed/soup/400/400' },
-    { id: 6, category_id: 2, name: 'Espresso', description: 'Strong shot of coffee', price: '$3.00', image_url: 'https://picsum.photos/seed/espresso/400/400' },
-    { id: 7, category_id: 2, name: 'Latte', description: 'Coffee with steamed milk', price: '$4.50', image_url: 'https://picsum.photos/seed/latte/400/400' },
-    { id: 8, category_id: 2, name: 'Cappuccino', description: 'Coffee with foam', price: '$4.50', image_url: 'https://picsum.photos/seed/cappuccino/400/400' },
-    { id: 9, category_id: 2, name: 'Hot Chocolate', description: 'Rich cocoa drink', price: '$5.00', image_url: 'https://picsum.photos/seed/chocolate/400/400' },
-    { id: 10, category_id: 2, name: 'Green Tea', description: 'Healthy green tea', price: '$3.50', image_url: 'https://picsum.photos/seed/tea/400/400' },
-    { id: 11, category_id: 3, name: 'Shirt Washing', description: 'Professional cleaning and ironing', price: '$5.00', image_url: 'https://picsum.photos/seed/shirt/400/400' },
-    { id: 12, category_id: 3, name: 'Suit Dry Cleaning', description: 'Complete suit dry cleaning', price: '$15.00', image_url: 'https://picsum.photos/seed/suit/400/400' },
-    { id: 13, category_id: 3, name: 'Dress Cleaning', description: 'Delicate dress cleaning', price: '$12.00', image_url: 'https://picsum.photos/seed/dress/400/400' },
-    { id: 14, category_id: 3, name: 'Pants Ironing', description: 'Professional ironing service', price: '$3.00', image_url: 'https://picsum.photos/seed/pants/400/400' }
+    { id: 1, category_id: 1, name: 'Grilled Steak', description: 'Premium beef steak served with roasted seasonal vegetables and red wine reduction.', price: '$25.00', image_url: 'https://images.unsplash.com/photo-1546241072-48010ad28c2c?auto=format&fit=crop&w=600&q=80' },
+    { id: 2, category_id: 1, name: 'Cheeseburger', description: 'Classic gourmet burger with aged cheddar, fresh lettuce, and our secret house sauce.', price: '$15.00', image_url: 'https://images.unsplash.com/photo-1568901346375-23c9450c58cd?auto=format&fit=crop&w=600&q=80' },
+    { id: 3, category_id: 1, name: 'Pasta Carbonara', description: 'Authentic Italian pasta with crispy pancetta, egg yolk, and pecorino romano.', price: '$18.00', image_url: 'https://images.unsplash.com/photo-1612874742237-6526221588e3?auto=format&fit=crop&w=600&q=80' },
+    { id: 4, category_id: 1, name: 'Caesar Salad', description: 'Crisp romaine lettuce, herb croutons, and parmesan shavings with grilled chicken breast.', price: '$12.00', image_url: 'https://images.unsplash.com/photo-1550304943-4f24f54ddde9?auto=format&fit=crop&w=600&q=80' },
+    { id: 5, category_id: 1, name: 'Tomato Soup', description: 'Creamy roasted tomato soup served with a side of toasted sourdough bread.', price: '$8.00', image_url: 'https://images.unsplash.com/photo-1547592110-803653f54358?auto=format&fit=crop&w=600&q=80' },
+    { id: 6, category_id: 2, name: 'Espresso', description: 'Rich and intense single shot of our premium dark roast coffee beans.', price: '$3.00', image_url: 'https://images.unsplash.com/photo-1510591509098-f4fdc6d0ff04?auto=format&fit=crop&w=600&q=80' },
+    { id: 7, category_id: 2, name: 'Latte', description: 'Smooth espresso balanced with silky steamed milk and a light layer of foam.', price: '$4.50', image_url: 'https://images.unsplash.com/photo-1541167760496-162955ed8a9f?auto=format&fit=crop&w=600&q=80' },
+    { id: 8, category_id: 2, name: 'Cappuccino', description: 'Equal parts espresso, steamed milk, and thick milk foam for a classic experience.', price: '$4.50', image_url: 'https://images.unsplash.com/photo-1534778101976-62847782c213?auto=format&fit=crop&w=600&q=80' },
+    { id: 9, category_id: 2, name: 'Hot Chocolate', description: 'Decadent melted Belgian chocolate whisked with hot milk and topped with cream.', price: '$5.00', image_url: 'https://images.unsplash.com/photo-1544787210-2281403b2f5f?auto=format&fit=crop&w=600&q=80' },
+    { id: 10, category_id: 2, name: 'Green Tea', description: 'Organic Japanese sencha green tea with subtle grassy notes and a clean finish.', price: '$3.50', image_url: 'https://images.unsplash.com/photo-1627435601361-ec25f5b1d0e5?auto=format&fit=crop&w=600&q=80' },
+    { id: 11, category_id: 3, name: 'Shirt Washing', description: 'Gentle washing, starching if requested, and professional steam pressing.', price: '$5.00', image_url: 'https://images.unsplash.com/photo-1521639512631-08de26f48521?auto=format&fit=crop&w=600&q=80' },
+    { id: 12, category_id: 3, name: 'Suit Dry Cleaning', description: 'Full two-piece suit dry cleaning with hand finishing and protective packaging.', price: '$15.00', image_url: 'https://images.unsplash.com/photo-1594932224828-b4b059b6f68e?auto=format&fit=crop&w=600&q=80' },
+    { id: 13, category_id: 3, name: 'Dress Cleaning', description: 'Specialized cleaning for delicate fabrics, including silk and evening gowns.', price: '$12.00', image_url: 'https://images.unsplash.com/photo-1539109136881-3be0616acf4b?auto=format&fit=crop&w=600&q=80' },
+    { id: 14, category_id: 3, name: 'Pants Ironing', description: 'Precise crease ironing for trousers and casual pants to keep you looking sharp.', price: '$3.00', image_url: 'https://images.unsplash.com/photo-1489007365045-e93007e286a2?auto=format&fit=crop&w=600&q=80' }
   ]
 };

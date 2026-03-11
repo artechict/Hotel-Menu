@@ -31,10 +31,23 @@ export interface PhoneNumber {
   number: string;
 }
 
+export interface HotelSettings {
+  hotel_name: string;
+  logo_url: string;
+  tile_images: {
+    info: string;
+    restaurant: string;
+    cafe: string;
+    laundry: string;
+    phones: string;
+  };
+}
+
 export interface AppData {
   menus: Menu[];
   categories: Category[];
   items: MenuItem[];
   info: HotelInfo[];
   phones: PhoneNumber[];
+  settings: HotelSettings;
 }

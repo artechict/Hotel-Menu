@@ -4,7 +4,8 @@
 CREATE TABLE IF NOT EXISTS settings (
   id BIGINT PRIMARY KEY DEFAULT 1,
   hotel_name TEXT NOT NULL,
-  logo_url TEXT
+  logo_url TEXT,
+  tile_images JSONB DEFAULT '{"info": "", "restaurant": "", "cafe": "", "laundry": "", "phones": ""}'::jsonb
 );
 
 -- Info table

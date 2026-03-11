@@ -266,7 +266,7 @@ export default function App() {
 
       <main className="max-w-5xl mx-auto p-6 pb-32">
         <AnimatePresence mode="wait">
-          {activeTab === 'home' && <HomeGrid key="home" navigateTo={navigateTo} t={t} />}
+          {activeTab === 'home' && <HomeGrid key="home" navigateTo={navigateTo} t={t} settings={settings} />}
           {activeTab === 'info' && <InfoSection key="info" info={data?.info || []} phones={data?.phones || []} t={t} />}
           {(activeTab === 'restaurant' || activeTab === 'cafe' || activeTab === 'laundry') && (
             <MenuSection key={activeTab} type={activeTab} categories={data?.categories.filter(c => c.type === activeTab) || []} items={data?.items || []} t={t} />
@@ -289,13 +289,13 @@ export default function App() {
   );
 }
 
-function HomeGrid({ navigateTo, t }: any) {
+function HomeGrid({ navigateTo, t, settings }: any) {
   const tiles = [
-    { id: 'info', icon: <Info size={32} />, label: t.info, color: 'from-blue-500 to-blue-600', img: 'https://images.unsplash.com/photo-1566073771259-6a8506099945?auto=format&fit=crop&w=400&q=80' },
-    { id: 'restaurant', icon: <Utensils size={32} />, label: t.restaurant, color: 'from-orange-500 to-orange-600', img: 'https://images.unsplash.com/photo-1514362545857-3bc16c4c7d1b?auto=format&fit=crop&w=400&q=80' },
-    { id: 'cafe', icon: <Coffee size={32} />, label: t.cafe, color: 'from-amber-500 to-amber-600', img: 'https://images.unsplash.com/photo-1495474472287-4d71bcdd2085?auto=format&fit=crop&w=400&q=80' },
-    { id: 'laundry', icon: <Shirt size={32} />, label: t.laundry, color: 'from-indigo-500 to-indigo-600', img: 'https://images.unsplash.com/photo-1545173168-9f1947eebb7f?auto=format&fit=crop&w=400&q=80' },
-    { id: 'phones', icon: <Phone size={32} />, label: t.contact, color: 'from-emerald-500 to-emerald-600', img: 'https://images.unsplash.com/photo-1534536281715-e28d76689b4d?auto=format&fit=crop&w=400&q=80' },
+    { id: 'info', icon: <Info size={32} />, label: t.info, color: 'from-blue-500 to-blue-600', img: settings?.tile_images?.info || 'https://images.unsplash.com/photo-1566073771259-6a8506099945?auto=format&fit=crop&w=400&q=80' },
+    { id: 'restaurant', icon: <Utensils size={32} />, label: t.restaurant, color: 'from-orange-500 to-orange-600', img: settings?.tile_images?.restaurant || 'https://images.unsplash.com/photo-1514362545857-3bc16c4c7d1b?auto=format&fit=crop&w=400&q=80' },
+    { id: 'cafe', icon: <Coffee size={32} />, label: t.cafe, color: 'from-amber-500 to-amber-600', img: settings?.tile_images?.cafe || 'https://images.unsplash.com/photo-1495474472287-4d71bcdd2085?auto=format&fit=crop&w=400&q=80' },
+    { id: 'laundry', icon: <Shirt size={32} />, label: t.laundry, color: 'from-indigo-500 to-indigo-600', img: settings?.tile_images?.laundry || 'https://images.unsplash.com/photo-1545173168-9f1947eebb7f?auto=format&fit=crop&w=400&q=80' },
+    { id: 'phones', icon: <Phone size={32} />, label: t.contact, color: 'from-emerald-500 to-emerald-600', img: settings?.tile_images?.phones || 'https://images.unsplash.com/photo-1534536281715-e28d76689b4d?auto=format&fit=crop&w=400&q=80' },
   ];
 
   return (
@@ -461,6 +461,56 @@ function AdminSection({ isAdmin, onLogin, data, refresh, t, settings, seedDataba
   );
 }
 
+function ImageUploader({ value, onChange, label }: { value: string, onChange: (val: string) => void, label: string }) {
+  const [uploading, setUploading] = useState(false);
+
+  const handleFile = async (e: React.ChangeEvent<HTMLInputElement>) => {
+    const file = e.target.files?.[0];
+    if (!file) return;
+
+    setUploading(true);
+    try {
+      const reader = new FileReader();
+      reader.onloadend = () => {
+        onChange(reader.result as string);
+        setUploading(false);
+      };
+      reader.readAsDataURL(file);
+    } catch (error) {
+      console.error("Upload error:", error);
+      setUploading(false);
+    }
+  };
+
+  return (
+    <div className="space-y-2">
+      <label className="text-[10px] font-bold text-zinc-500 uppercase tracking-widest ml-1">{label}</label>
+      <div className="flex gap-4 items-center">
+        <div className="w-20 h-20 rounded-2xl bg-zinc-100 dark:bg-zinc-950 border border-zinc-200 dark:border-white/5 overflow-hidden flex items-center justify-center shrink-0">
+          {value ? (
+            <img src={value} className="w-full h-full object-cover" referrerPolicy="no-referrer" />
+          ) : (
+            <ImageIcon className="text-zinc-300" size={24} />
+          )}
+        </div>
+        <div className="flex-1 space-y-2">
+          <input 
+            type="text" 
+            value={value} 
+            onChange={(e) => onChange(e.target.value)} 
+            placeholder="Image URL or upload below..." 
+            className="w-full bg-zinc-50 dark:bg-zinc-950 border border-zinc-200 dark:border-white/10 p-3 rounded-xl text-xs"
+          />
+          <label className={`block w-full text-center py-3 rounded-xl border-2 border-dashed transition-all cursor-pointer ${uploading ? 'bg-zinc-100 border-zinc-300 animate-pulse' : 'border-zinc-200 dark:border-white/10 hover:border-emerald-500 hover:bg-emerald-500/5'}`}>
+            <span className="text-xs font-bold text-zinc-500">{uploading ? 'Processing...' : 'Upload Image'}</span>
+            <input type="file" className="hidden" accept="image/*" onChange={handleFile} disabled={uploading} />
+          </label>
+        </div>
+      </div>
+    </div>
+  );
+}
+
 function AdminSettings({ settings, refresh, t, seedDatabase }: any) {
   const [localSettings, setLocalSettings] = useState(settings);
 
@@ -476,23 +526,48 @@ function AdminSettings({ settings, refresh, t, seedDatabase }: any) {
     }
   };
 
+  const updateTileImage = (key: string, val: string) => {
+    setLocalSettings({
+      ...localSettings,
+      tile_images: {
+        ...localSettings.tile_images,
+        [key]: val
+      }
+    });
+  };
+
   return (
-    <div className="space-y-6">
+    <div className="space-y-8">
       {!isSupabaseConfigured && (
         <div className="p-4 bg-amber-500/10 border border-amber-500/20 rounded-2xl text-amber-600 dark:text-amber-400 text-xs font-medium leading-relaxed">
           ⚠️ <strong>Supabase is not configured!</strong><br />
           Please set <code>VITE_SUPABASE_URL</code> and <code>VITE_SUPABASE_ANON_KEY</code> in the environment settings to enable database persistence.
         </div>
       )}
-      <div className="space-y-2">
-        <label className="text-xs font-bold text-zinc-500 uppercase">Hotel Name</label>
-        <input value={localSettings.hotel_name} onChange={e => setLocalSettings({...localSettings, hotel_name: e.target.value})} className="w-full bg-zinc-50 dark:bg-zinc-950 border border-zinc-200 dark:border-white/10 p-4 rounded-xl" />
+      
+      <div className="grid grid-cols-1 md:grid-cols-2 gap-8">
+        <div className="space-y-6">
+          <h3 className="text-sm font-black uppercase tracking-widest text-emerald-500">General</h3>
+          <div className="space-y-2">
+            <label className="text-xs font-bold text-zinc-500 uppercase">Hotel Name</label>
+            <input value={localSettings.hotel_name} onChange={e => setLocalSettings({...localSettings, hotel_name: e.target.value})} className="w-full bg-zinc-50 dark:bg-zinc-950 border border-zinc-200 dark:border-white/10 p-4 rounded-xl" />
+          </div>
+          <ImageUploader label="Hotel Logo" value={localSettings.logo_url} onChange={(val) => setLocalSettings({...localSettings, logo_url: val})} />
+        </div>
+
+        <div className="space-y-6">
+          <h3 className="text-sm font-black uppercase tracking-widest text-emerald-500">Home Tiles</h3>
+          <div className="grid gap-4">
+            <ImageUploader label="Info Tile" value={localSettings.tile_images?.info} onChange={(val) => updateTileImage('info', val)} />
+            <ImageUploader label="Restaurant Tile" value={localSettings.tile_images?.restaurant} onChange={(val) => updateTileImage('restaurant', val)} />
+            <ImageUploader label="Cafe Tile" value={localSettings.tile_images?.cafe} onChange={(val) => updateTileImage('cafe', val)} />
+            <ImageUploader label="Laundry Tile" value={localSettings.tile_images?.laundry} onChange={(val) => updateTileImage('laundry', val)} />
+            <ImageUploader label="Contact Tile" value={localSettings.tile_images?.phones} onChange={(val) => updateTileImage('phones', val)} />
+          </div>
+        </div>
       </div>
-      <div className="space-y-2">
-        <label className="text-xs font-bold text-zinc-500 uppercase">Logo URL</label>
-        <input value={localSettings.logo_url} onChange={e => setLocalSettings({...localSettings, logo_url: e.target.value})} className="w-full bg-zinc-50 dark:bg-zinc-950 border border-zinc-200 dark:border-white/10 p-4 rounded-xl" />
-      </div>
-      <button onClick={save} className="w-full bg-emerald-500 text-white p-4 rounded-xl font-bold">Save Settings</button>
+
+      <button onClick={save} className="w-full bg-emerald-500 text-white p-4 rounded-xl font-bold shadow-lg shadow-emerald-500/20 hover:bg-emerald-600 transition-all">Save All Settings</button>
       
       <div className="pt-8 border-t border-zinc-200 dark:border-white/5">
         <h4 className="text-sm font-bold mb-4">Database Maintenance</h4>
@@ -747,27 +822,18 @@ function AdminCat({ categories, menus, refresh, t }: any) {
 function AdminItem({ items, categories, refresh, t }: any) {
   const [newItem, setNewItem] = useState({ category_id: '', name: '', description: '', price: '', image_url: '' });
   const [editing, setEditing] = useState<any>(null);
-  const [file, setFile] = useState<File | null>(null);
 
   const add = async () => {
     try {
-      let imageUrl = newItem.image_url;
-      if (file) {
-        // In a real app, you'd upload to Supabase Storage
-        // For now, we'll just use a mock URL or the user can provide a URL
-        imageUrl = URL.createObjectURL(file);
-      }
-
       if (editing) {
-        const { error } = await supabase.from('items').update({ ...newItem, image_url: imageUrl }).eq('id', editing.id);
+        const { error } = await supabase.from('items').update(newItem).eq('id', editing.id);
         if (error) throw error;
       } else {
-        const { error } = await supabase.from('items').insert({ ...newItem, image_url: imageUrl });
+        const { error } = await supabase.from('items').insert(newItem);
         if (error) throw error;
       }
       
       setNewItem({ category_id: '', name: '', description: '', price: '', image_url: '' });
-      setFile(null);
       setEditing(null);
       refresh();
     } catch (e) {
@@ -796,19 +862,22 @@ function AdminItem({ items, categories, refresh, t }: any) {
 
   return (
     <div className="space-y-8">
-      <div className="grid gap-4 p-6 bg-emerald-500/5 rounded-3xl border border-emerald-500/10">
-        <select value={newItem.category_id} onChange={e => setNewItem({...newItem, category_id: e.target.value})} className="bg-white dark:bg-zinc-900 border border-zinc-200 dark:border-white/10 p-4 rounded-xl">
-          <option value="">{t.selectCat}</option>
-          {categories.map((c: any) => <option key={c.id} value={c.id}>{c.name} ({c.type})</option>)}
-        </select>
-        <div className="grid grid-cols-1 gap-2">
-          <input placeholder="Name" value={newItem.name} onChange={e => setNewItem({...newItem, name: e.target.value})} className="bg-white dark:bg-zinc-900 border border-zinc-200 dark:border-white/10 p-4 rounded-xl text-sm" />
-          <input placeholder="Description" value={newItem.description} onChange={e => setNewItem({...newItem, description: e.target.value})} className="bg-white dark:bg-zinc-900 border border-zinc-200 dark:border-white/10 p-4 rounded-xl text-sm" />
+      <div className="grid gap-6 p-6 bg-emerald-500/5 rounded-3xl border border-emerald-500/10">
+        <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+          <div className="space-y-4">
+            <select value={newItem.category_id} onChange={e => setNewItem({...newItem, category_id: e.target.value})} className="w-full bg-white dark:bg-zinc-900 border border-zinc-200 dark:border-white/10 p-4 rounded-xl">
+              <option value="">{t.selectCat}</option>
+              {categories.map((c: any) => <option key={c.id} value={c.id}>{c.name} ({c.type})</option>)}
+            </select>
+            <input placeholder="Name" value={newItem.name} onChange={e => setNewItem({...newItem, name: e.target.value})} className="w-full bg-white dark:bg-zinc-900 border border-zinc-200 dark:border-white/10 p-4 rounded-xl text-sm" />
+            <textarea placeholder="Description" value={newItem.description} onChange={e => setNewItem({...newItem, description: e.target.value})} className="w-full bg-white dark:bg-zinc-900 border border-zinc-200 dark:border-white/10 p-4 rounded-xl text-sm h-24 resize-none" />
+            <input placeholder="Price" value={newItem.price} onChange={e => setNewItem({...newItem, price: e.target.value})} className="w-full bg-white dark:bg-zinc-900 border border-zinc-200 dark:border-white/10 p-4 rounded-xl text-sm" />
+          </div>
+          <div className="space-y-4">
+            <ImageUploader label="Item Image" value={newItem.image_url} onChange={(val) => setNewItem({...newItem, image_url: val})} />
+          </div>
         </div>
-        <input placeholder="Price" value={newItem.price} onChange={e => setNewItem({...newItem, price: e.target.value})} className="bg-white dark:bg-zinc-900 border border-zinc-200 dark:border-white/10 p-4 rounded-xl text-sm" />
-        <input placeholder="Image URL" value={newItem.image_url} onChange={e => setNewItem({...newItem, image_url: e.target.value})} className="bg-white dark:bg-zinc-900 border border-zinc-200 dark:border-white/10 p-4 rounded-xl text-sm" />
-        <input type="file" onChange={e => setFile(e.target.files?.[0] || null)} className="bg-white dark:bg-zinc-900 border border-zinc-200 dark:border-white/10 p-4 rounded-xl text-sm" />
-        <button onClick={add} className="bg-emerald-500 text-white p-4 rounded-xl font-bold flex items-center justify-center gap-2"><Plus size={20} /> {editing ? 'Update' : t.add}</button>
+        <button onClick={add} className="bg-emerald-500 text-white p-4 rounded-xl font-bold flex items-center justify-center gap-2 hover:bg-emerald-600 transition-all shadow-lg shadow-emerald-500/20"><Plus size={20} /> {editing ? 'Update Item' : t.add}</button>
       </div>
 
       <div className="space-y-2">
