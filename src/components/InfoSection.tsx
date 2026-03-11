@@ -18,7 +18,7 @@ export function InfoSection({ info, phones, t }: InfoSectionProps) {
         </div>
         <div className="grid gap-4">
           {info.map((item) => (
-            <div key={item.key} className="p-6 bg-white border border-zinc-200 rounded-3xl flex items-start gap-4 shadow-sm">
+            <div key={item.key} className="p-4 md:p-6 bg-white border border-zinc-200 rounded-3xl flex items-start gap-4 shadow-sm">
               <div className="p-3 bg-emerald-500/10 rounded-2xl text-emerald-600">
                 {item.label.toLowerCase().includes('hour') ? <Clock size={24} /> : <InfoIcon size={24} />}
               </div>

@@ -30,10 +30,10 @@ export function MenuSection({ type, categories, items, t, lang }: MenuSectionPro
   }, []);
 
   useEffect(() => {
-    if (categories.length > 0 && activeCatId === null) {
-      setActiveCatId(categories[0].id);
-    }
-    
+    setActiveCatId(categories.length > 0 ? categories[0].id : null);
+  }, [type, categories]);
+
+  useEffect(() => {
     const timer = setTimeout(checkScroll, 100);
     window.addEventListener('resize', checkScroll);
     
@@ -41,7 +41,7 @@ export function MenuSection({ type, categories, items, t, lang }: MenuSectionPro
       clearTimeout(timer);
       window.removeEventListener('resize', checkScroll);
     };
-  }, [categories, activeCatId, checkScroll]);
+  }, [checkScroll]);
 
   const scroll = (direction: 'left' | 'right') => {
     if (scrollRef.current) {
