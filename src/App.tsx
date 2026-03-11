@@ -88,18 +88,126 @@ export default function App() {
 
   const fetchData = async () => {
     try {
-      const storedData = localStorage.getItem('appData_v4');
-      if (storedData) {
-        const parsed = JSON.parse(storedData);
-        setData({ menus: parsed.menus, categories: parsed.categories, items: parsed.items, info: parsed.info, phones: parsed.phones });
-        setSettings(parsed.settings);
+      // Fetch settings
+      const { data: settingsData, error: settingsError } = await supabase
+        .from('settings')
+        .select('*')
+        .single();
+      
+      if (settingsError && settingsError.code !== 'PGRST116') throw settingsError;
+      
+      // Fetch info
+      const { data: infoData, error: infoError } = await supabase
+        .from('info')
+        .select('*');
+      
+      if (infoError) throw infoError;
+
+      // Fetch phones
+      const { data: phonesData, error: phonesError } = await supabase
+        .from('phones')
+        .select('*');
+      
+      if (phonesError) throw phonesError;
+
+      // Fetch menus
+      const { data: menusData, error: menusError } = await supabase
+        .from('menus')
+        .select('*');
+      
+      if (menusError) throw menusError;
+
+      // Fetch categories
+      const { data: categoriesData, error: categoriesError } = await supabase
+        .from('categories')
+        .select('*');
+      
+      if (categoriesError) throw categoriesError;
+
+      // Fetch items
+      const { data: itemsData, error: itemsError } = await supabase
+        .from('items')
+        .select('*');
+      
+      if (itemsError) throw itemsError;
+
+      if (settingsData) {
+        setSettings({ hotel_name: settingsData.hotel_name, logo_url: settingsData.logo_url });
+        setData({
+          menus: menusData || [],
+          categories: categoriesData || [],
+          items: itemsData || [],
+          info: infoData || [],
+          phones: phonesData || []
+        });
       } else {
-        setData({ menus: initialMockData.menus, categories: initialMockData.categories, items: initialMockData.items, info: initialMockData.info, phones: initialMockData.phones });
+        // If no settings, database might be empty
         setSettings(initialMockData.settings);
-        localStorage.setItem('appData_v4', JSON.stringify(initialMockData));
+        setData({
+          menus: initialMockData.menus,
+          categories: initialMockData.categories,
+          items: initialMockData.items,
+          info: initialMockData.info,
+          phones: initialMockData.phones
+        });
       }
     } catch (e) {
-      console.error(e);
+      console.error("Error fetching from Supabase:", e);
+      // Fallback to mock data if Supabase fails
+      setData({ menus: initialMockData.menus, categories: initialMockData.categories, items: initialMockData.items, info: initialMockData.info, phones: initialMockData.phones });
+      setSettings(initialMockData.settings);
+    } finally {
+      setLoading(false);
+    }
+  };
+
+  const seedDatabase = async () => {
+    if (!confirm("This will seed the database with initial data. Existing data might be duplicated or overwritten. Continue?")) return;
+    setLoading(true);
+    try {
+      // Seed settings
+      await supabase.from('settings').upsert({ id: 1, ...initialMockData.settings });
+      
+      // Seed info
+      for (const item of initialMockData.info) {
+        await supabase.from('info').upsert({ key: item.key, label: item.label, value: item.value });
+      }
+
+      // Seed phones
+      for (const phone of initialMockData.phones) {
+        const { id, ...rest } = phone;
+        await supabase.from('phones').insert(rest);
+      }
+
+      // Seed menus
+      for (const menu of initialMockData.menus) {
+        const { id, ...rest } = menu;
+        const { data: newMenu } = await supabase.from('menus').insert(rest).select().single();
+        
+        if (newMenu) {
+          // Seed categories for this menu
+          const menuCats = initialMockData.categories.filter(c => c.menu_id === id);
+          for (const cat of menuCats) {
+            const { id: oldCatId, menu_id, ...catRest } = cat;
+            const { data: newCat } = await supabase.from('categories').insert({ ...catRest, menu_id: newMenu.id }).select().single();
+            
+            if (newCat) {
+              // Seed items for this category
+              const catItems = initialMockData.items.filter(i => i.category_id === oldCatId);
+              for (const item of catItems) {
+                const { id: oldItemId, category_id, ...itemRest } = item;
+                await supabase.from('items').insert({ ...itemRest, category_id: newCat.id });
+              }
+            }
+          }
+        }
+      }
+      
+      alert("Database seeded successfully!");
+      fetchData();
+    } catch (e) {
+      console.error("Error seeding database:", e);
+      alert("Error seeding database. Check console.");
     } finally {
       setLoading(false);
     }
@@ -157,7 +265,7 @@ export default function App() {
             <MenuSection key={activeTab} type={activeTab} categories={data?.categories.filter(c => c.type === activeTab) || []} items={data?.items || []} t={t} />
           )}
           {activeTab === 'phones' && <PhoneSection key="phones" phones={data?.phones || []} t={t} />}
-          {activeTab === 'admin' && <AdminSection key="admin" isAdmin={isAdmin} onLogin={(p: string) => { if(p === 'admin123') setIsAdmin(true); else alert('Wrong password'); }} data={data} refresh={fetchData} t={t} settings={settings} />}
+          {activeTab === 'admin' && <AdminSection key="admin" isAdmin={isAdmin} onLogin={(p: string) => { if(p === 'admin123') setIsAdmin(true); else alert('Wrong password'); }} data={data} refresh={fetchData} t={t} settings={settings} seedDatabase={seedDatabase} />}
         </AnimatePresence>
       </main>
 
@@ -303,7 +411,7 @@ function PhoneSection({ phones, t }: any) {
   );
 }
 
-function AdminSection({ isAdmin, onLogin, data, refresh, t, settings }: any) {
+function AdminSection({ isAdmin, onLogin, data, refresh, t, settings, seedDatabase }: any) {
   const [pass, setPass] = useState('');
   const [activeSub, setActiveSub] = useState<'info' | 'cat' | 'item' | 'phone' | 'settings' | 'menu'>('settings');
 
@@ -335,7 +443,7 @@ function AdminSection({ isAdmin, onLogin, data, refresh, t, settings }: any) {
       </div>
 
       <div className="bg-white dark:bg-zinc-900/50 border border-zinc-200 dark:border-white/10 rounded-[2rem] p-8 shadow-sm transition-colors">
-        {activeSub === 'settings' && <AdminSettings settings={settings} refresh={refresh} t={t} />}
+        {activeSub === 'settings' && <AdminSettings settings={settings} refresh={refresh} t={t} seedDatabase={seedDatabase} />}
         {activeSub === 'menu' && <AdminMenu menus={data.menus} refresh={refresh} t={t} />}
         {activeSub === 'info' && <AdminInfo info={data.info} refresh={refresh} t={t} />}
         {activeSub === 'cat' && <AdminCat categories={data.categories} menus={data.menus} refresh={refresh} t={t} />}
@@ -346,15 +454,19 @@ function AdminSection({ isAdmin, onLogin, data, refresh, t, settings }: any) {
   );
 }
 
-function AdminSettings({ settings, refresh, t }: any) {
+function AdminSettings({ settings, refresh, t, seedDatabase }: any) {
   const [localSettings, setLocalSettings] = useState(settings);
 
   const save = async () => {
-    const data = JSON.parse(localStorage.getItem('appData_v4') || '{}');
-    data.settings = localSettings;
-    localStorage.setItem('appData_v4', JSON.stringify(data));
-    refresh();
-    alert('Settings saved!');
+    try {
+      const { error } = await supabase.from('settings').upsert({ id: 1, ...localSettings });
+      if (error) throw error;
+      refresh();
+      alert('Settings saved!');
+    } catch (e) {
+      console.error(e);
+      alert('Error saving settings');
+    }
   };
 
   return (
@@ -368,6 +480,13 @@ function AdminSettings({ settings, refresh, t }: any) {
         <input value={localSettings.logo_url} onChange={e => setLocalSettings({...localSettings, logo_url: e.target.value})} className="w-full bg-zinc-50 dark:bg-zinc-950 border border-zinc-200 dark:border-white/10 p-4 rounded-xl" />
       </div>
       <button onClick={save} className="w-full bg-emerald-500 text-white p-4 rounded-xl font-bold">Save Settings</button>
+      
+      <div className="pt-8 border-t border-zinc-200 dark:border-white/5">
+        <h4 className="text-sm font-bold mb-4">Database Maintenance</h4>
+        <button onClick={seedDatabase} className="w-full bg-zinc-100 dark:bg-white/5 text-zinc-600 dark:text-zinc-400 p-4 rounded-xl font-bold hover:bg-zinc-200 dark:hover:bg-white/10 transition-all">
+          Seed Database with Initial Data
+        </button>
+      </div>
     </div>
   );
 }
@@ -377,26 +496,33 @@ function AdminMenu({ menus, refresh, t }: any) {
   const [editing, setEditing] = useState<any>(null);
 
   const add = async () => {
-    const data = JSON.parse(localStorage.getItem('appData_v4') || '{}');
-    if (editing) {
-      const index = data.menus.findIndex((m: any) => m.id === editing.id);
-      data.menus[index] = { ...newMenu, id: editing.id };
-    } else {
-      data.menus.push({ ...newMenu, id: Date.now() });
+    try {
+      if (editing) {
+        const { error } = await supabase.from('menus').update(newMenu).eq('id', editing.id);
+        if (error) throw error;
+      } else {
+        const { error } = await supabase.from('menus').insert(newMenu);
+        if (error) throw error;
+      }
+      setEditing(null);
+      setNewMenu({ name: '' });
+      refresh();
+    } catch (e) {
+      console.error(e);
+      alert('Error saving menu');
     }
-    localStorage.setItem('appData_v4', JSON.stringify(data));
-    setEditing(null);
-    setNewMenu({ name: '' });
-    refresh();
   };
 
   const del = async (id: number) => {
-    if (confirm('Delete menu?')) {
-      const data = JSON.parse(localStorage.getItem('appData_v4') || '{}');
-      data.menus = data.menus.filter((m: any) => m.id !== id);
-      data.categories = data.categories.filter((c: any) => c.menu_id !== id);
-      localStorage.setItem('appData_v4', JSON.stringify(data));
-      refresh();
+    if (confirm('Delete menu? All categories and items in this menu will be deleted.')) {
+      try {
+        const { error } = await supabase.from('menus').delete().eq('id', id);
+        if (error) throw error;
+        refresh();
+      } catch (e) {
+        console.error(e);
+        alert('Error deleting menu');
+      }
     }
   };
 
@@ -440,22 +566,45 @@ function AdminInfo({ info, refresh, t }: any) {
   const [newItem, setNewItem] = useState({ label: '', value: '' });
 
   const save = async () => {
-    const data = JSON.parse(localStorage.getItem('appData_v4') || '{}');
-    data.info = localInfo;
-    localStorage.setItem('appData_v4', JSON.stringify(data));
-    refresh();
-    alert('Info saved!');
+    try {
+      // For info, we'll just upsert all items
+      // This is a bit inefficient but simple for this demo
+      for (const item of localInfo) {
+        const { id, ...rest } = item;
+        await supabase.from('info').upsert({ key: item.key, ...rest });
+      }
+      refresh();
+      alert('Info saved!');
+    } catch (e) {
+      console.error(e);
+      alert('Error saving info');
+    }
   };
 
-  const addItem = () => {
+  const addItem = async () => {
     if (!newItem.label || !newItem.value) return;
-    setLocalInfo([...localInfo, { ...newItem, key: Date.now().toString() }]);
-    setNewItem({ label: '', value: '' });
+    try {
+      const key = newItem.label.toLowerCase().replace(/\s+/g, '_') + '_' + Date.now();
+      const { error } = await supabase.from('info').insert({ ...newItem, key });
+      if (error) throw error;
+      setNewItem({ label: '', value: '' });
+      refresh();
+    } catch (e) {
+      console.error(e);
+      alert('Error adding info item');
+    }
   };
 
-  const removeItem = (key: string) => {
+  const removeItem = async (id: string) => {
     if (confirm('Delete this info item?')) {
-      setLocalInfo(localInfo.filter((i: any) => i.key !== key));
+      try {
+        const { error } = await supabase.from('info').delete().eq('id', id);
+        if (error) throw error;
+        refresh();
+      } catch (e) {
+        console.error(e);
+        alert('Error deleting info item');
+      }
     }
   };
 
@@ -477,8 +626,8 @@ function AdminInfo({ info, refresh, t }: any) {
 
       <div className="space-y-4">
         {localInfo.map((item: any, index: number) => (
-          <div key={item.key} className="space-y-4 p-6 bg-zinc-50 dark:bg-zinc-950 rounded-2xl border border-zinc-200 dark:border-white/5 relative group">
-            <button onClick={() => removeItem(item.key)} className="absolute top-4 right-4 text-zinc-400 hover:text-red-500 opacity-0 group-hover:opacity-100 transition-all"><Trash2 size={18} /></button>
+          <div key={item.id} className="space-y-4 p-6 bg-zinc-50 dark:bg-zinc-950 rounded-2xl border border-zinc-200 dark:border-white/5 relative group">
+            <button onClick={() => removeItem(item.id)} className="absolute top-4 right-4 text-zinc-400 hover:text-red-500 opacity-0 group-hover:opacity-100 transition-all"><Trash2 size={18} /></button>
             <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
               <div className="space-y-2">
                 <label className="text-[10px] font-bold text-zinc-500 uppercase tracking-widest ml-1">Label</label>
@@ -510,25 +659,33 @@ function AdminCat({ categories, menus, refresh, t }: any) {
   const [editing, setEditing] = useState<any>(null);
 
   const add = async () => {
-    const data = JSON.parse(localStorage.getItem('appData_v4') || '{}');
-    if (editing) {
-      const index = data.categories.findIndex((c: any) => c.id === editing.id);
-      data.categories[index] = { ...newCat, id: editing.id };
-    } else {
-      data.categories.push({ ...newCat, id: Date.now() });
+    try {
+      if (editing) {
+        const { error } = await supabase.from('categories').update(newCat).eq('id', editing.id);
+        if (error) throw error;
+      } else {
+        const { error } = await supabase.from('categories').insert(newCat);
+        if (error) throw error;
+      }
+      setEditing(null);
+      setNewCat({ menu_id: '', type: 'restaurant', name: '' });
+      refresh();
+    } catch (e) {
+      console.error(e);
+      alert('Error saving category');
     }
-    localStorage.setItem('appData_v4', JSON.stringify(data));
-    setEditing(null);
-    setNewCat({ menu_id: '', type: 'restaurant', name: '' });
-    refresh();
   };
 
   const del = async (id: number) => {
-    if (confirm('Delete category?')) {
-      const data = JSON.parse(localStorage.getItem('appData_v4') || '{}');
-      data.categories = data.categories.filter((c: any) => c.id !== id);
-      localStorage.setItem('appData_v4', JSON.stringify(data));
-      refresh();
+    if (confirm('Delete category? All items in this category will be deleted.')) {
+      try {
+        const { error } = await supabase.from('categories').delete().eq('id', id);
+        if (error) throw error;
+        refresh();
+      } catch (e) {
+        console.error(e);
+        alert('Error deleting category');
+      }
     }
   };
 
@@ -579,32 +736,42 @@ function AdminItem({ items, categories, refresh, t }: any) {
   const [file, setFile] = useState<File | null>(null);
 
   const add = async () => {
-    let imageUrl = newItem.image_url;
-    if (file) {
-      // In mock mode, we just use a placeholder or the file name as a mock URL
-      imageUrl = URL.createObjectURL(file);
-    }
+    try {
+      let imageUrl = newItem.image_url;
+      if (file) {
+        // In a real app, you'd upload to Supabase Storage
+        // For now, we'll just use a mock URL or the user can provide a URL
+        imageUrl = URL.createObjectURL(file);
+      }
 
-    const data = JSON.parse(localStorage.getItem('appData_v4') || '{}');
-    if (editing) {
-      const index = data.items.findIndex((i: any) => i.id === editing.id);
-      data.items[index] = { ...newItem, id: editing.id, image_url: imageUrl };
-    } else {
-      data.items.push({ ...newItem, id: Date.now(), image_url: imageUrl });
+      if (editing) {
+        const { error } = await supabase.from('items').update({ ...newItem, image_url: imageUrl }).eq('id', editing.id);
+        if (error) throw error;
+      } else {
+        const { error } = await supabase.from('items').insert({ ...newItem, image_url: imageUrl });
+        if (error) throw error;
+      }
+      
+      setNewItem({ category_id: '', name: '', description: '', price: '', image_url: '' });
+      setFile(null);
+      setEditing(null);
+      refresh();
+    } catch (e) {
+      console.error(e);
+      alert('Error saving item');
     }
-    localStorage.setItem('appData_v4', JSON.stringify(data));
-    setNewItem({ category_id: '', name: '', description: '', price: '', image_url: '' });
-    setFile(null);
-    setEditing(null);
-    refresh();
   };
 
   const del = async (id: number) => {
     if (confirm('Delete item?')) {
-      const data = JSON.parse(localStorage.getItem('appData_v4') || '{}');
-      data.items = data.items.filter((i: any) => i.id !== id);
-      localStorage.setItem('appData_v4', JSON.stringify(data));
-      refresh();
+      try {
+        const { error } = await supabase.from('items').delete().eq('id', id);
+        if (error) throw error;
+        refresh();
+      } catch (e) {
+        console.error(e);
+        alert('Error deleting item');
+      }
     }
   };
 
@@ -653,25 +820,33 @@ function AdminPhone({ phones, refresh, t }: any) {
   const [editing, setEditing] = useState<any>(null);
 
   const add = async () => {
-    const data = JSON.parse(localStorage.getItem('appData_v4') || '{}');
-    if (editing) {
-      const index = data.phones.findIndex((p: any) => p.id === editing.id);
-      data.phones[index] = { ...newPhone, id: editing.id };
-    } else {
-      data.phones.push({ ...newPhone, id: Date.now() });
+    try {
+      if (editing) {
+        const { error } = await supabase.from('phones').update(newPhone).eq('id', editing.id);
+        if (error) throw error;
+      } else {
+        const { error } = await supabase.from('phones').insert(newPhone);
+        if (error) throw error;
+      }
+      setEditing(null);
+      setNewPhone({ name: '', number: '' });
+      refresh();
+    } catch (e) {
+      console.error(e);
+      alert('Error saving phone');
     }
-    localStorage.setItem('appData_v4', JSON.stringify(data));
-    setEditing(null);
-    setNewPhone({ name: '', number: '' });
-    refresh();
   };
 
   const del = async (id: number) => {
     if (confirm('Delete phone?')) {
-      const data = JSON.parse(localStorage.getItem('appData_v4') || '{}');
-      data.phones = data.phones.filter((p: any) => p.id !== id);
-      localStorage.setItem('appData_v4', JSON.stringify(data));
-      refresh();
+      try {
+        const { error } = await supabase.from('phones').delete().eq('id', id);
+        if (error) throw error;
+        refresh();
+      } catch (e) {
+        console.error(e);
+        alert('Error deleting phone');
+      }
     }
   };
 
