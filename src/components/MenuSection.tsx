@@ -127,7 +127,7 @@ export function MenuSection({ type, categories, items, t, lang }: MenuSectionPro
                     key={item.id} 
                     className={isLaundry 
                       ? "p-4 bg-white/60 dark:bg-zinc-900/40 backdrop-blur-xl border border-zinc-200 dark:border-white/5 rounded-2xl flex justify-between items-center"
-                      : "bg-white/60 dark:bg-zinc-900/40 backdrop-blur-xl border border-zinc-200 dark:border-white/5 rounded-3xl overflow-hidden flex flex-col group transition-all hover:bg-white/80 dark:hover:bg-zinc-900/60 hover:border-zinc-300 dark:hover:border-white/10 shadow-sm"
+                      : `bg-white/60 dark:bg-zinc-900/40 backdrop-blur-xl border border-zinc-200 dark:border-white/5 rounded-3xl overflow-hidden flex flex-col group transition-all hover:bg-white/80 dark:hover:bg-zinc-900/60 hover:border-zinc-300 dark:hover:border-white/10 shadow-sm ${viewMode === 'list' ? 'sm:flex-row' : ''}`
                     }
                   >
                     {isLaundry ? (
@@ -137,7 +137,7 @@ export function MenuSection({ type, categories, items, t, lang }: MenuSectionPro
                       </>
                     ) : (
                       <>
-                        <div className="w-full h-48 shrink-0 overflow-hidden cursor-pointer" onClick={() => setZoomedImage(item.image_url || `https://picsum.photos/seed/${item.id}/600/600`)}>
+                        <div className={`${viewMode === 'list' ? 'w-full sm:w-40 h-40' : 'w-full h-48'} shrink-0 overflow-hidden cursor-pointer`} onClick={() => setZoomedImage(item.image_url || `https://picsum.photos/seed/${item.id}/600/600`)}>
                           <img src={item.image_url || `https://picsum.photos/seed/${item.id}/300/300`} className="w-full h-full object-cover transition-transform duration-500 group-hover:scale-110" referrerPolicy="no-referrer" />
                         </div>
                         <div className="p-6 flex flex-col justify-between flex-1">
