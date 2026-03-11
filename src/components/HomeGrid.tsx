@@ -30,7 +30,7 @@ export function HomeGrid({ navigateTo, t, settings }: HomeGridProps) {
             onClick={() => navigateTo(card.id)}
             className="relative overflow-hidden p-6 rounded-[2rem] text-left group h-40 md:h-56 flex flex-col justify-between transition-all shadow-xl hover:shadow-2xl"
           >
-            <img src={card.image} alt={card.label} className="absolute inset-0 w-full h-full object-cover opacity-90 group-hover:opacity-100 transition-opacity" referrerPolicy="no-referrer" />
+            <img src={card.image} alt={card.label} className="absolute inset-0 w-full h-full object-cover opacity-90 group-hover:opacity-100 transition-opacity" referrerPolicy="no-referrer" loading="lazy" />
             <div className="absolute inset-0 bg-black/40 group-hover:bg-black/20 transition-colors" />
             <div className="absolute top-0 right-0 -mr-8 -mt-8 w-32 h-32 bg-white/10 rounded-full blur-3xl group-hover:scale-150 transition-transform duration-700" />
             

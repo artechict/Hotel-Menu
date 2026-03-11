@@ -1,18 +1,4 @@
 import React, { useState, useEffect, useCallback, useRef } from 'react';
-import { motion } from 'motion/react';
-import { ChevronLeft, ChevronRight } from 'lucide-react';
-import { Category, MenuItem } from '../types';
-import { getTranslated } from '../utils/translation';
-
-interface MenuSectionProps {
-  type: string;
-  categories: Category[];
-  items: MenuItem[];
-  t: any;
-  lang: string;
-}
-
-import React, { useState, useEffect, useCallback, useRef } from 'react';
 import { motion, AnimatePresence } from 'motion/react';
 import { ChevronLeft, ChevronRight, LayoutGrid, List, X } from 'lucide-react';
 import { Category, MenuItem } from '../types';
@@ -95,7 +81,7 @@ export function MenuSection({ type, categories, items, t, lang }: MenuSectionPro
               {categories.map((cat: any) => (
                 <button key={cat.id} onClick={() => setActiveCatId(cat.id)} className={`flex flex-col items-center gap-3 shrink-0 transition-all ${activeCatId === cat.id ? 'scale-105' : 'opacity-60 hover:opacity-100'}`}>
                   <div className={`w-16 h-16 md:w-20 md:h-20 rounded-2xl overflow-hidden border-2 transition-all ${activeCatId === cat.id ? 'border-emerald-500 shadow-lg shadow-emerald-500/20' : 'border-transparent'}`}>
-                    <img src={cat.image_url || `https://picsum.photos/seed/${cat.id}/200/200`} className="w-full h-full object-cover" referrerPolicy="no-referrer" />
+                    <img src={cat.image_url || `https://picsum.photos/seed/${cat.id}/200/200`} className="w-full h-full object-cover" referrerPolicy="no-referrer" loading="lazy" />
                   </div>
                   <span className={`text-[10px] md:text-xs font-black uppercase tracking-widest ${activeCatId === cat.id ? 'text-emerald-500' : 'text-zinc-500'}`}>{getTranslated(cat, 'name', lang)}</span>
                 </button>
@@ -138,7 +124,7 @@ export function MenuSection({ type, categories, items, t, lang }: MenuSectionPro
                     ) : (
                       <>
                         <div className={`${viewMode === 'list' ? 'w-full sm:w-40 h-40' : 'w-full h-48'} shrink-0 overflow-hidden cursor-pointer`} onClick={() => setZoomedImage(item.image_url || `https://picsum.photos/seed/${item.id}/600/600`)}>
-                          <img src={item.image_url || `https://picsum.photos/seed/${item.id}/300/300`} className="w-full h-full object-cover transition-transform duration-500 group-hover:scale-110" referrerPolicy="no-referrer" />
+                          <img src={item.image_url || `https://picsum.photos/seed/${item.id}/300/300`} className="w-full h-full object-cover transition-transform duration-500 group-hover:scale-110" referrerPolicy="no-referrer" loading="lazy" />
                         </div>
                         <div className="p-6 flex flex-col justify-between flex-1">
                           <div className="flex justify-between items-start mb-2">
