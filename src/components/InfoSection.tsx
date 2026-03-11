@@ -36,17 +36,17 @@ export function InfoSection({ info, phones, t }: InfoSectionProps) {
           <div className="w-2 h-8 bg-zinc-400 rounded-full" />
           <h2 className="text-2xl md:text-3xl font-black tracking-tight text-zinc-900">{t.internalPhones}</h2>
         </div>
-        <div className="p-8 bg-zinc-900 rounded-[40px] text-white shadow-2xl relative overflow-hidden">
+        <div className="p-4 md:p-8 bg-zinc-900 rounded-[32px] md:rounded-[40px] text-white shadow-2xl relative overflow-hidden">
           <div className="absolute top-0 right-0 w-64 h-64 bg-emerald-500/10 blur-[100px] rounded-full -mr-32 -mt-32" />
-          <div className="grid grid-cols-1 gap-8 relative z-10">
+          <div className="grid grid-cols-1 gap-4 md:gap-8 relative z-10">
             {phones.map((p) => (
-              <div key={p.id} className="flex items-center justify-between border-b border-white/10 pb-4">
-                <span className="text-zinc-400 font-medium">{p.name}</span>
-                <span className="text-2xl font-black text-emerald-400 tracking-tighter">{p.number}</span>
+              <div key={p.id} className="flex items-center justify-between border-b border-white/10 pb-2 md:pb-4">
+                <span className="text-zinc-400 font-medium text-sm md:text-base">{p.name}</span>
+                <span className="text-lg md:text-2xl font-black text-emerald-400 tracking-tighter">{p.number}</span>
               </div>
             ))}
           </div>
-          <div className="mt-10 flex items-center gap-4 p-4 bg-white/5 rounded-2xl border border-white/10">
+          <div className="mt-6 md:mt-10 flex items-center gap-4 p-4 bg-white/5 rounded-2xl border border-white/10">
             <div className="p-2 bg-emerald-500 rounded-lg"><Phone size={18} /></div>
             <p className="text-xs text-zinc-400 font-medium">{t.callInstruction}</p>
           </div>

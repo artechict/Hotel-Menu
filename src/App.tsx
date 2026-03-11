@@ -237,12 +237,12 @@ export default function App() {
       </main>
 
       {/* Bottom Nav */}
-      <nav className="fixed bottom-6 left-6 right-6 md:hidden bg-white border border-zinc-200 rounded-3xl px-4 py-3 flex justify-around items-center z-50 shadow-lg">
-        <NavBtn active={activeTab === 'home'} onClick={() => setActiveTab('home')} icon={<HomeIcon size={20} />} label={t.home} />
-        <NavBtn active={activeTab === 'info'} onClick={() => setActiveTab('info')} icon={<Info size={20} />} label={t.info} />
-        <NavBtn active={activeTab === 'restaurant'} onClick={() => setActiveTab('restaurant')} icon={<Utensils size={20} />} label={t.restaurant} />
-        <NavBtn active={activeTab === 'cafe'} onClick={() => setActiveTab('cafe')} icon={<Coffee size={20} />} label={t.cafe} />
-        <NavBtn active={activeTab === 'laundry'} onClick={() => setActiveTab('laundry')} icon={<Shirt size={20} />} label={t.laundry} />
+      <nav className="fixed bottom-4 left-4 right-4 md:hidden bg-white border border-zinc-200 rounded-3xl px-2 py-2 flex justify-around items-center z-50 shadow-lg">
+        <NavBtn active={activeTab === 'home'} onClick={() => setActiveTab('home')} icon={<HomeIcon size={18} />} label={t.home} />
+        <NavBtn active={activeTab === 'info'} onClick={() => setActiveTab('info')} icon={<Info size={18} />} label={t.info} />
+        <NavBtn active={activeTab === 'restaurant'} onClick={() => setActiveTab('restaurant')} icon={<Utensils size={18} />} label={t.restaurant} />
+        <NavBtn active={activeTab === 'cafe'} onClick={() => setActiveTab('cafe')} icon={<Coffee size={18} />} label={t.cafe} />
+        <NavBtn active={activeTab === 'laundry'} onClick={() => setActiveTab('laundry')} icon={<Shirt size={18} />} label={t.laundry} />
       </nav>
     </div>
   );
