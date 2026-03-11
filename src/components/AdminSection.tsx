@@ -1,5 +1,4 @@
 import React, { useState } from 'react';
-import { motion } from 'motion/react';
 import { Settings as SettingsIcon, LayoutGrid, ListOrdered, PhoneCall, LogOut, Database, Plus, Trash2, ChevronLeft, Info } from 'lucide-react';
 import { supabase } from '../services/supabaseClient';
 import { ImageUploader } from './ImageUploader';
@@ -11,12 +10,12 @@ export function AdminSection({ isAdmin, onLogin, data, refresh, t, settings, see
 
   if (!isAdmin) {
     return (
-      <motion.div initial={{ opacity: 0, y: 20 }} animate={{ opacity: 1, y: 0 }} className="max-w-md mx-auto p-8 bg-white/60 dark:bg-zinc-900/40 backdrop-blur-xl border border-zinc-200 dark:border-white/5 rounded-[2.5rem] shadow-2xl">
+      <div className="max-w-md mx-auto p-8 bg-white border border-zinc-200 rounded-[2.5rem] shadow-lg">
         <div className="text-center space-y-4 mb-8">
           <div className="w-16 h-16 bg-emerald-500/10 rounded-2xl flex items-center justify-center mx-auto text-emerald-500">
             <SettingsIcon size={32} />
           </div>
-          <h2 className="text-2xl font-black text-zinc-900 dark:text-zinc-100 uppercase tracking-tight">{t.login}</h2>
+          <h2 className="text-2xl font-black text-zinc-900 uppercase tracking-tight">{t.login}</h2>
         </div>
         <div className="space-y-4">
           <input 
@@ -25,11 +24,11 @@ export function AdminSection({ isAdmin, onLogin, data, refresh, t, settings, see
             value={pass} 
             onChange={e => setPass(e.target.value)} 
             onKeyDown={e => e.key === 'Enter' && onLogin(pass)}
-            className="w-full bg-zinc-100 dark:bg-zinc-950 border border-zinc-200 dark:border-white/10 p-4 rounded-2xl outline-none focus:border-emerald-500 transition-all" 
+            className="w-full bg-zinc-100 border border-zinc-200 p-4 rounded-2xl outline-none focus:border-emerald-500 transition-all" 
           />
-          <button onClick={() => onLogin(pass)} className="w-full bg-emerald-500 text-white p-4 rounded-2xl font-bold shadow-lg shadow-emerald-500/20 hover:bg-emerald-600 transition-all">{t.enter}</button>
+          <button onClick={() => onLogin(pass)} className="w-full bg-emerald-500 text-white p-4 rounded-2xl font-bold shadow-lg hover:bg-emerald-600 transition-all">{t.enter}</button>
         </div>
-      </motion.div>
+      </div>
     );
   }
 
@@ -43,23 +42,23 @@ export function AdminSection({ isAdmin, onLogin, data, refresh, t, settings, see
   ];
 
   return (
-    <motion.div initial={{ opacity: 0 }} animate={{ opacity: 1 }} className="space-y-8">
-      <div className="flex flex-col md:flex-row justify-between items-start md:items-center gap-4 bg-white/60 dark:bg-zinc-900/40 backdrop-blur-xl p-6 rounded-[2.5rem] border border-zinc-200 dark:border-white/5 shadow-sm">
+    <div className="space-y-8">
+      <div className="flex flex-col md:flex-row justify-between items-start md:items-center gap-4 bg-white p-6 rounded-[2.5rem] border border-zinc-200 shadow-sm">
         <div className="flex items-center gap-4">
           {activeAdminView !== 'dashboard' && (
-            <button onClick={() => setActiveAdminView('dashboard')} className="p-3 rounded-2xl bg-zinc-100 dark:bg-white/5 text-zinc-600 dark:text-zinc-400 hover:text-emerald-500 transition-all">
+            <button onClick={() => setActiveAdminView('dashboard')} className="p-3 rounded-2xl bg-zinc-100 text-zinc-600 hover:text-emerald-500 transition-all">
               <ChevronLeft size={20} />
             </button>
           )}
-          <div className="p-3 bg-emerald-500 text-white rounded-2xl shadow-lg shadow-emerald-500/20">
+          <div className="p-3 bg-emerald-500 text-white rounded-2xl shadow-lg">
             <SettingsIcon size={24} />
           </div>
           <div>
-            <h2 className="text-xl font-black text-zinc-900 dark:text-zinc-100 uppercase tracking-tight">{activeAdminView === 'dashboard' ? t.adminTitle : dashboardCards.find(c => c.id === activeAdminView)?.label}</h2>
+            <h2 className="text-xl font-black text-zinc-900 uppercase tracking-tight">{activeAdminView === 'dashboard' ? t.adminTitle : dashboardCards.find(c => c.id === activeAdminView)?.label}</h2>
             <p className="text-[10px] font-bold text-zinc-500 uppercase tracking-[0.2em]">Management Console</p>
           </div>
         </div>
-        <button onClick={() => window.location.reload()} className="flex items-center gap-2 px-6 py-3 bg-zinc-100 dark:bg-white/5 text-zinc-600 dark:text-zinc-400 rounded-xl font-bold text-xs hover:bg-zinc-200 dark:hover:bg-white/10 transition-all">
+        <button onClick={() => window.location.reload()} className="flex items-center gap-2 px-6 py-3 bg-zinc-100 text-zinc-600 rounded-xl font-bold text-xs hover:bg-zinc-200 transition-all">
           <LogOut size={16} /> {t.logout}
         </button>
       </div>
@@ -67,14 +66,14 @@ export function AdminSection({ isAdmin, onLogin, data, refresh, t, settings, see
       {activeAdminView === 'dashboard' ? (
         <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
           {dashboardCards.map(card => (
-            <button key={card.id} onClick={() => setActiveAdminView(card.id as any)} className="p-8 bg-white/60 dark:bg-zinc-900/40 backdrop-blur-xl border border-zinc-200 dark:border-white/5 rounded-[2.5rem] shadow-sm hover:shadow-lg transition-all flex flex-col items-center gap-4 text-center">
+            <button key={card.id} onClick={() => setActiveAdminView(card.id as any)} className="p-8 bg-white border border-zinc-200 rounded-[2.5rem] shadow-sm hover:shadow-lg transition-all flex flex-col items-center gap-4 text-center">
               <div className="p-4 bg-emerald-500/10 text-emerald-500 rounded-2xl">{card.icon}</div>
               <h3 className="font-black text-lg uppercase tracking-tight">{card.label}</h3>
             </button>
           ))}
         </div>
       ) : (
-        <div className="bg-white/60 dark:bg-zinc-900/40 backdrop-blur-xl p-8 rounded-[2.5rem] border border-zinc-200 dark:border-white/5 shadow-sm">
+        <div className="bg-white p-8 rounded-[2.5rem] border border-zinc-200 shadow-sm">
           {activeAdminView === 'settings' && <AdminSettings settings={settings} refresh={refresh} t={t} seedDatabase={seedDatabase} />}
           {activeAdminView === 'menus' && <AdminMenu menus={data?.menus || []} refresh={refresh} t={t} />}
           {activeAdminView === 'categories' && <AdminCat categories={data?.categories || []} menus={data?.menus || []} refresh={refresh} t={t} />}
@@ -83,7 +82,7 @@ export function AdminSection({ isAdmin, onLogin, data, refresh, t, settings, see
           {activeAdminView === 'info' && <AdminInfo info={data?.info || []} refresh={refresh} t={t} />}
         </div>
       )}
-    </motion.div>
+    </div>
   );
 }
 // ... (rest of the functions remain the same)
